@@ -110,7 +110,7 @@ body.title #muteBtn{right:calc(10px + env(safe-area-inset-right))}
   <div class="howGrid">
     <div class="howBox"><div class="t">🎯 目標</div>系統自動派單：先騎到<b>店家</b>取餐，再在<b>時限內</b>送到<b>顧客</b>手上。跟著地上的光點路線走，盡量拿高分！</div>
     <div class="howBox"><div class="t">🕹️ 操作</div><b>手機</b>：按住畫面任一處拖曳＝搖桿移動；右下按鈕＝丟珍奶。<br><b>電腦</b>：WASD／方向鍵移動、空白鍵丟珍奶、P 暫停、M 靜音；滑鼠按住拖曳也能移動。</div>
-    <div class="howBox"><div class="t">💯 計分</div>送達 = 100 分 + 剩餘秒數 × 10，連續準時送達有<b>連擊加乘</b>。<br>驚險閃過車輛 +10，用珍奶定住野狗 +20。</div>
+    <div class="howBox"><div class="t">💯 計分</div>送達 = 100 分 + 剩餘秒數 × 12，依星級給予額外獎勵與回血。<br>連續準時送達 <b>3 單 (Combo ≥ 3)</b> 必定解鎖<b>【⭐金牌特急單】</b>獲雙倍工資！驚險閃車 +10，禮讓行人 +15。</div>
     <div class="howBox"><div class="t">🚦 交通</div>路口有<b>紅綠燈</b>，紅燈闖過會被吹哨罰款 <b>-30 分</b>；<br>遇到行人過斑馬線請停下<b>禮讓 +15 分</b>，硬切搶道 <b>-20 分</b>，撞上路人重罰 <b>-50 分與 35 體力</b>！</div>
     <div class="howBox"><div class="t">⚠️ 危險</div>撞車 −25 體力、被野狗咬 −15 體力。<br>拾取 🍱 回復體力、🧋 補充珍奶、⚡ 能量飲料衝刺加速 3.5 秒。</div>
     <div class="howBox"><div class="t">📈 難度</div>每送 2 單升 1 級：第 2 級起<b>野狗會追人</b>，夜晚時段<b>車速飆升</b>且時限更緊。</div>
@@ -480,21 +480,26 @@ function initTrafficSystem(){
   }
 
   peds=[];
-  // 在路邊人行道與斑馬線附近生成台灣行人
+  // 行人精準生成在「人行道安全走道」（斑馬線外側等待區）
   const PED_NAMES=['阿伯','學生','上班族','辣妹','阿姨'];
-  for(let i=0;i<16;i++){
-    const tl=pick(trafficLights);
-    const side=Math.random()<0.5?-1:1;
-    peds.push({
-      x:tl.x+side*(HALF+18),
-      y:tl.y+rand(-HALF,HALF),
-      targetY:tl.y+rand(-HALF,HALF),
-      vx:0, vy:rand(20,38)*(Math.random()<0.5?1:-1),
-      cross:false,
-      role:pick(PED_NAMES),
-      color:pick(['#f43f5e','#38bdf8','#f59e0b','#10b981','#a855f7','#f1f5f9']),
-      ang:0
-    });
+  for(const tl of trafficLights){
+    // 每個路口分配 1~2 位行人在四個角落的人行道上
+    for(const sideX of [-1, 1]){
+      peds.push({
+        tl,
+        sideX, // -1: 左側人行道, 1: 右側人行道
+        crossY: tl.y - HALF - 8, // 橫越時走上方斑馬線中心
+        walkY: tl.y - HALF - 24, // 平常人行道位置 (徹底遠離馬路)
+        x: tl.x + sideX * (HALF + 16),
+        y: tl.y - HALF - 24,
+        role: pick(PED_NAMES),
+        color: pick(['#f43f5e','#38bdf8','#f59e0b','#10b981','#a855f7','#f1f5f9']),
+        isCrossing: false,
+        crossProgress: 0, // 0: 在人行道, 1: 走過馬路到對面人行道
+        warned: false,
+        praised: false
+      });
+    }
   }
 }
 
@@ -509,7 +514,10 @@ const STAGE_CONFIG=[
 ];
 
 function resetGame(){
-  P={x:VROADS[0],y:HROADS[0],r:14,angle:0,fx:1,fy:0,hp:100,ammo:3,inv:0,moving:false,boost:0};
+  // 出生點設置在安全停車起點（文林公寓門口旁，完全不在快車道路線上）
+  const spawnX = places[0].door.x;
+  const spawnY = places[0].door.y;
+  P={x:spawnX,y:spawnY,r:14,angle:0,fx:1,fy:0,hp:100,ammo:3,inv:3.5,moving:false,boost:0}; // 開場給予 3.5 秒倒數無敵防禦
   cars=[];dogs=[];shots=[];items=[];pops=[];
   level=1;strikes=0;combo=0;redCooldown=0;
   stats={score:0,delivered:0,maxCombo:0,near:0,dogs:0,time:0};
@@ -545,34 +553,37 @@ function updateTrafficAndPeds(dt){
 
   // 更新行人
   for(const ped of peds){
-    // 找最近的十字路口號誌
-    let nearTl=trafficLights[0], minD=9999;
-    for(const tl of trafficLights){
-      const d=Math.hypot(ped.x-tl.x, ped.y-tl.y);
-      if(d<minD){ minD=d; nearTl=tl; }
-    }
+    const tl=ped.tl;
+    // 當路口是紅燈時，行人走斑馬線過馬路；若是綠燈或黃燈，行人必須留在兩側人行道
+    const wantCross = (tl.state==='red');
 
-    // 當紅燈時，行人有較高意願走上斑馬線橫越馬路
-    if(nearTl.state==='red'&&minD<HALF*2){
-      ped.cross=true;
-    } else if(nearTl.state==='green'&&Math.abs(ped.x-nearTl.x)<HALF){
-      ped.cross=false; // 綠燈時退回路邊
-    }
+    const leftX = tl.x - (HALF + 16);
+    const rightX = tl.x + (HALF + 16);
 
-    if(ped.cross){
-      // 走斑馬線橫移過馬路
-      const targetSide=ped.x<nearTl.x?nearTl.x+HALF+15:nearTl.x-HALF-15;
-      const dx=targetSide-ped.x;
-      if(Math.abs(dx)>4){
-        ped.x+=Math.sign(dx)*28*dt;
-        ped.ang=dx>0?0:Math.PI;
+    if(wantCross){
+      // 紅燈：行人走斑馬線橫向穿越
+      ped.isCrossing=true;
+      ped.y = ped.crossY; // 嚴格貼在斑馬線內
+
+      if(ped.sideX === -1){
+        // 從左走到右
+        ped.crossProgress = Math.min(1, ped.crossProgress + dt * 0.28);
+      } else {
+        // 從右走到左
+        ped.crossProgress = Math.max(0, ped.crossProgress - dt * 0.28);
       }
     } else {
-      // 在人行道上下巡邏漫步
-      ped.y+=ped.vy*dt;
-      ped.ang=ped.vy>0?Math.PI/2:-Math.PI/2;
-      if(Math.abs(ped.y-nearTl.y)>HALF+40) ped.vy*=-1;
+      // 綠燈/黃燈：退回或走在人行道上，禁止進入馬路中央
+      ped.isCrossing=false;
+      ped.y = ped.walkY;
+      if(ped.sideX === -1){
+        ped.crossProgress = 0;
+      } else {
+        ped.crossProgress = 1;
+      }
     }
+
+    ped.x = leftX + (rightX - leftX) * ped.crossProgress;
 
     // 與玩家互動判定
     const dPed=dist(ped, P);
@@ -582,13 +593,13 @@ function updateTrafficAndPeds(dt){
       stats.score=Math.max(0, stats.score-50);
       sfx('hit');
       pop(ped.x, ped.y-30, '💢 哎唷喂呀！', '#fca5a5', 18);
-    } else if(dPed<46&&ped.cross&&P.moving&&!ped.warned){
+    } else if(dPed<46&&ped.isCrossing&&P.moving&&!ped.warned){
       // 斑馬線上未禮讓行人
       ped.warned=true;
       stats.score=Math.max(0, stats.score-20);
       sfx('whistle');
       pop(P.x, P.y-30, '👮 未禮讓行人！-20分', '#f87171', 18);
-    } else if(dPed<50&&ped.cross&&!P.moving&&!ped.praised){
+    } else if(dPed<50&&ped.isCrossing&&!P.moving&&!ped.praised){
       // 騎士停下禮讓行人過斑馬線（優良駕駛獎勵）
       ped.praised=true;
       stats.score+=15;
@@ -632,7 +643,11 @@ function makeCar(){
     w, h,
     speeder:isSpeeder,close:false,nm:false
   };
-  for(let i=0;i<20;i++){car.pos=rand(0,car.len);if(!P||rectDist(P.x,P.y,carRect(car))>300)break;}
+  // 嚴格確保所有生成車輛距離主角至少 450 像素以上，絕不在出生點旁刷新
+  for(let i=0;i<40;i++){
+    car.pos=rand(0,car.len);
+    if(!P||rectDist(P.x,P.y,carRect(car))>450) break;
+  }
   return car;
 }
 function carRect(c){
@@ -722,17 +737,17 @@ function newOrder(){
   const cfg=STAGE_CONFIG[Math.min(STAGE_CONFIG.length-1,level-1)];
 
   // 緊湊時限計算：基礎騎乘時間 × 關卡係數 (Stage 1 剛好，Stage 3~5 必須熟練或吃加速)
-  const baseRideTime=d/235; // 提升標準骑速標準，縮減寬容秒數
+  const baseRideTime=d/235;
   const t=Math.max(12, (baseRideTime*1.15 + 2.5) * cfg.timeMul);
 
-  // 20% 機率接到金色高額加成 VIP 特殊訂單
-  const isVip=Math.random()<0.22;
+  // 100% 靠技巧累積：達成連續準時送達 3 單 (Combo >= 3)，必定解鎖「金牌特急單」！
+  const isVip = (combo >= 3);
 
   order={shop,cust,stage:'pickup',time:t,total:t,isVip};
   lastTick=-1; pathTimer=0;
   sfx('order');
   if(isVip){
-    pop(P.x,P.y-30,'⭐ 金牌特急單！雙倍工資','#fbbf24',20);
+    pop(P.x,P.y-30,'⭐ 實力達成！【金牌特急單】雙倍工資！','#fbbf24',21);
   } else {
     pop(P.x,P.y-30,'📲 新訂單！','#6ee7b7',18);
   }
