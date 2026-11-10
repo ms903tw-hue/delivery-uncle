@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0b1020">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>外送大叔：限時爆走</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#0b1020;color:#fff;font-family:system-ui,-apple-system,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:none;-webkit-touch-callout:none}
+#cv{position:fixed;inset:0;display:block;width:100%;height:100%;touch-action:none}
+#safe{position:fixed;inset:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);pointer-events:none;visibility:hidden}
+
+.hudBtn{position:fixed;top:calc(10px + env(safe-area-inset-top));width:44px;height:44px;border-radius:12px;border:2px solid #475569;background:rgba(15,23,42,.85);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;z-index:60;cursor:pointer;padding:0}
+.hudBtn:active{transform:scale(.92)}
+#pauseBtn{right:calc(10px + env(safe-area-inset-right));display:none}
+#muteBtn{right:calc(62px + env(safe-area-inset-right))}
+body.title #muteBtn{right:calc(10px + env(safe-area-inset-right))}
+
+#throwBtn{position:fixed;right:calc(18px + env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom));width:96px;height:96px;border-radius:50%;border:3px solid #fde68a;background:radial-gradient(circle at 35% 30%,#fbbf24,#b45309);color:#fff;font-weight:900;font-size:15px;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:20;box-shadow:0 6px 18px rgba(0,0,0,.5);cursor:pointer;padding:0;line-height:1.15;text-shadow:0 1px 2px rgba(0,0,0,.6)}
+#throwBtn .ic{font-size:32px}
+#throwBtn.empty{filter:grayscale(1);opacity:.55}
+#throwBtn:active{transform:scale(.92)}
+
+.overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:10px;background:rgba(5,8,20,.72);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:50;touch-action:pan-y}
+.overlay.show{display:flex}
+.card{width:min(100%,600px);max-height:calc(100vh - 20px);max-height:calc(100dvh - 20px);overflow-y:auto;background:#111a2e;border:3px solid #f59e0b;border-radius:18px;padding:14px 18px;box-shadow:0 20px 60px rgba(0,0,0,.7);text-align:center}
+.card h2{margin:2px 0 8px;color:#fbbf24;font-size:22px}
+.card p{margin:6px 0;line-height:1.55;font-size:14px;color:#cbd5e1}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:150px;margin:5px;padding:11px 18px;border-radius:14px;border:2px solid #475569;background:#1e293b;color:#fff;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit}
+.btn:active{transform:scale(.95)}
+.btn.primary{background:linear-gradient(135deg,#f59e0b,#d97706);border-color:#fde68a;color:#1a1204}
+.btn.green{background:linear-gradient(135deg,#10b981,#047857);border-color:#6ee7b7}
+
+#title .card{border-color:#fbbf24;background:linear-gradient(160deg,#16213a,#0e1527)}
+.logo{font-size:44px;line-height:1;margin-top:2px}
+.gname{font-size:34px;font-weight:900;letter-spacing:2px;color:#fde68a;text-shadow:0 3px 0 #b45309,0 6px 14px rgba(0,0,0,.6);margin:4px 0 0}
+.gsub{font-size:15px;color:#6ee7b7;font-weight:800;margin:2px 0 8px;letter-spacing:1px}
+.best{display:inline-block;padding:4px 12px;border-radius:20px;background:#0b1222;border:1px solid #334155;color:#fbbf24;font-weight:800;font-size:14px}
+.chars{display:flex;gap:12px;justify-content:center;margin:10px 0 6px;flex-wrap:wrap}
+.char{width:176px;padding:8px 10px;border-radius:16px;border:2px solid #334155;background:#0f172a;color:#cbd5e1;font-weight:800;font-size:15px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:3px;transition:transform .12s,border-color .12s,background .12s}
+.char canvas{width:136px;height:76px;border-radius:10px;background:radial-gradient(circle at 50% 55%,#1e293b,#0b1222);border:1px solid #1e293b;display:block}
+.char .cn{font-size:15px;font-weight:900;color:#fff}
+.char .cd{font-size:11px;color:#94a3b8;font-weight:700}
+.char.sel{border-color:#fbbf24;background:#2a2410;color:#fff;box-shadow:0 0 0 3px rgba(251,191,36,.28);transform:translateY(-2px)}
+.char.sel .cn{color:#fde68a}
+.char.sel .cd{color:#fcd34d}
+.small{font-size:12px;color:#64748b;margin-top:6px}
+
+#howto .card{text-align:left}
+#howto h2{text-align:center}
+.howGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.howBox{background:#0b1222;border:1px solid #334155;border-radius:12px;padding:8px 10px;font-size:13px;line-height:1.55;color:#cbd5e1}
+.howBox b{color:#fbbf24}
+.howBox .t{font-weight:900;color:#6ee7b7;margin-bottom:2px;font-size:14px}
+@media (max-width:520px){.howGrid{grid-template-columns:1fr}}
+
+.reason{font-size:15px;color:#fca5a5;font-weight:800}
+.bigScore{font-size:46px;font-weight:900;color:#fde68a;line-height:1.1;margin:4px 0}
+.newRec{display:none;color:#1a1204;background:#fbbf24;border-radius:10px;padding:2px 10px;font-weight:900;font-size:13px;animation:pulse .8s infinite alternate}
+@keyframes pulse{from{transform:scale(1)}to{transform:scale(1.08)}}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
+.stat{background:#0b1222;border:1px solid #334155;border-radius:10px;padding:6px 4px}
+.stat .v{font-size:18px;font-weight:900;color:#fff}
+.stat .k{font-size:11px;color:#94a3b8}
+
+#rotate{z-index:90;background:#0b1020;flex-direction:column;text-align:center}
+#rotate .ph{font-size:60px;animation:rot 1.6s ease-in-out infinite}
+@keyframes rot{0%,30%{transform:rotate(0)}60%,100%{transform:rotate(-90deg)}}
+</style>
+</head>
+<body class="title">
+<canvas id="cv"></canvas>
+<div id="safe"></div>
+
+<button class="hudBtn" id="pauseBtn" aria-label="暫停">⏸</button>
+<button class="hudBtn" id="muteBtn" aria-label="靜音">🔊</button>
+<button id="throwBtn" aria-label="丟珍奶"><span class="ic">🧋</span><span id="ammoTxt">×3</span></button>
+
+<!-- 開始畫面 -->
+<div class="overlay show" id="title"><div class="card">
+  <div class="logo">🛵💨</div>
+  <div class="gname">外送大叔：限時爆走</div>
+  <div class="gsub">閃過車流・甩開野狗・準時送達！</div>
+  <div class="best">🏆 本機最高分：<span id="bestTitle">0</span></div>
+  <div class="chars">
+    <button class="char" data-char="M">
+      <canvas id="prevM" width="136" height="76"></canvas>
+      <span class="cn">👨 阿豪大叔</span>
+      <span class="cd">黃帽八字鬍・藍勁速車</span>
+    </button>
+    <button class="char" data-char="F">
+      <canvas id="prevF" width="136" height="76"></canvas>
+      <span class="cn">👩 妮野可</span>
+      <span class="cd">貓耳安全帽・飄逸馬尾粉車</span>
+    </button>
+  </div>
+  <div>
+    <button class="btn primary" id="startBtn">🚀 開始外送</button>
+    <button class="btn" id="howBtn">📖 玩法說明</button>
+  </div>
+  <div class="small">單機遊戲・不需網路・建議橫向遊玩</div>
+</div></div>
+
+<!-- 玩法說明 -->
+<div class="overlay" id="howto"><div class="card">
+  <h2>📖 玩法說明</h2>
+  <div class="howGrid">
+    <div class="howBox"><div class="t">🎯 目標</div>系統自動派單：先騎到<b>店家</b>取餐，再在<b>時限內</b>送到<b>顧客</b>手上。跟著地上的光點路線走，盡量拿高分！</div>
+    <div class="howBox"><div class="t">🕹️ 操作</div><b>手機</b>：按住畫面任一處拖曳＝搖桿移動；右下按鈕＝丟珍奶。<br><b>電腦</b>：WASD／方向鍵移動、空白鍵丟珍奶、P 暫停、M 靜音；滑鼠按住拖曳也能移動。</div>
+    <div class="howBox"><div class="t">💯 計分</div>送達 = 100 分 + 剩餘秒數 × 10，連續準時送達有<b>連擊加乘</b>。<br>驚險閃過車輛 +10，用珍奶定住野狗 +20。</div>
+    <div class="howBox"><div class="t">⚠️ 危險</div>撞車 −25 體力、被野狗咬 −15 體力。<br>路上的 🍱 回復體力、🧋 補充珍奶。</div>
+    <div class="howBox"><div class="t">📈 難度</div>每送 2 單升 1 級：車更多更快，第 2 級起<b>野狗會追人</b>，時限也越來越緊。</div>
+    <div class="howBox"><div class="t">💀 結束</div><b>體力歸零</b>或累積 <b>3 個差評</b>（訂單逾時）就結束。連續準時送 5 單可消除 1 個差評。</div>
+  </div>
+  <div style="text-align:center;margin-top:8px"><button class="btn primary" id="howClose">我知道了</button></div>
+</div></div>
+
+<!-- 暫停 -->
+<div class="overlay" id="pause"><div class="card">
+  <h2>⏸ 暫停中</h2>
+  <p>休息一下，訂單計時已暫停。</p>
+  <button class="btn primary" id="resumeBtn">▶ 繼續</button>
+  <button class="btn" id="restartBtn">🔄 重新開始</button>
+  <button class="btn" id="homeBtn1">🏠 回主畫面</button>
+</div></div>
+
+<!-- 結束畫面 -->
+<div class="overlay" id="over"><div class="card">
+  <h2>🏁 今日收工</h2>
+  <div class="reason" id="overReason">體力耗盡</div>
+  <div class="bigScore" id="overScore">0</div>
+  <span class="newRec" id="newRec">🎉 新紀錄！</span>
+  <div class="stats">
+    <div class="stat"><div class="v" id="stDel">0</div><div class="k">送達單數</div></div>
+    <div class="stat"><div class="v" id="stCombo">0</div><div class="k">最高連擊</div></div>
+    <div class="stat"><div class="v" id="stLv">1</div><div class="k">到達等級</div></div>
+    <div class="stat"><div class="v" id="stNear">0</div><div class="k">驚險閃過</div></div>
+    <div class="stat"><div class="v" id="stDog">0</div><div class="k">定住野狗</div></div>
+    <div class="stat"><div class="v" id="stTime">0s</div><div class="k">跑單時間</div></div>
+  </div>
+  <p>🏆 本機最高分：<b id="bestOver" style="color:#fbbf24">0</b></p>
+  <button class="btn primary" id="againBtn">🔄 再玩一次</button>
+  <button class="btn" id="homeBtn2">🏠 回主畫面</button>
+</div></div>
+
+<!-- 直式提示 -->
+<div class="overlay" id="rotate">
+  <div class="ph">📱</div>
+  <p style="font-size:18px;font-weight:800;color:#fde68a">請將手機轉為橫向遊玩</p>
+  <p style="color:#94a3b8">（遊戲已自動暫停）</p>
+</div>
+
+<script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id);
+const cvs=$('cv'), ctx=cvs.getContext('2d');
+const clamp=(v,a,b)=>v<a?a:(v>b?b:v);
+const rand=(a,b)=>a+Math.random()*(b-a);
+const pick=arr=>arr[(Math.random()*arr.length)|0];
+const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+const isTouch=(window.matchMedia&&matchMedia('(pointer:coarse)').matches)||('ontouchstart' in window);
+
+/* ===================== 本機儲存（僅存在這支手機） ===================== */
+const store={
+  get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v);}catch(e){return d;}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+};
+
+/* ===================== 畫面尺寸 ===================== */
+let W=0,H=0,DPR=1,ZOOM=1;
+const safe={l:0,r:0,t:0,b:0};
+function readSafe(){
+  const s=getComputedStyle($('safe'));
+  safe.t=parseFloat(s.paddingTop)||0; safe.r=parseFloat(s.paddingRight)||0;
+  safe.b=parseFloat(s.paddingBottom)||0; safe.l=parseFloat(s.paddingLeft)||0;
+}
+function resize(){
+  DPR=Math.min(window.devicePixelRatio||1,2);
+  W=window.innerWidth; H=window.innerHeight;
+  cvs.width=Math.round(W*DPR); cvs.height=Math.round(H*DPR);
+  ZOOM=clamp(Math.min(W/900,H/520),0.55,1.25);
+  readSafe(); checkOrientation();
+}
+
+/* ===================== 音效與音樂（Web Audio 即時合成，無外部檔案） ===================== */
+const Snd={ctx:null,master:null,sfx:null,music:null,noiseBuf:null,seq:null,nextT:0,step:0};
+let muted=store.get('dug_muted',false);
+
+function unlockAudio(){
+  if(!Snd.ctx){
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC) return;
+    Snd.ctx=new AC();
+    Snd.master=Snd.ctx.createGain();
+    Snd.master.gain.value=muted?0:1.0;
+    Snd.master.connect(Snd.ctx.destination);
+
+    Snd.sfx=Snd.ctx.createGain();
+    Snd.sfx.gain.value=0.9;
+    Snd.sfx.connect(Snd.master);
+
+    Snd.music=Snd.ctx.createGain();
+    Snd.music.gain.value=0.65;
+    Snd.music.connect(Snd.master);
+
+    const len=Snd.ctx.sampleRate*0.5, buf=Snd.ctx.createBuffer(1,len,Snd.ctx.sampleRate), d=buf.getChannelData(0);
+    for(let i=0;i<len;i++) d[i]=Math.random()*2-1;
+    Snd.noiseBuf=buf;
+  }
+  if(Snd.ctx.state==='suspended'){
+    Snd.ctx.resume().then(()=>{
+      startMusic();
+    }).catch(()=>{});
+  } else {
+    startMusic();
+  }
+}
+
+// 任意操作時自動喚醒 AudioContext
+['click','touchstart','touchend','pointerdown','keydown'].forEach(ev=>{
+  window.addEventListener(ev,()=>{ unlockAudio(); },{passive:true});
+});
+
+function ensureAudio(){
+  unlockAudio();
+}
+
+function tone(f,dur,o={}){
+  const c=Snd.ctx; if(!c||muted) return;
+  const t0=o.t||c.currentTime, vol=o.vol||0.15;
+  const osc=c.createOscillator(), g=c.createGain();
+  osc.type=o.type||'triangle';
+  osc.frequency.setValueAtTime(f,t0);
+  if(o.slide) osc.frequency.exponentialRampToValueAtTime(Math.max(20,o.slide),t0+dur);
+  g.gain.setValueAtTime(0.0001,t0);
+  g.gain.linearRampToValueAtTime(vol,t0+0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+  osc.connect(g); g.connect(o.dest||Snd.sfx);
+  osc.start(t0); osc.stop(t0+dur+0.04);
+}
+
+function noise(dur,o={}){
+  const c=Snd.ctx; if(!c||muted) return;
+  const t0=o.t||c.currentTime;
+  const src=c.createBufferSource(); src.buffer=Snd.noiseBuf;
+  const g=c.createGain(); g.gain.setValueAtTime(o.vol||0.1,t0); g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+  let node=src;
+  if(o.hp){const f=c.createBiquadFilter();f.type='highpass';f.frequency.value=o.hp;src.connect(f);node=f;}
+  if(o.lp){const f=c.createBiquadFilter();f.type='lowpass';f.frequency.value=o.lp;node.connect(f);node=f;}
+  node.connect(g); g.connect(o.dest||Snd.sfx);
+  src.start(t0); src.stop(t0+dur+0.02);
+}
+
+function sfx(name){
+  if(!Snd.ctx||muted) return;
+  const t=Snd.ctx.currentTime;
+  switch(name){
+    case 'click': tone(700,0.06,{vol:0.08}); break;
+    case 'order': tone(880,0.08,{type:'sine',vol:0.18}); tone(1175,0.12,{type:'sine',vol:0.18,t:t+0.09}); break;
+    case 'pickup': tone(523,0.08,{type:'triangle',vol:0.22}); tone(784,0.14,{type:'triangle',vol:0.22,t:t+0.08}); break;
+    case 'deliver': [523,659,784,1046].forEach((f,i)=>tone(f,0.14,{type:'square',vol:0.12,t:t+i*0.07})); break;
+    case 'hit': tone(170,0.35,{type:'sawtooth',vol:0.28,slide:40}); noise(0.25,{vol:0.28,lp:1200}); break;
+    case 'bite': tone(320,0.08,{vol:0.18,slide:180}); tone(300,0.08,{vol:0.18,slide:160,t:t+0.1}); break;
+    case 'throw': tone(380,0.14,{type:'triangle',vol:0.2,slide:900}); break;
+    case 'stun': tone(660,0.08,{type:'sine',vol:0.2}); tone(990,0.16,{type:'sine',vol:0.2,t:t+0.08}); break;
+    case 'near': tone(1300,0.09,{type:'sine',vol:0.15,slide:1900}); break;
+    case 'item': tone(988,0.07,{type:'square',vol:0.12}); tone(1319,0.12,{type:'square',vol:0.12,t:t+0.07}); break;
+    case 'level': [392,523,659,784,1046].forEach((f,i)=>tone(f,0.12,{type:'square',vol:0.1,t:t+i*0.06})); break;
+    case 'fail': tone(330,0.25,{type:'sawtooth',vol:0.18,slide:160}); tone(220,0.35,{type:'sawtooth',vol:0.18,slide:110,t:t+0.22}); break;
+    case 'tick': tone(1250,0.035,{type:'square',vol:0.08}); break;
+    case 'empty': tone(160,0.1,{type:'square',vol:0.12}); break;
+    case 'count': tone(660,0.12,{type:'square',vol:0.12}); break;
+    case 'go': tone(1046,0.3,{type:'square',vol:0.15}); break;
+    case 'over': [392,330,262,196].forEach((f,i)=>tone(f,0.3,{type:'triangle',vol:0.22,t:t+i*0.22})); break;
+  }
+}
+
+// 背景音樂：動感輕快旋律（Bass + 和弦 + 旋律線 + 節奏）
+const midi=n=>440*Math.pow(2,(n-69)/12);
+// C - Am - F - G
+const BASS_LINE=[
+  36,36,48,36, 36,36,48,36, // C
+  33,33,45,33, 33,33,45,33, // A
+  29,29,41,29, 29,29,41,29, // F
+  31,31,43,31, 31,31,43,31  // G
+];
+const CHORD_NOTES=[
+  [60,64,67], // C
+  [57,60,64], // Am
+  [53,57,60], // F
+  [55,59,62]  // G
+];
+const LEAD_LINE=[
+  64,null,67,null, 72,null,67,64,
+  60,null,64,null, 69,null,64,60,
+  65,null,69,null, 72,null,69,65,
+  67,null,71,null, 74,72,71,67
+];
+
+function bpm(){ return G.state==='play'?Math.min(136,116+(level-1)*3):108; }
+
+function startMusic(){
+  if(!Snd.ctx||Snd.seq) return;
+  Snd.nextT=Snd.ctx.currentTime+0.05;
+  Snd.seq=setInterval(scheduleMusic,35);
+}
+
+function stopMusic(){
+  if(Snd.seq){ clearInterval(Snd.seq); Snd.seq=null; }
+}
+
+function scheduleMusic(){
+  const c=Snd.ctx;
+  if(!c) return;
+  if(Snd.nextT<c.currentTime) Snd.nextT=c.currentTime+0.02;
+  while(Snd.nextT<c.currentTime+0.16){
+    playStep(Snd.step, Snd.nextT);
+    Snd.nextT+=60/bpm()/4; // 16分音符
+    Snd.step=(Snd.step+1)%32;
+  }
+}
+
+function playStep(i,t){
+  if(muted) return;
+  const d=Snd.music;
+  const bar=(i>>3)%4;
+  const s=i%8;
+
+  // 1. 低音貝斯 (Bass)
+  const bn=BASS_LINE[i];
+  if(bn){
+    tone(midi(bn), 0.16, {type:'sawtooth', vol:0.18, t, dest:d});
+  }
+
+  // 2. 鼓點節奏 (Hi-Hat / Kick / Snare)
+  if(s===0||s===4){
+    // 大鼓感
+    tone(110, 0.08, {type:'sine', vol:0.25, slide:35, t, dest:d});
+  }
+  if(s===2||s===6){
+    // 小鼓
+    noise(0.07, {vol:0.12, lp:1400, t, dest:d});
+  }
+  if(s%2===1){
+    // 輕巧 Hi-Hat
+    noise(0.03, {vol:0.04, hp:6000, t, dest:d});
+  }
+
+  // 3. 伴奏柔和切分和弦
+  if(s===2||s===5){
+    const ch=CHORD_NOTES[bar];
+    ch.forEach(n=>{
+      tone(midi(n), 0.12, {type:'triangle', vol:0.06, t, dest:d});
+    });
+  }
+
+  // 4. 清脆主旋律 (在主畫面與遊戲中皆有悠揚配樂)
+  const lead=LEAD_LINE[i];
+  if(lead!==null){
+    tone(midi(lead), 0.13, {type:'sine', vol:0.14, t, dest:d});
+  }
+}
+function setMuted(m){
+  muted=m; store.set('dug_muted',m);
+  $('muteBtn').textContent=m?'🔇':'🔊';
+  if(Snd.master) Snd.master.gain.value=m?0:0.9;
+}
+
+/* ===================== 地圖（道路網格，房子不能穿越） ===================== */
+const MAP={w:1800,h:1200};
+const HALF=65;
+const HROADS=[150,600,1050], VROADS=[150,650,1150,1650];
+function onRoad(x,y,r){
+  if(x<r||y<r||x>MAP.w-r||y>MAP.h-r) return false;
+  for(let i=0;i<HROADS.length;i++){const c=HROADS[i]; if(y>=c-HALF+r&&y<=c+HALF-r) return true;}
+  for(let i=0;i<VROADS.length;i++){const c=VROADS[i]; if(x>=c-HALF+r&&x<=c+HALF-r) return true;}
+  return false;
+}
+function gaps(cs,total){const res=[];let p=0;for(const c of cs){if(c-HALF>p)res.push([p,c-HALF]);p=c+HALF;}if(p<total)res.push([p,total]);return res;}
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const srand=mulberry(20261110);
+const blocks=[];
+for(const [y0,y1] of gaps(HROADS,MAP.h)) for(const [x0,x1] of gaps(VROADS,MAP.w)){
+  const b={x:x0,y:y0,w:x1-x0,h:y1-y0,big:(x1-x0)>200&&(y1-y0)>200,win:[],trees:[]};
+  if(b.big){
+    b.hue=['#1d2740','#232a3d','#1f2b36','#28233a'][(srand()*4)|0];
+    for(let wx=b.x+16;wx<b.x+b.w-16;wx+=28) for(let wy=b.y+20;wy<b.y+b.h-20;wy+=26) if(srand()<0.33) b.win.push([wx,wy]);
+  }else{
+    const n=Math.floor(b.w*b.h/2600);
+    for(let i=0;i<n;i++) b.trees.push([b.x+8+srand()*(b.w-16),b.y+8+srand()*(b.h-16),8+srand()*8]);
+  }
+  blocks.push(b);
+}
+const big=blocks.filter(b=>b.big);
+function mkPlace(name,icon,type,bi,side,off){
+  const b=big[bi], w=160, h=64;
+  const x=b.x+20+off*(b.w-200);
+  const y=side==='top'?b.y+14:b.y+b.h-14-h;
+  return {name,icon,type,x,y,w,h,side,door:{x:x+w/2,y:side==='top'?b.y-30:b.y+b.h+30}};
+}
+const shops=[
+  mkPlace('阿妹麵線','🍜','shop',0,'top',0),
+  mkPlace('老王便當','🍱','shop',1,'bottom',1),
+  mkPlace('阿嬤滷味','🍢','shop',2,'bottom',0),
+  mkPlace('茶語珍奶','🧋','shop',3,'bottom',1),
+  mkPlace('夜市雞排','🍗','shop',5,'top',0)
+];
+const customers=[
+  mkPlace('文林公寓','🏢','cust',0,'bottom',1),
+  mkPlace('科技辦公室','💼','cust',1,'top',0),
+  mkPlace('河畔大樓','🏙️','cust',2,'top',1),
+  mkPlace('公園管理處','🌳','cust',2,'top',0),
+  mkPlace('補習班','📚','cust',3,'top',0),
+  mkPlace('青年宿舍','🏫','cust',4,'top',0),
+  mkPlace('社區診所','🏥','cust',4,'bottom',1),
+  mkPlace('老街透天','🏠','cust',5,'bottom',1)
+];
+const places=shops.concat(customers);
+
+/* ===================== 路線格子（BFS 找路，用來畫導航光點與計算時限） ===================== */
+const CELL=20, GW=MAP.w/CELL, GH=MAP.h/CELL;
+const walk=new Uint8Array(GW*GH);
+for(let gy=0;gy<GH;gy++) for(let gx=0;gx<GW;gx++) walk[gy*GW+gx]=onRoad(gx*CELL+CELL/2,gy*CELL+CELL/2,14)?1:0;
+function cellOf(p){
+  let gx=clamp((p.x/CELL)|0,0,GW-1), gy=clamp((p.y/CELL)|0,0,GH-1);
+  if(walk[gy*GW+gx]) return gy*GW+gx;
+  for(let r=1;r<6;r++) for(let dy=-r;dy<=r;dy++) for(let dx=-r;dx<=r;dx++){
+    const x=gx+dx,y=gy+dy; if(x>=0&&y>=0&&x<GW&&y<GH&&walk[y*GW+x]) return y*GW+x;
+  }
+  return gy*GW+gx;
+}
+const prevArr=new Int32Array(GW*GH);
+function bfs(a,b){
+  const s=cellOf(a), t=cellOf(b);
+  prevArr.fill(-1); prevArr[s]=s;
+  const q=[s]; let qi=0;
+  while(qi<q.length){
+    const c=q[qi++]; if(c===t) break;
+    const cx=c%GW, cy=(c/GW)|0;
+    if(cx>0){const n=c-1;if(walk[n]&&prevArr[n]<0){prevArr[n]=c;q.push(n);}}
+    if(cx<GW-1){const n=c+1;if(walk[n]&&prevArr[n]<0){prevArr[n]=c;q.push(n);}}
+    if(cy>0){const n=c-GW;if(walk[n]&&prevArr[n]<0){prevArr[n]=c;q.push(n);}}
+    if(cy<GH-1){const n=c+GW;if(walk[n]&&prevArr[n]<0){prevArr[n]=c;q.push(n);}}
+  }
+  if(prevArr[t]<0) return [];
+  const path=[]; let c=t;
+  while(c!==s){path.push(c);c=prevArr[c];}
+  path.reverse(); return path;
+}
+const pathLen=(a,b)=>bfs(a,b).length*CELL;
+
+/* ===================== 遊戲狀態 ===================== */
+const G={state:'title'};
+let char=store.get('dug_char','M');
+let best=store.get('dug_best',0);
+let P,cars,dogs,shots,items,pops,order,stats,level,strikes,combo,countdown,shake,itemTimer,orderDelay,banner,lastTick,path,pathTimer,hintT;
+const cam={x:0,y:0};
+const joy={id:null,ox:0,oy:0,x:0,y:0};
+const keys={};
+const CAR_COLORS=['#38bdf8','#f87171','#a78bfa','#34d399','#fbbf24','#f472b6','#e5e7eb'];
+// 晝夜光影與氛圍配色
+const DAY_STYLES=[
+  { sky:'rgba(254,240,138,0.15)', name:'早晨', streetLamp:false },    // 早晨金光
+  { sky:'rgba(255,255,255,0.05)', name:'午餐尖峰', streetLamp:false }, // 正午明亮
+  { sky:'rgba(249,115,22,0.18)', name:'午後', streetLamp:false },    // 暖橘陽光
+  { sky:'rgba(217,70,239,0.22)', name:'黃昏', streetLamp:true },     // 魔幻紫粉夕陽
+  { sky:'rgba(15,23,42,0.38)', name:'夜晚', streetLamp:true },       // 藍調夜市
+  { sky:'rgba(2,6,23,0.55)', name:'深夜', streetLamp:true }          // 寂靜深夜
+];
+
+function resetGame(){
+  P={x:VROADS[0],y:HROADS[0],r:14,angle:0,fx:1,fy:0,hp:100,ammo:3,inv:0,moving:false};
+  cars=[];dogs=[];shots=[];items=[];pops=[];
+  level=1;strikes=0;combo=0;
+  stats={score:0,delivered:0,maxCombo:0,near:0,dogs:0,time:0};
+  order=null;orderDelay=0.2;countdown=3.2;shake=0;itemTimer=4;banner=null;lastTick=-1;path=[];pathTimer=0;hintT=7;
+  syncHazards();
+  cam.x=clamp(P.x-W/ZOOM/2,0,Math.max(0,MAP.w-W/ZOOM));
+  cam.y=clamp(P.y-H/ZOOM/2,0,Math.max(0,MAP.h-H/ZOOM));
+  updateAmmo();
+}
+function carRect(c){return c.axis==='h'?{x:c.pos-24,y:c.lane-13,w:48,h:26}:{x:c.lane-13,y:c.pos-24,w:26,h:48};}
+function rectDist(px,py,r){const nx=clamp(px,r.x,r.x+r.w),ny=clamp(py,r.y,r.y+r.h);return Math.hypot(px-nx,py-ny);}
+function makeCar(){
+  const roads=HROADS.map(c=>['h',c]).concat(VROADS.map(c=>['v',c]));
+  const rd=pick(roads), axis=rd[0], c=rd[1];
+  const side=Math.random()<0.5?-1:1;
+  const car={axis,lane:c+side*30,dir:axis==='h'?side:-side,len:axis==='h'?MAP.w:MAP.h,pos:0,
+    speed:Math.min(250,75+level*13+rand(0,45)),color:pick(CAR_COLORS),close:false,nm:false};
+  for(let i=0;i<20;i++){car.pos=rand(0,car.len);if(!P||rectDist(P.x,P.y,carRect(car))>300)break;}
+  return car;
+}
+function randomRoadPoint(minDist){
+  for(let i=0;i<40;i++){
+    let p;
+    if(Math.random()<3/7) p={x:rand(40,MAP.w-40),y:pick(HROADS)+rand(-40,40)};
+    else p={x:pick(VROADS)+rand(-40,40),y:rand(40,MAP.h-40)};
+    if(onRoad(p.x,p.y,14)&&(!P||dist(p,P)>=minDist)) return p;
+  }
+  return {x:VROADS[3],y:HROADS[2]};
+}
+function syncHazards(){
+  const carN=Math.min(24,6+level*2);
+  while(cars.length<carN) cars.push(makeCar());
+  cars.forEach(c=>{c.speed=Math.min(250,Math.max(c.speed,70+level*13+rand(0,40)));});
+  const dogN=level>=2?Math.min(6,level-1):0;
+  while(dogs.length<dogN){const p=randomRoadPoint(500);dogs.push({x:p.x,y:p.y,dx:1,dy:0,wt:rand(1,3),stun:0,eat:0,chase:false});}
+}
+
+/* ===================== 遊戲流程 ===================== */
+function setBodyState(s){
+  document.body.className=s;
+  $('pauseBtn').style.display=s==='play'?'flex':'none';
+  $('throwBtn').style.display=s==='play'?'flex':'none';
+}
+function showOnly(id){['title','howto','pause','over'].forEach(o=>$(o).classList.toggle('show',o===id));}
+function goTitle(){
+  G.state='title'; resetGame(); setBodyState('title'); showOnly('title');
+  $('bestTitle').textContent=best;
+  document.querySelectorAll('.char').forEach(b=>b.classList.toggle('sel',b.dataset.char===char));
+}
+function startGame(){
+  ensureAudio(); resetGame(); G.state='play'; setBodyState('play'); showOnly(null);
+  joy.id=null; lastFrame=performance.now();
+}
+function pauseGame(){
+  if(G.state!=='play') return;
+  G.state='pause'; joy.id=null; showOnly('pause'); setBodyState('pause');
+  if(Snd.music) Snd.music.gain.value=0.2;
+}
+function resumeGame(){
+  if(G.state!=='pause') return;
+  if($('rotate').classList.contains('show')) return;
+  G.state='play'; showOnly(null); setBodyState('play'); lastFrame=performance.now();
+  if(Snd.music) Snd.music.gain.value=0.55;
+}
+function gameOver(reason){
+  if(G.state!=='play') return;
+  G.state='over'; joy.id=null; sfx('over'); shake=0.4;
+  const isNew=stats.score>best;
+  if(isNew){best=stats.score;store.set('dug_best',best);}
+  $('overReason').textContent=reason;
+  $('overScore').textContent=stats.score;
+  $('newRec').style.display=isNew?'inline-block':'none';
+  $('stDel').textContent=stats.delivered;
+  $('stCombo').textContent=stats.maxCombo;
+  $('stLv').textContent=level;
+  $('stNear').textContent=stats.near;
+  $('stDog').textContent=stats.dogs;
+  $('stTime').textContent=Math.floor(stats.time)+'s';
+  $('bestOver').textContent=best;
+  setBodyState('over');
+  setTimeout(()=>{if(G.state==='over'){showOnly('over');if(Snd.music)Snd.music.gain.value=0.55;}},900);
+}
+function showBanner(text,sub,color){banner={text,sub:sub||'',color:color||'#fde68a',t:1.8};}
+function pop(x,y,text,color,size){pops.push({x,y,text,color:color||'#fff',t:1.1,size:size||20});}
+function updateAmmo(){
+  $('ammoTxt').textContent='×'+(P?P.ammo:0);
+  $('throwBtn').classList.toggle('empty',!P||P.ammo<=0);
+}
+
+function newOrder(){
+  const shop=pick(shops); let cust=pick(customers);
+  for(let i=0;i<30;i++){cust=pick(customers);if(pathLen(shop.door,cust.door)>=600)break;}
+  const d=pathLen(P,shop.door)+pathLen(shop.door,cust.door);
+  const base=d/210;
+  const f=Math.max(0,1-(level-1)*0.1);
+  const t=base*(1+0.6*f)+5*f+2.5;
+  order={shop,cust,stage:'pickup',time:t,total:t};
+  lastTick=-1; pathTimer=0;
+  sfx('order'); pop(P.x,P.y-30,'📲 新訂單！','#6ee7b7',18);
+}
+function deliver(){
+  const tl=Math.max(0,order.time);
+  const mult=1+0.2*Math.min(combo,10);
+  const pts=Math.round((100+Math.ceil(tl)*10)*mult);
+  stats.score+=pts; combo++; stats.maxCombo=Math.max(stats.maxCombo,combo); stats.delivered++;
+  P.hp=Math.min(100,P.hp+5);
+  pop(P.x,P.y-36,'+'+pts,'#fde68a',26);
+  if(combo>1) pop(P.x,P.y-64,'連擊 ×'+combo,'#f472b6',18);
+  sfx('deliver');
+  if(combo%5===0&&strikes>0){strikes--;pop(P.x,P.y-90,'👍 好評！差評 −1','#6ee7b7',18);}
+  order=null; orderDelay=0.9; path=[];
+  if(stats.delivered%2===0) levelUp();
+}
+function levelUp(){
+  level++; syncHazards(); sfx('level');
+  const todName=DAY_STYLES[Math.min(DAY_STYLES.length-1,level-1)].name;
+  const msg=level===2?'🐕 野狗出沒！小心被追':'🚗 車流增加、時限縮短';
+  showBanner('LEVEL '+level+'・'+todName,msg,'#6ee7b7');
+}
+function orderFail(){
+  strikes++; combo=0; sfx('fail'); shake=0.25;
+  order=null; orderDelay=1.4; path=[];
+  showBanner('⏰ 訂單逾時！','差評 +1（'+strikes+'/3）','#fca5a5');
+  if(strikes>=3) gameOver('😭 累積 3 個差評，被平台停權了');
+}
+function damage(n,msg){
+  P.hp=Math.max(0,P.hp-n); P.inv=1.2; shake=0.35; combo=Math.max(0,combo);
+  pop(P.x,P.y-30,msg+' −'+n,'#fca5a5',18);
+  if(P.hp<=0) gameOver('💀 體力耗盡，今天先收工');
+}
+function throwFood(){
+  if(G.state!=='play'||countdown>0) return;
+  if(P.ammo<=0){sfx('empty');pop(P.x,P.y-30,'沒有珍奶了！','#94a3b8',16);return;}
+  P.ammo--; updateAmmo();
+  let tx=P.fx, ty=P.fy, bd=340;
+  for(const d of dogs){if(d.stun>0)continue;const dd=dist(d,P);if(dd<bd){bd=dd;tx=(d.x-P.x)/dd;ty=(d.y-P.y)/dd;}}
+  shots.push({x:P.x,y:P.y,vx:tx*440,vy:ty*440,life:1.1,rot:0});
+  sfx('throw');
+}
+
+/* ===================== 移動（含轉角輔助，讓手機轉彎更順） ===================== */
+function moveEnt(e,dx,dy,r,assist){
+  const steps=Math.max(1,Math.ceil(Math.max(Math.abs(dx),Math.abs(dy))/5));
+  dx/=steps; dy/=steps;
+  for(let i=0;i<steps;i++){
+    if(dx){ if(onRoad(e.x+dx,e.y,r)) e.x+=dx; else if(assist&&Math.abs(dx)>=Math.abs(dy)) nudge(e,'x',dx,r); }
+    if(dy){ if(onRoad(e.x,e.y+dy,r)) e.y+=dy; else if(assist&&Math.abs(dy)>=Math.abs(dx)) nudge(e,'y',dy,r); }
+  }
+}
+function nudge(e,axis,d,r){
+  const m=Math.abs(d)+1;
+  for(let s=4;s<=30;s+=4) for(const sg of [-1,1]){
+    if(axis==='x'){ if(onRoad(e.x+d,e.y+sg*s,r)){const st=sg*Math.min(m,s); if(onRoad(e.x,e.y+st,r)){e.y+=st;return;}} }
+    else { if(onRoad(e.x+sg*s,e.y+d,r)){const st=sg*Math.min(m,s); if(onRoad(e.x+st,e.y,r)){e.x+=st;return;}} }
+  }
+}
+function inputVec(){
+  let x=0,y=0;
+  if(joy.id!==null){
+    const R=55; let dx=joy.x-joy.ox, dy=joy.y-joy.oy; const L=Math.hypot(dx,dy);
+    if(L>R){joy.ox=joy.x-dx/L*R;joy.oy=joy.y-dy/L*R;dx=joy.x-joy.ox;dy=joy.y-joy.oy;}
+    const L2=Math.hypot(dx,dy);
+    if(L2>8){const m=Math.min(1,L2/(R*0.75));x=dx/L2*m;y=dy/L2*m;}
+  }else{
+    if(keys.w||keys.arrowup) y--; if(keys.s||keys.arrowdown) y++;
+    if(keys.a||keys.arrowleft) x--; if(keys.d||keys.arrowright) x++;
+    const L=Math.hypot(x,y); if(L){x/=L;y/=L;}
+  }
+  return {x,y};
+}
+
+/* ===================== 主更新 ===================== */
+function updateCars(dt){
+  for(const c of cars){
+    c.pos+=c.dir*c.speed*dt;
+    if(c.pos>c.len+60) c.pos=-60; else if(c.pos<-60) c.pos=c.len+60;
+  }
+}
+function update(dt){
+  updateCars(dt);
+  if(shake>0) shake-=dt;
+  if(banner){banner.t-=dt;if(banner.t<=0)banner=null;}
+  for(const p of pops){p.t-=dt;p.y-=34*dt;} pops=pops.filter(p=>p.t>0);
+
+  if(countdown>0){
+    const before=Math.ceil(countdown); countdown-=dt; const after=Math.ceil(countdown);
+    if(after!==before){ if(after>0) sfx('count'); else {sfx('go');showBanner('GO！','跟著光點路線去取餐','#6ee7b7');} }
+    if(before===4&&after===4){}
+    followCam(dt); return;
+  }
+  stats.time+=dt; if(hintT>0) hintT-=dt;
+
+  // 玩家
+  const v=inputVec();
+  P.moving=!!(v.x||v.y);
+  if(P.moving){
+    moveEnt(P,v.x*210*dt,v.y*210*dt,P.r,true);
+    P.angle=Math.atan2(v.y,v.x); const L=Math.hypot(v.x,v.y); P.fx=v.x/L; P.fy=v.y/L;
+  }
+  if(P.inv>0) P.inv-=dt;
+
+  // 車輛碰撞與驚險閃過
+  for(const c of cars){
+    const d=rectDist(P.x,P.y,carRect(c));
+    if(d<P.r-1){
+      if(P.inv<=0){
+        damage(25,'💥 撞車');
+        if(G.state!=='play') return;
+        sfx('hit');
+        if(c.axis==='h'){const s=Math.sign(P.y-c.lane)||1; moveEnt(P,0,s*42,P.r,false);}
+        else {const s=Math.sign(P.x-c.lane)||1; moveEnt(P,s*42,0,P.r,false);}
+      }
+      c.close=false; c.nm=true;
+    }else if(d<P.r+20){
+      if(!c.nm&&P.inv<=0&&P.moving) c.close=true;
+    }else if(c.close&&d>P.r+38){
+      c.close=false; c.nm=true;
+      stats.score+=10; stats.near++; sfx('near'); pop(P.x,P.y-28,'驚險閃過 +10','#7dd3fc',16);
+    }
+    if(d>220){c.nm=false;c.close=false;}
+  }
+
+  // 野狗
+  for(const d of dogs){
+    if(d.stun>0){d.stun-=dt;if(d.eat>0)d.eat-=dt;continue;}
+    const pd=dist(d,P);
+    d.chase=pd<280;
+    const sp=d.chase?Math.min(165,95+level*7):55;
+    if(d.chase){
+      const ox=d.x,oy=d.y;
+      moveEnt(d,(P.x-d.x)/pd*sp*dt,(P.y-d.y)/pd*sp*dt,12,true);
+      if(Math.abs(d.x-ox)<0.01&&Math.abs(d.y-oy)<0.01) d.chase=false;
+    }else{
+      d.wt-=dt;
+      const ox=d.x,oy=d.y;
+      moveEnt(d,d.dx*sp*dt,d.dy*sp*dt,12,false);
+      if(d.wt<=0||(d.x===ox&&d.y===oy)){
+        d.wt=rand(1.5,3.5);
+        const dirs=[[1,0],[-1,0],[0,1],[0,-1]]; const k=pick(dirs); d.dx=k[0]; d.dy=k[1];
+      }
+    }
+    if(pd<24&&P.inv<=0){
+      damage(15,'🐕 被咬');
+      if(G.state!=='play') return;
+      sfx('bite'); d.stun=1.3; d.eat=0;
+    }
+  }
+
+  // 珍奶飛行
+  for(const s of shots){
+    const n=4;
+    for(let i=0;i<n&&s.life>0;i++){
+      s.x+=s.vx*dt/n; s.y+=s.vy*dt/n;
+      if(!onRoad(s.x,s.y,2)){s.life=0;break;}
+      for(const d of dogs){
+        if(d.stun<=0&&Math.hypot(d.x-s.x,d.y-s.y)<28){
+          d.stun=5; d.eat=5; s.life=0; stats.score+=20; stats.dogs++;
+          sfx('stun'); pop(d.x,d.y-24,'🍖 定住 +20','#fde68a',16); break;
+        }
+      }
+    }
+    s.life-=dt; s.rot+=dt*12;
+  }
+  shots=shots.filter(s=>s.life>0);
+
+  // 道具
+  itemTimer-=dt;
+  if(itemTimer<=0){
+    itemTimer=rand(5,8);
+    if(items.length<4){const p=randomRoadPoint(180);items.push({x:p.x,y:p.y,type:Math.random()<0.55?'tea':'bento',life:22});}
+  }
+  for(const it of items){
+    it.life-=dt;
+    if(dist(it,P)<30){
+      it.life=0; sfx('item');
+      if(it.type==='tea'){P.ammo=Math.min(6,P.ammo+2);updateAmmo();pop(it.x,it.y-20,'🧋 珍奶 +2','#fde68a',16);}
+      else{P.hp=Math.min(100,P.hp+30);pop(it.x,it.y-20,'🍱 體力 +30','#6ee7b7',16);}
+    }
+  }
+  items=items.filter(i=>i.life>0);
+
+  // 訂單
+  if(!order){orderDelay-=dt;if(orderDelay<=0)newOrder();}
+  else{
+    order.time-=dt;
+    const tgt=order.stage==='pickup'?order.shop:order.cust;
+    if(dist(P,tgt.door)<46){
+      if(order.stage==='pickup'){
+        order.stage='deliver'; sfx('pickup'); pathTimer=0;
+        pop(P.x,P.y-30,'📦 取餐成功！','#fde68a',18);
+      }else deliver();
+    }else if(order.time<=0) orderFail();
+    if(order&&order.time<5){const s=Math.ceil(order.time);if(s!==lastTick){lastTick=s;sfx('tick');}}
+    if(order){pathTimer-=dt;if(pathTimer<=0){pathTimer=0.25;path=bfs(P,order.stage==='pickup'?order.shop.door:order.cust.door);}}
+  }
+  followCam(dt);
+}
+function followCam(dt){
+  const vw=W/ZOOM, vh=H/ZOOM;
+  let tx,ty;
+  if(G.state==='title'){const t=performance.now()/9000;tx=MAP.w/2+Math.cos(t)*500-vw/2;ty=MAP.h/2+Math.sin(t*1.3)*300-vh/2;}
+  else{tx=P.x-vw/2;ty=P.y-vh/2;}
+  tx=vw>=MAP.w?(MAP.w-vw)/2:clamp(tx,0,MAP.w-vw);
+  ty=vh>=MAP.h?(MAP.h-vh)/2:clamp(ty,0,MAP.h-vh);
+  const k=G.state==='title'?1:Math.min(1,dt*8);
+  cam.x+=(tx-cam.x)*k; cam.y+=(ty-cam.y)*k;
+}
+
+/* ===================== 繪圖 ===================== */
+function rr(x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+}
+function inView(x,y,w,h){const vw=W/ZOOM,vh=H/ZOOM;return x+w>cam.x-20&&y+h>cam.y-20&&x<cam.x+vw+20&&y<cam.y+vh+20;}
+function drawWorld(now){
+  // 地面
+  ctx.fillStyle='#12261b'; ctx.fillRect(0,0,MAP.w,MAP.h);
+  // 街區
+  for(const b of blocks){
+    if(!inView(b.x,b.y,b.w,b.h)) continue;
+    if(b.big){
+      ctx.fillStyle='#3b4252'; ctx.fillRect(b.x,b.y,b.w,b.h);
+      ctx.fillStyle=b.hue; ctx.fillRect(b.x+6,b.y+6,b.w-12,b.h-12);
+      ctx.fillStyle='rgba(253,230,138,.45)';
+      for(const w of b.win) ctx.fillRect(w[0],w[1],12,9);
+    }else{
+      for(const t of b.trees){ctx.fillStyle='#1a3d29';ctx.beginPath();ctx.arc(t[0],t[1],t[2],0,Math.PI*2);ctx.fill();}
+    }
+  }
+  // 道路
+  ctx.fillStyle='#2b3142';
+  for(const c of HROADS) ctx.fillRect(0,c-HALF,MAP.w,HALF*2);
+  for(const c of VROADS) ctx.fillRect(c-HALF,0,HALF*2,MAP.h);
+  ctx.strokeStyle='#64748b'; ctx.lineWidth=3;
+  ctx.beginPath();
+  for(const c of HROADS){ctx.moveTo(0,c-HALF+2);ctx.lineTo(MAP.w,c-HALF+2);ctx.moveTo(0,c+HALF-2);ctx.lineTo(MAP.w,c+HALF-2);}
+  for(const c of VROADS){ctx.moveTo(c-HALF+2,0);ctx.lineTo(c-HALF+2,MAP.h);ctx.moveTo(c+HALF-2,0);ctx.lineTo(c+HALF-2,MAP.h);}
+  ctx.stroke();
+  ctx.strokeStyle='#f59e0b'; ctx.lineWidth=3; ctx.setLineDash([18,16]);
+  ctx.beginPath();
+  for(const c of HROADS){ctx.moveTo(0,c);ctx.lineTo(MAP.w,c);}
+  for(const c of VROADS){ctx.moveTo(c,0);ctx.lineTo(c,MAP.h);}
+  ctx.stroke(); ctx.setLineDash([]);
+  // 路口（斑馬線）
+  for(const hy of HROADS) for(const vx of VROADS){
+    ctx.fillStyle='#2b3142'; ctx.fillRect(vx-HALF,hy-HALF,HALF*2,HALF*2);
+    ctx.fillStyle='rgba(226,232,240,.5)';
+    for(let i=-HALF+8;i<HALF-8;i+=14){
+      ctx.fillRect(vx+i,hy-HALF-14,8,12); ctx.fillRect(vx+i,hy+HALF+2,8,12);
+      ctx.fillRect(vx-HALF-14,hy+i,12,8); ctx.fillRect(vx+HALF+2,hy+i,12,8);
+    }
+  }
+  // 店家／顧客招牌
+  const tgt=order?(order.stage==='pickup'?order.shop:order.cust):null;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  for(const p of places){
+    if(!inView(p.x,p.y-40,p.w,p.h+80)) continue;
+    const active=p===tgt;
+    ctx.fillStyle=p.type==='shop'?'#b45309':'#0f766e';
+    if(active) ctx.fillStyle=order.stage==='pickup'?'#f59e0b':'#10b981';
+    rr(p.x,p.y,p.w,p.h,10); ctx.fill();
+    ctx.strokeStyle=active?'#fff':'rgba(255,255,255,.25)'; ctx.lineWidth=active?3:1.5; ctx.stroke();
+    ctx.fillStyle='#fff'; ctx.font='bold 19px system-ui,sans-serif';
+    ctx.fillText(p.icon+' '+p.name,p.x+p.w/2,p.y+p.h/2+1);
+    // 門口
+    ctx.strokeStyle=active?'rgba(255,255,255,.9)':'rgba(255,255,255,.18)'; ctx.lineWidth=2; ctx.setLineDash([6,6]);
+    ctx.beginPath(); ctx.arc(p.door.x,p.door.y,20,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
+  }
+  // 導航光點
+  if(order&&path.length){
+    ctx.fillStyle=order.stage==='pickup'?'rgba(251,191,36,.75)':'rgba(52,211,153,.75)';
+    const off=Math.floor(now/120)%3;
+    for(let i=2+off;i<path.length;i+=3){const c=path[i];ctx.beginPath();ctx.arc((c%GW)*CELL+CELL/2,((c/GW)|0)*CELL+CELL/2,4,0,Math.PI*2);ctx.fill();}
+  }
+  // 目標光圈
+  if(tgt){
+    const col=order.stage==='pickup'?'#fbbf24':'#34d399';
+    ctx.strokeStyle=col; ctx.lineWidth=4;
+    ctx.beginPath(); ctx.arc(tgt.door.x,tgt.door.y,40+Math.sin(now/150)*6,0,Math.PI*2); ctx.stroke();
+    const by=(tgt.side==='top'?tgt.y-26:tgt.y+tgt.h+26)+Math.sin(now/200)*5;
+    ctx.font='26px system-ui,sans-serif'; ctx.fillText(tgt.side==='top'?'⬇️':'⬆️',tgt.door.x,tgt.side==='top'?tgt.door.y-50+Math.sin(now/200)*5:tgt.door.y+50+Math.sin(now/200)*5);
+    void by;
+  }
+  // 道具（高對比亮麗圓盤光暈 + 動態跳動光柱與文字標籤）
+  for(const it of items){
+    if(it.life<4&&Math.floor(now/150)%2) continue;
+    const isTea=it.type==='tea';
+    const bounce=Math.sin(now/180+it.x)*6;
+    const pulse=Math.sin(now/150)*4;
+
+    // 地面外圈擴散波紋光環
+    ctx.strokeStyle=isTea?'rgba(245,158,11,0.8)':'rgba(34,197,94,0.8)';
+    ctx.lineWidth=2.5;
+    ctx.beginPath();
+    ctx.arc(it.x, it.y, 22+pulse, 0, Math.PI*2);
+    ctx.stroke();
+
+    // 內層實心發光底盤
+    ctx.fillStyle=isTea?'#b45309':'#15803d';
+    ctx.beginPath();
+    ctx.arc(it.x, it.y+bounce*0.4, 18, 0, Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle='#ffffff';
+    ctx.lineWidth=2;
+    ctx.stroke();
+
+    // 向上升起的金色/綠色小光芒束
+    ctx.fillStyle=isTea?'rgba(251,191,36,0.3)':'rgba(74,222,128,0.3)';
+    ctx.beginPath();
+    ctx.moveTo(it.x-14, it.y);
+    ctx.lineTo(it.x+14, it.y);
+    ctx.lineTo(it.x+8, it.y-34+bounce);
+    ctx.lineTo(it.x-8, it.y-34+bounce);
+    ctx.closePath();
+    ctx.fill();
+
+    // 物品 Emoji
+    ctx.font='28px system-ui,sans-serif';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText(isTea?'🧋':'🍱', it.x, it.y+bounce-3);
+
+    // 頂部小標籤（珍奶+2 / 體力+30）
+    ctx.font='bold 11px system-ui,sans-serif';
+    ctx.fillStyle=isTea?'#fef08a':'#bbf7d0';
+    ctx.fillText(isTea?'+珍奶':'+體力', it.x, it.y-22+bounce);
+  }
+  // 車
+  for(const c of cars){
+    const r=carRect(c); if(!inView(r.x,r.y,r.w,r.h)) continue;
+    ctx.fillStyle='rgba(0,0,0,.3)'; rr(r.x+3,r.y+4,r.w,r.h,6); ctx.fill();
+    ctx.fillStyle=c.color; rr(r.x,r.y,r.w,r.h,6); ctx.fill();
+    ctx.fillStyle='rgba(15,23,42,.65)';
+    if(c.axis==='h') rr(r.x+12,r.y+4,22,r.h-8,4); else rr(r.x+4,r.y+12,r.w-8,22,4);
+    ctx.fill();
+    ctx.fillStyle='#fef9c3';
+    if(c.axis==='h'){const fx=c.dir>0?r.x+r.w-4:r.x;ctx.fillRect(fx,r.y+3,4,5);ctx.fillRect(fx,r.y+r.h-8,4,5);}
+    else{const fy=c.dir>0?r.y+r.h-4:r.y;ctx.fillRect(r.x+3,fy,5,4);ctx.fillRect(r.x+r.w-8,fy,5,4);}
+  }
+  // 野狗（追擊時增加強烈警戒紅光圈、暴走驚嘆號、連線警戒預警）
+  for(const d of dogs){
+    if(!inView(d.x-30,d.y-30,60,60)) continue;
+    const isChasing=d.chase&&d.stun<=0;
+    if(isChasing){
+      // 地面強烈危險紅圈（脈動紅光）
+      const rRing=28+Math.sin(now/90)*6;
+      ctx.fillStyle='rgba(239,68,68,0.32)';
+      ctx.beginPath(); ctx.arc(d.x,d.y,rRing,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='#ef4444';
+      ctx.lineWidth=2.5;
+      ctx.stroke();
+
+      // 與玩家之間的紅色雷達警戒虛線
+      ctx.strokeStyle='rgba(239,68,68,0.45)';
+      ctx.lineWidth=2;
+      ctx.setLineDash([8,6]);
+      ctx.beginPath();
+      ctx.moveTo(d.x, d.y);
+      ctx.lineTo(P.x, P.y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    ctx.font='32px system-ui,sans-serif';
+    ctx.save(); ctx.translate(d.x,d.y); if(d.dx>0||(d.chase&&P.x>d.x)) ctx.scale(-1,1); ctx.fillText('🐕',0,0); ctx.restore();
+    if(d.stun>0){
+      ctx.font='18px system-ui,sans-serif';
+      ctx.fillText(d.eat>0?'🍖💤':'💫',d.x,d.y-26);
+    } else if(isChasing){
+      // 狂吠驚嘆號與警告標示
+      ctx.font='900 18px system-ui,sans-serif';
+      ctx.fillStyle='#ef4444';
+      ctx.fillText('⚠️ 追!',d.x,d.y-28+Math.sin(now/80)*3);
+    }
+  }
+  // 珍奶
+  ctx.font='22px system-ui,sans-serif';
+  for(const s of shots){ctx.save();ctx.translate(s.x,s.y);ctx.rotate(s.rot);ctx.fillText('🧋',0,0);ctx.restore();}
+  // 玩家
+  if(!(P.inv>0&&Math.floor(now/90)%2)) drawPlayer(now);
+  // 飄字
+  for(const p of pops){
+    ctx.globalAlpha=Math.min(1,p.t*2);
+    ctx.font='900 '+p.size+'px system-ui,sans-serif';
+    ctx.lineWidth=4; ctx.strokeStyle='rgba(0,0,0,.7)'; ctx.strokeText(p.text,p.x,p.y);
+    ctx.fillStyle=p.color; ctx.fillText(p.text,p.x,p.y);
+  }
+  ctx.globalAlpha=1;
+}
+function rrc(c,x,y,w,h,r){
+  c.beginPath();
+  c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r);
+  c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath();
+}
+function renderRider(c,gender,now,moving,hasMeal,scale){
+  const F=gender==='F';
+  const vib=moving?Math.sin(now/35)*0.55:Math.sin(now/240)*0.2;
+  c.save();
+  c.scale(scale,scale);
+
+  // 1. 地面陰影
+  c.fillStyle='rgba(0,0,0,.42)';
+  c.beginPath(); c.ellipse(-2,2,27,13,0,0,Math.PI*2); c.fill();
+
+  // 2. 車頭燈光束
+  const grad=c.createLinearGradient(18,0,56,0);
+  grad.addColorStop(0,'rgba(254,249,195,.42)');
+  grad.addColorStop(1,'rgba(254,249,195,0)');
+  c.fillStyle=grad;
+  c.beginPath(); c.moveTo(19,-4); c.lineTo(56,-15); c.lineTo(56,15); c.lineTo(19,4); c.closePath(); c.fill();
+
+  // 3. 排氣管與動態尾氣
+  c.fillStyle='#64748b'; rrc(c,-22,8.5,13,3.5,1.5); c.fill();
+  c.fillStyle='#334155'; c.fillRect(-23,9.2,3,2.2);
+  if(moving){
+    const p1=(now/90)%1, p2=((now/90)+0.5)%1;
+    c.fillStyle='rgba(226,232,240,'+(0.45*(1-p1))+')';
+    c.beginPath(); c.arc(-25-p1*13,10+Math.sin(now/70)*1.5,2.2+p1*3.2,0,Math.PI*2); c.fill();
+    c.fillStyle='rgba(226,232,240,'+(0.4*(1-p2))+')';
+    c.beginPath(); c.arc(-25-p2*13,10-Math.cos(now/70)*1.5,2+p2*3,0,Math.PI*2); c.fill();
+  }
+
+  // 4. 前後輪胎
+  c.fillStyle='#0f172a';
+  rrc(c,12,-3.2,11,6.4,3); c.fill();
+  rrc(c,-24,-3.2,10,6.4,3); c.fill();
+
+  c.translate(0,vib);
+
+  // 5. 摩托車車體（後整流罩 ➔ 腳踏板 ➔ 前斜板）
+  c.fillStyle=F?'#f472b6':'#1d4ed8';
+  rrc(c,-21,-9.5,20,19,6); c.fill();
+  c.strokeStyle=F?'#fbcfe8':'#60a5fa'; c.lineWidth=1.2; c.stroke();
+  c.fillStyle=F?'#fdf2f8':'#38bdf8';
+  c.fillRect(-16,-8.5,10,2); c.fillRect(-16,6.5,10,2);
+
+  // 中央腳踏板
+  c.fillStyle='#1f2937';
+  rrc(c,-3,-7.5,12,15,3); c.fill();
+  c.strokeStyle='#374151'; c.lineWidth=1;
+  c.beginPath(); c.moveTo(0,-5.5); c.lineTo(6,-5.5); c.moveTo(0,0); c.lineTo(6,0); c.moveTo(0,5.5); c.lineTo(6,5.5); c.stroke();
+
+  // 機車坐墊
+  c.fillStyle=F?'#78350f':'#111827';
+  rrc(c,-15,-6.5,14,13,4.5); c.fill();
+  c.strokeStyle=F?'#a16207':'#334155'; c.lineWidth=1; c.stroke();
+
+  // 前車頭斜板
+  c.fillStyle=F?'#ec4899':'#2563eb';
+  c.beginPath();
+  c.moveTo(6,-9.5); c.quadraticCurveTo(19,-8.5,20,0); c.quadraticCurveTo(19,8.5,6,9.5); c.closePath();
+  c.fill();
+  c.strokeStyle=F?'#fce7f3':'#93c5fd'; c.lineWidth=1.2; c.stroke();
+
+  // 前車頭飾板與大燈、方向燈
+  c.fillStyle=F?'#fdf2f8':'#1e3a8a';
+  c.beginPath(); c.moveTo(10,-5); c.lineTo(17,-3); c.lineTo(17,3); c.lineTo(10,5); c.closePath(); c.fill();
+  c.fillStyle='#fef08a';
+  c.beginPath(); c.ellipse(19,0,2.2,4.2,0,0,Math.PI*2); c.fill();
+  c.fillStyle='#fb923c';
+  c.beginPath(); c.arc(16,-6.8,1.5,0,Math.PI*2); c.arc(16,6.8,1.5,0,Math.PI*2); c.fill();
+
+  // 尾燈
+  c.fillStyle='#ef4444';
+  c.fillRect(-21.5,-4,2,8);
+
+  // 6. 後方外送保溫箱（架在後貨架上）
+  c.fillStyle=hasMeal?'#10b981':'#f59e0b';
+  rrc(c,-31,-10.5,14,21,3.5); c.fill();
+  c.strokeStyle='#fff'; c.lineWidth=1.4; c.stroke();
+  c.fillStyle=hasMeal?'#047857':'#b45309';
+  c.fillRect(-28,-9,8,18);
+  c.fillStyle='#fef08a';
+  c.fillRect(-30,-7.5,2,15);
+  c.fillStyle='#fff'; c.font='bold 8px system-ui,sans-serif'; c.textAlign='center'; c.textBaseline='middle';
+  c.fillText(hasMeal?'熱':'外',-24,0);
+
+  // 7. 車手把、握把、儀表與左右後照鏡
+  c.strokeStyle='#94a3b8'; c.lineWidth=2.6; c.lineCap='round';
+  c.beginPath(); c.moveTo(9,-13); c.lineTo(11,0); c.lineTo(9,13); c.stroke();
+  c.strokeStyle='#0f172a'; c.lineWidth=3.8;
+  c.beginPath(); c.moveTo(9,-13.5); c.lineTo(9,-9); c.moveTo(9,9); c.lineTo(9,13.5); c.stroke();
+  c.fillStyle='#0f172a'; c.beginPath(); c.arc(11.5,0,3.2,0,Math.PI*2); c.fill();
+  c.fillStyle='#38bdf8'; c.beginPath(); c.arc(11.5,0,1.8,0,Math.PI*2); c.fill();
+  c.strokeStyle='#cbd5e1'; c.lineWidth=1.3;
+  c.beginPath(); c.moveTo(10,-11); c.lineTo(13,-16); c.moveTo(10,11); c.lineTo(13,16); c.stroke();
+  c.fillStyle=F?'#f9a8d4':'#64748b';
+  c.beginPath();
+  if(F){ c.arc(13.5,-16.8,2.6,0,Math.PI*2); c.arc(13.5,16.8,2.6,0,Math.PI*2); }
+  else { c.ellipse(13.5,-16.8,2.2,3.2,-0.3,0,Math.PI*2); c.ellipse(13.5,16.8,2.2,3.2,0.3,0,Math.PI*2); }
+  c.fill();
+  c.strokeStyle='#e2e8f0'; c.lineWidth=0.9; c.stroke();
+
+  // 8. 騎士下半身（跨坐在坐墊上、膝蓋彎曲踩在踏板上）
+  c.fillStyle=F?'#f43f5e':'#334155';
+  c.beginPath(); c.ellipse(4.5,-7,3.8,2.1,0.1,0,Math.PI*2); c.ellipse(4.5,7,3.8,2.1,-0.1,0,Math.PI*2); c.fill();
+  c.strokeStyle=F?'#312e81':'#1e3a8a';
+  c.lineWidth=F?4.2:5; c.lineCap='round';
+  c.beginPath();
+  c.moveTo(-6,-5); c.quadraticCurveTo(0,-8.5,4,-6.8);
+  c.moveTo(-6,5);  c.quadraticCurveTo(0,8.5,4,6.8);
+  c.stroke();
+
+  // 9. 騎士上半身軀幹與雙臂伸向握把
+  if(F){
+    // 妮野可：合身白色運動外送外套＋薄荷綠背帶
+    c.fillStyle='#fff1f2';
+    c.beginPath(); c.ellipse(-5.5,0,6.5,8.2,0,0,Math.PI*2); c.fill();
+    c.strokeStyle='#f43f5e'; c.lineWidth=1.2; c.stroke();
+    c.strokeStyle='#10b981'; c.lineWidth=2;
+    c.beginPath(); c.moveTo(-10,-4.5); c.lineTo(-1,-5.5); c.moveTo(-10,4.5); c.lineTo(-1,5.5); c.stroke();
+    // 纖細雙臂握住手把
+    c.strokeStyle='#ffe4e6'; c.lineWidth=3.4; c.lineCap='round';
+    c.beginPath();
+    c.moveTo(-3,-6.8); c.quadraticCurveTo(3,-11.5,8.5,-11.2);
+    c.moveTo(-3,6.8);  c.quadraticCurveTo(3,11.5,8.5,11.2);
+    c.stroke();
+    c.fillStyle='#ec4899';
+    c.beginPath(); c.arc(9,-11.2,2.3,0,Math.PI*2); c.arc(9,11.2,2.3,0,Math.PI*2); c.fill();
+  }else{
+    // 阿豪大叔：寬肩深藍 POLO 衫＋螢光黃反光背心
+    c.fillStyle='#1e293b';
+    c.beginPath(); c.ellipse(-5.5,0,7.5,10,0,0,Math.PI*2); c.fill();
+    c.strokeStyle='#475569'; c.lineWidth=1.2; c.stroke();
+    c.strokeStyle='#facc15'; c.lineWidth=2.4;
+    c.beginPath();
+    c.moveTo(-11,-5.2); c.lineTo(0,-6.2);
+    c.moveTo(-11,5.2);  c.lineTo(0,6.2);
+    c.moveTo(-9,-6);    c.lineTo(-9,6);
+    c.stroke();
+    // 粗壯手臂（短袖＋小麥膚色前臂）
+    c.strokeStyle='#1e293b'; c.lineWidth=4.8; c.lineCap='round';
+    c.beginPath(); c.moveTo(-3,-8.2); c.lineTo(1.5,-10.2); c.moveTo(-3,8.2); c.lineTo(1.5,10.2); c.stroke();
+    c.strokeStyle='#f59e0b'; c.lineWidth=1.5;
+    c.beginPath(); c.moveTo(1.5,-8.5); c.lineTo(1.5,-11.8); c.moveTo(1.5,8.5); c.lineTo(1.5,11.8); c.stroke();
+    c.strokeStyle='#fdba74'; c.lineWidth=3.8;
+    c.beginPath(); c.moveTo(1.5,-10.2); c.lineTo(8.5,-11.2); c.moveTo(1.5,10.2); c.lineTo(8.5,11.2); c.stroke();
+    c.fillStyle='#111827';
+    c.beginPath(); c.arc(9,-11.2,2.6,0,Math.PI*2); c.arc(9,11.2,2.6,0,Math.PI*2); c.fill();
+  }
+
+  // 10. 妮野可專屬：從安全帽後方飄出的高馬尾長髮（隨速度擺動）
+  if(F){
+    const sway=Math.sin(now/(moving?75:190))*(moving?3.6:1.4);
+    c.save();
+    c.translate(-9.5,0);
+    c.fillStyle='#fde047';
+    c.beginPath(); c.arc(0,0,2.4,0,Math.PI*2); c.fill();
+    c.fillStyle='#581c87';
+    c.beginPath();
+    c.moveTo(0,-2.2);
+    c.quadraticCurveTo(-7,-5.5+sway*0.5,-14,sway*1.2);
+    c.quadraticCurveTo(-7,5.5+sway*0.5,0,2.2);
+    c.closePath();
+    c.fill();
+    c.strokeStyle='#a855f7'; c.lineWidth=1.4;
+    c.beginPath(); c.moveTo(-1,0); c.quadraticCurveTo(-6,sway*0.5,-11.5,sway); c.stroke();
+    c.restore();
+  }
+
+  // 11. 騎士頭部、安全帽、護目鏡與臉部特徵
+  c.save();
+  c.translate(-1.5,0);
+  if(F){
+    c.fillStyle='#ffe4e6';
+    c.beginPath(); c.arc(3.2,0,6.4,0,Math.PI*2); c.fill();
+    c.fillStyle='#fb7185';
+    c.beginPath(); c.arc(6.5,-3.6,1.3,0,Math.PI*2); c.arc(6.5,3.6,1.3,0,Math.PI*2); c.fill();
+    c.fillStyle='#1e293b';
+    c.beginPath(); c.arc(7.4,-2.2,0.9,0,Math.PI*2); c.arc(7.4,2.2,0.9,0,Math.PI*2); c.fill();
+
+    // 粉色半罩安全帽
+    c.fillStyle='#ec4899';
+    c.beginPath(); c.arc(0,0,7.8,Math.PI*0.36,Math.PI*1.64); c.closePath(); c.fill();
+    c.strokeStyle='#fbcfe8'; c.lineWidth=1.3; c.stroke();
+    c.fillStyle='#fdf2f8';
+    c.fillRect(-7.5,-1.6,10,3.2);
+
+    // 透明防風鏡片
+    c.strokeStyle='#e0f2fe'; c.lineWidth=1.1;
+    c.beginPath(); c.arc(1.2,0,7.6,-Math.PI*0.38,Math.PI*0.38); c.stroke();
+
+    // 立體貓耳裝飾
+    c.fillStyle='#f472b6'; c.strokeStyle='#fdf2f8'; c.lineWidth=1;
+    c.beginPath(); c.moveTo(-1,-6.5); c.lineTo(-4.8,-12.5); c.lineTo(2.5,-8.2); c.closePath(); c.fill(); c.stroke();
+    c.fillStyle='#fda4af';
+    c.beginPath(); c.moveTo(-1,-7.2); c.lineTo(-3.5,-10.8); c.lineTo(1.2,-8.2); c.closePath(); c.fill();
+    c.fillStyle='#f472b6';
+    c.beginPath(); c.moveTo(-1,6.5); c.lineTo(-4.8,12.5); c.lineTo(2.5,8.2); c.closePath(); c.fill(); c.stroke();
+    c.fillStyle='#fda4af';
+    c.beginPath(); c.moveTo(-1,7.2); c.lineTo(-3.5,10.8); c.lineTo(1.2,8.2); c.closePath(); c.fill();
+  }else{
+    // 阿豪大叔小麥色臉龐
+    c.fillStyle='#fdba74';
+    c.beginPath(); c.arc(3.4,0,6.6,0,Math.PI*2); c.fill();
+    c.strokeStyle='#1e293b'; c.lineWidth=1.6;
+    c.beginPath(); c.moveTo(6.2,-3.8); c.lineTo(7.8,-1.6); c.moveTo(6.2,3.8); c.lineTo(7.8,1.6); c.stroke();
+    // 招牌八字鬍
+    c.strokeStyle='#1f2937'; c.lineWidth=2.2; c.lineCap='round';
+    c.beginPath();
+    c.moveTo(9.2,0); c.quadraticCurveTo(9.5,-3.2,7.5,-4.8);
+    c.moveTo(9.2,0); c.quadraticCurveTo(9.5,3.2,7.5,4.8);
+    c.stroke();
+
+    // 工程黃半罩安全帽＋深藍賽車雙條紋
+    c.fillStyle='#facc15';
+    c.beginPath(); c.arc(0,0,8.2,Math.PI*0.34,Math.PI*1.66); c.closePath(); c.fill();
+    c.strokeStyle='#ca8a04'; c.lineWidth=1.3; c.stroke();
+    c.fillStyle='#1e3a8a';
+    c.fillRect(-8,-2.8,11,1.8);
+    c.fillRect(-8,1.0,11,1.8);
+
+    // 帽沿飛行護目鏡
+    c.fillStyle='#334155';
+    rrc(c,2.2,-6.5,3.6,5.5,1.5); c.fill();
+    rrc(c,2.2,1.0,3.6,5.5,1.5); c.fill();
+    c.fillStyle='#38bdf8';
+    rrc(c,2.8,-5.8,2.4,4.1,1); c.fill();
+    rrc(c,2.8,1.7,2.4,4.1,1); c.fill();
+  }
+  c.restore();
+
+  c.restore();
+}
+function drawPlayer(now){
+  ctx.save();
+  ctx.translate(P.x,P.y);
+  ctx.rotate(P.angle);
+  renderRider(ctx,char,now,P.moving,!!(order&&order.stage==='deliver'),1.18);
+  ctx.restore();
+}
+function drawCharPreviews(now){
+  [['prevM','M'],['prevF','F']].forEach(([id,g])=>{
+    const el=$(id); if(!el) return;
+    const c=el.getContext('2d');
+    const w=el.width, h=el.height;
+    c.setTransform(1,0,0,1,0,0);
+    c.clearRect(0,0,w,h);
+    c.fillStyle='#162033'; c.fillRect(0,0,w,h);
+    c.strokeStyle='#f59e0b'; c.lineWidth=2.5; c.setLineDash([12,10]);
+    c.lineDashOffset=(now/18)%22;
+    c.beginPath(); c.moveTo(0,h/2); c.lineTo(w,h/2); c.stroke(); c.setLineDash([]);
+    c.save();
+    c.translate(w/2+4,h/2);
+    renderRider(c,g,now,true,g===char,1.45);
+    c.restore();
+  });
+}
+function hudPanel(x,y,w,h){ctx.fillStyle='rgba(10,15,30,.82)';rr(x,y,w,h,12);ctx.fill();ctx.strokeStyle='rgba(148,163,184,.45)';ctx.lineWidth=1.5;ctx.stroke();}
+function drawHUD(now){
+  const L=safe.l+10, T=safe.t+10, R=W-safe.r-10;
+  ctx.textBaseline='middle';
+  // 左：分數、體力、連擊
+  const lw=Math.min(200,W*0.26);
+  hudPanel(L,T,lw,78);
+  ctx.textAlign='left'; ctx.fillStyle='#94a3b8'; ctx.font='bold 12px system-ui,sans-serif'; ctx.fillText('分數',L+10,T+15);
+  ctx.fillStyle='#fde68a'; ctx.font='900 24px system-ui,sans-serif'; ctx.fillText(String(stats.score),L+44,T+16);
+  ctx.fillStyle='#94a3b8'; ctx.font='bold 12px system-ui,sans-serif'; ctx.fillText('體力',L+10,T+40);
+  const bw=lw-56; ctx.fillStyle='#1e293b'; rr(L+44,T+33,bw,14,7); ctx.fill();
+  const hpc=P.hp>50?'#22c55e':(P.hp>25?'#f59e0b':'#ef4444');
+  if(P.hp>0){ctx.fillStyle=hpc; rr(L+44,T+33,Math.max(10,bw*P.hp/100),14,7); ctx.fill();}
+  ctx.fillStyle='#94a3b8'; ctx.font='bold 12px system-ui,sans-serif'; ctx.fillText('連擊',L+10,T+63);
+  ctx.fillStyle=combo>0?'#f472b6':'#475569'; ctx.font='900 16px system-ui,sans-serif'; ctx.fillText('×'+combo+(combo>0?'  (加乘 '+(1+0.2*Math.min(combo,10)).toFixed(1)+')':''),L+44,T+63);
+
+  // 右：等級、差評（在按鈕下方）
+  const rw=128, rx=R-rw, ry=T+52;
+  hudPanel(rx,ry,rw,52);
+  ctx.textAlign='left'; ctx.fillStyle='#6ee7b7'; ctx.font='900 14px system-ui,sans-serif';
+  const curTod=DAY_STYLES[Math.min(DAY_STYLES.length-1,level-1)].name;
+  ctx.fillText('Lv '+level+' '+curTod,rx+10,ry+15);
+  ctx.fillStyle='#94a3b8'; ctx.font='bold 12px system-ui,sans-serif'; ctx.fillText('差評',rx+10,ry+37);
+  for(let i=0;i<3;i++){
+    ctx.beginPath(); ctx.arc(rx+56+i*22,ry+37,8,0,Math.PI*2);
+    if(i<strikes){ctx.fillStyle='#ef4444';ctx.fill();}else{ctx.strokeStyle='#475569';ctx.lineWidth=2;ctx.stroke();}
+  }
+
+  // 中：訂單
+  const cw=clamp(W-lw-rw-safe.l-safe.r-60,180,330), cx=(L+lw+rx)/2-cw/2;
+  const cxx=Math.max(L+lw+10,Math.min(cx,rx-cw-10));
+  hudPanel(cxx,T,cw,46);
+  ctx.textAlign='center';
+  if(order){
+    const tgt=order.stage==='pickup'?order.shop:order.cust;
+    const ratio=clamp(order.time/order.total,0,1);
+    ctx.fillStyle=order.stage==='pickup'?'#fbbf24':'#34d399'; ctx.font='900 14px system-ui,sans-serif';
+    ctx.fillText((order.stage==='pickup'?'取餐 → ':'送達 → ')+tgt.icon+' '+tgt.name,cxx+cw/2-24,T+15);
+    ctx.textAlign='right'; ctx.fillStyle=order.time<5?'#f87171':'#fff'; ctx.font='900 15px system-ui,sans-serif';
+    ctx.fillText(Math.max(0,order.time).toFixed(1)+'s',cxx+cw-10,T+15);
+    ctx.fillStyle='#1e293b'; rr(cxx+10,T+29,cw-20,9,5); ctx.fill();
+    ctx.fillStyle=ratio>0.5?'#22c55e':(ratio>0.25?'#f59e0b':'#ef4444');
+    if(ratio>0){rr(cxx+10,T+29,Math.max(9,(cw-20)*ratio),9,5); ctx.fill();}
+  }else{
+    ctx.fillStyle='#94a3b8'; ctx.font='bold 14px system-ui,sans-serif';
+    ctx.fillText(countdown>0?'準備出發…':'📲 等待新訂單…',cxx+cw/2,T+23);
+  }
+
+  // 畫面外的目標箭頭
+  if(order){
+    const tgt=order.stage==='pickup'?order.shop:order.cust;
+    const sx=(tgt.door.x-cam.x)*ZOOM, sy=(tgt.door.y-cam.y)*ZOOM;
+    const m=50, top=T+110;
+    if(sx<m||sx>W-m||sy<top||sy>H-m){
+      const px=(P.x-cam.x)*ZOOM, py=(P.y-cam.y)*ZOOM;
+      const ang=Math.atan2(sy-py,sx-px);
+      const ex=clamp(sx,m+safe.l,W-m-safe.r), ey=clamp(sy,top,H-m-safe.b);
+      ctx.save(); ctx.translate(ex,ey); ctx.rotate(ang);
+      ctx.fillStyle=order.stage==='pickup'?'#fbbf24':'#34d399';
+      ctx.beginPath(); ctx.moveTo(20,0); ctx.lineTo(-10,-13); ctx.lineTo(-4,0); ctx.lineTo(-10,13); ctx.closePath(); ctx.fill();
+      ctx.restore();
+      ctx.fillStyle='#fff'; ctx.font='bold 12px system-ui,sans-serif'; ctx.textAlign='center';
+      ctx.fillText(Math.round(dist(P,tgt.door)/10)*10+'m',ex-Math.cos(ang)*30,ey-Math.sin(ang)*30);
+    }
+  }
+
+  // 搖桿
+  if(joy.id!==null){
+    ctx.fillStyle='rgba(255,255,255,.1)'; ctx.strokeStyle='rgba(255,255,255,.35)'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(joy.ox,joy.oy,55,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    const dx=joy.x-joy.ox, dy=joy.y-joy.oy, l=Math.hypot(dx,dy), c=Math.min(55,l);
+    ctx.fillStyle='rgba(245,158,11,.9)'; ctx.beginPath(); ctx.arc(joy.ox+(l?dx/l*c:0),joy.oy+(l?dy/l*c:0),24,0,Math.PI*2); ctx.fill();
+  }else if(hintT>0&&countdown<=0){
+    ctx.globalAlpha=Math.min(1,hintT); ctx.textAlign='center'; ctx.font='bold 15px system-ui,sans-serif';
+    const msg=isTouch?'👆 按住畫面任一處拖曳＝移動　右下按鈕＝丟珍奶':'⌨️ WASD／方向鍵移動・空白鍵丟珍奶（滑鼠拖曳也可移動）';
+    const tw=ctx.measureText(msg).width+30;
+    hudPanel(W/2-tw/2,H-safe.b-120,tw,34); ctx.fillStyle='#fde68a'; ctx.fillText(msg,W/2,H-safe.b-103);
+    ctx.globalAlpha=1;
+  }
+
+  // 倒數
+  if(countdown>0){
+    const n=Math.ceil(countdown), f=countdown-Math.floor(countdown);
+    ctx.textAlign='center'; ctx.font='900 '+Math.round(90+f*40)+'px system-ui,sans-serif';
+    ctx.lineWidth=8; ctx.strokeStyle='rgba(0,0,0,.6)'; ctx.strokeText(String(n),W/2,H/2);
+    ctx.fillStyle='#fde68a'; ctx.fillText(String(n),W/2,H/2);
+  }
+  // 橫幅
+  if(banner){
+    const a=Math.min(1,banner.t*2, (1.8-banner.t)*6);
+    ctx.globalAlpha=a; ctx.textAlign='center';
+    ctx.fillStyle='rgba(10,15,30,.75)'; ctx.fillRect(0,H/2-46,W,92);
+    ctx.font='900 34px system-ui,sans-serif'; ctx.fillStyle=banner.color; ctx.fillText(banner.text,W/2,H/2-12);
+    ctx.font='bold 16px system-ui,sans-serif'; ctx.fillStyle='#e2e8f0'; ctx.fillText(banner.sub,W/2,H/2+22);
+    ctx.globalAlpha=1;
+  }
+  // 低體力紅框
+  if(P.hp<=25&&G.state==='play'){
+    ctx.strokeStyle='rgba(239,68,68,'+(0.35+Math.sin(now/150)*0.25)+')'; ctx.lineWidth=10; ctx.strokeRect(5,5,W-10,H-10);
+  }
+}
+function draw(now){
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.fillStyle='#0b1020'; ctx.fillRect(0,0,cvs.width,cvs.height);
+  let sx=0,sy=0; if(shake>0){sx=rand(-6,6)*shake*2;sy=rand(-6,6)*shake*2;}
+  const s=DPR*ZOOM;
+  ctx.setTransform(s,0,0,s,(-cam.x*ZOOM+sx)*DPR,(-cam.y*ZOOM+sy)*DPR);
+  drawWorld(now);
+
+  // 晝夜氛圍濾鏡（依等級呈現晨光、正午、橘黃夕陽、紫粉魔幻或深藍街景）
+  if(G.state!=='title'){
+    const todIdx=Math.min(DAY_STYLES.length-1,level-1);
+    const curStyle=DAY_STYLES[todIdx];
+    ctx.fillStyle=curStyle.sky;
+    ctx.fillRect(cam.x-20,cam.y-20,(W/ZOOM)+40,(H/ZOOM)+40);
+
+    // 夜晚與深夜時的溫暖街燈光暈
+    if(curStyle.streetLamp){
+      for(const hy of HROADS) for(const vx of VROADS){
+        if(inView(vx-90,hy-90,180,180)){
+          const lg=ctx.createRadialGradient(vx,hy,15,vx,hy,85);
+          lg.addColorStop(0,'rgba(254,240,138,0.22)');
+          lg.addColorStop(1,'rgba(254,240,138,0)');
+          ctx.fillStyle=lg;
+          ctx.beginPath(); ctx.arc(vx,hy,85,0,Math.PI*2); ctx.fill();
+        }
+      }
+    }
+  }
+
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  if(G.state!=='title') drawHUD(now); else drawCharPreviews(now);
+}
+
+/* ===================== 主迴圈 ===================== */
+let lastFrame=performance.now();
+function loop(now){
+  const dt=Math.min(0.05,Math.max(0,(now-lastFrame)/1000)); lastFrame=now;
+  try{
+    if(G.state==='play') update(dt);
+    else if(G.state==='title'){updateCars(dt);followCam(dt);}
+    else if(G.state==='over'){updateCars(dt);if(shake>0)shake-=dt;for(const p of pops){p.t-=dt;p.y-=34*dt;}pops=pops.filter(p=>p.t>0);if(banner){banner.t-=dt;if(banner.t<=0)banner=null;}}
+    draw(now);
+  }catch(err){console.error(err);}
+  requestAnimationFrame(loop);
+}
+
+/* ===================== 輸入 ===================== */
+cvs.addEventListener('pointerdown',e=>{
+  if(G.state!=='play'||joy.id!==null) return;
+  e.preventDefault();
+  joy.id=e.pointerId; joy.ox=joy.x=e.clientX; joy.oy=joy.y=e.clientY;
+  try{cvs.setPointerCapture(e.pointerId);}catch(_){}
+  ensureAudio();
+});
+cvs.addEventListener('pointermove',e=>{if(e.pointerId===joy.id){joy.x=e.clientX;joy.y=e.clientY;}});
+function endJoy(e){if(e.pointerId===joy.id) joy.id=null;}
+cvs.addEventListener('pointerup',endJoy);
+cvs.addEventListener('pointercancel',endJoy);
+cvs.addEventListener('lostpointercapture',endJoy);
+$('throwBtn').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();throwFood();});
+addEventListener('keydown',e=>{
+  const k=e.key.toLowerCase();
+  if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k)) e.preventDefault();
+  if(e.repeat&&(k===' '||k==='j'||k==='p'||k==='m'||k==='escape')) return;
+  keys[k]=true;
+  if(k==='m'){ensureAudio();setMuted(!muted);return;}
+  if(G.state==='play'){
+    if(k===' '||k==='j') throwFood();
+    if(k==='p'||k==='escape') pauseGame();
+  }else if(G.state==='pause'){
+    if(k==='p'||k==='escape'||k==='enter') resumeGame();
+  }else if(G.state==='title'){
+    if(k==='enter'&&!$('howto').classList.contains('show')) {sfx('click');startGame();}
+    if(k==='escape') showOnly('title');
+  }else if(G.state==='over'&&$('over').classList.contains('show')){
+    if(k==='enter'||k===' ') startGame();
+  }
+});
+addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
+addEventListener('blur',()=>{for(const k in keys)keys[k]=false;joy.id=null;});
+addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('gesturestart',e=>e.preventDefault());
+document.addEventListener('dblclick',e=>e.preventDefault());
+
+function btn(id,fn){$(id).addEventListener('click',()=>{ensureAudio();sfx('click');fn();});}
+btn('startBtn',startGame);
+btn('howBtn',()=>showOnly('howto'));
+btn('howClose',()=>showOnly('title'));
+btn('resumeBtn',resumeGame);
+btn('restartBtn',startGame);
+btn('homeBtn1',goTitle);
+btn('againBtn',startGame);
+btn('homeBtn2',goTitle);
+btn('pauseBtn',pauseGame);
+$('muteBtn').addEventListener('click',()=>{ensureAudio();setMuted(!muted);sfx('click');});
+document.querySelectorAll('.char').forEach(b=>b.addEventListener('click',()=>{
+  ensureAudio(); sfx('click'); char=b.dataset.char; store.set('dug_char',char);
+  document.querySelectorAll('.char').forEach(x=>x.classList.toggle('sel',x===b));
+}));
+
+function checkOrientation(){
+  const portrait=isTouch&&H>W;
+  $('rotate').classList.toggle('show',portrait);
+  if(portrait&&G.state==='play') pauseGame();
+}
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){
+    pauseGame(); for(const k in keys)keys[k]=false;
+    if(Snd.ctx&&Snd.ctx.state==='running') Snd.ctx.suspend();
+  }else if(Snd.ctx&&Snd.ctx.state==='suspended') Snd.ctx.resume();
+});
+addEventListener('resize',resize);
+addEventListener('orientationchange',()=>setTimeout(resize,200));
+
+/* ===================== 啟動 ===================== */
+resize();
+setMuted(muted);
+goTitle();
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
