@@ -17,7 +17,9 @@ html,body{margin:0;height:100%;background:#0b1020;color:#fff;font-family:system-
 .hudBtn:active{transform:scale(.92)}
 #pauseBtn{right:calc(10px + env(safe-area-inset-right));display:none}
 #muteBtn{right:calc(62px + env(safe-area-inset-right))}
-body.title #muteBtn{right:calc(10px + env(safe-area-inset-right))}
+#fullBtn{right:calc(114px + env(safe-area-inset-right))}
+body.title #muteBtn{right:calc(62px + env(safe-area-inset-right))}
+body.title #fullBtn{right:calc(10px + env(safe-area-inset-right))}
 
 #throwBtn{position:fixed;right:calc(18px + env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom));width:96px;height:96px;border-radius:50%;border:3px solid #fde68a;background:radial-gradient(circle at 35% 30%,#fbbf24,#b45309);color:#fff;font-weight:900;font-size:15px;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:20;box-shadow:0 6px 18px rgba(0,0,0,.5);cursor:pointer;padding:0;line-height:1.15;text-shadow:0 1px 2px rgba(0,0,0,.6)}
 #throwBtn .ic{font-size:32px}
@@ -77,6 +79,7 @@ body.title #muteBtn{right:calc(10px + env(safe-area-inset-right))}
 
 <button class="hudBtn" id="pauseBtn" aria-label="暫停">⏸</button>
 <button class="hudBtn" id="muteBtn" aria-label="靜音">🔊</button>
+<button class="hudBtn" id="fullBtn" aria-label="全螢幕">⛶</button>
 <button id="throwBtn" aria-label="丟珍奶"><span class="ic">🧋</span><span id="ammoTxt">×3</span></button>
 
 <!-- 開始畫面 -->
@@ -101,7 +104,7 @@ body.title #muteBtn{right:calc(10px + env(safe-area-inset-right))}
     <button class="btn primary" id="startBtn">🚀 開始外送</button>
     <button class="btn" id="howBtn">📖 玩法說明</button>
   </div>
-  <div class="small">單機遊戲・不需網路・建議橫向遊玩</div>
+  <div class="small">單機遊戲・不需網路・建議橫向遊玩 <span style="display:inline-block;margin-left:6px;padding:2px 6px;border-radius:6px;background:#1e293b;border:1px solid #475569;color:#38bdf8;font-weight:bold;">v1.3.0</span></div>
 </div></div>
 
 <!-- 玩法說明 -->
@@ -690,7 +693,12 @@ function goTitle(){
   document.querySelectorAll('.char').forEach(b=>b.classList.toggle('sel',b.dataset.char===char));
 }
 function startGame(){
-  ensureAudio(); resetGame(); G.state='play'; setBodyState('play'); showOnly(null);
+  ensureAudio();
+  if (isTouch) {
+    // 手機點擊「開始外送」時自動嘗試進入全螢幕並鎖定橫向
+    toggleFullScreen();
+  }
+  resetGame(); G.state='play'; setBodyState('play'); showOnly(null);
   joy.id=null; lastFrame=performance.now();
 }
 function pauseGame(){
@@ -1871,6 +1879,33 @@ addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('gesturestart',e=>e.preventDefault());
 document.addEventListener('dblclick',e=>e.preventDefault());
 
+function toggleFullScreen(){
+  ensureAudio();
+  const doc = document;
+  const el = doc.documentElement;
+  if (!doc.fullscreenElement && !doc.webkitFullscreenElement && !doc.mozFullScreenElement && !doc.msFullscreenElement) {
+    const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+    if (req) {
+      req.call(el).then(()=>{
+        if (screen.orientation && screen.orientation.lock) {
+          screen.orientation.lock('landscape').catch(()=>{});
+        }
+      }).catch(()=>{});
+    }
+  } else {
+    const exit = doc.exitFullscreen || doc.webkitExitFullscreen || doc.mozCancelFullScreen || doc.msExitFullscreen;
+    if (exit) exit.call(doc).catch(()=>{});
+  }
+}
+
+function updateFullscreenBtn(){
+  const isFull = !!(document.fullscreenElement || document.webkitFullscreenElement);
+  const btn = $('fullBtn');
+  if(btn) btn.textContent = isFull ? '🗗' : '⛶';
+}
+['fullscreenchange','webkitfullscreenchange'].forEach(ev=>{
+  document.addEventListener(ev, updateFullscreenBtn);
+});
 function btn(id,fn){$(id).addEventListener('click',()=>{ensureAudio();sfx('click');fn();});}
 btn('startBtn',startGame);
 btn('howBtn',()=>showOnly('howto'));
@@ -1881,6 +1916,7 @@ btn('homeBtn1',goTitle);
 btn('againBtn',startGame);
 btn('homeBtn2',goTitle);
 btn('pauseBtn',pauseGame);
+$('fullBtn').addEventListener('click',()=>{sfx('click');toggleFullScreen();});
 $('muteBtn').addEventListener('click',()=>{ensureAudio();setMuted(!muted);sfx('click');});
 document.querySelectorAll('.char').forEach(b=>b.addEventListener('click',()=>{
   ensureAudio(); sfx('click'); char=b.dataset.char; store.set('dug_char',char);
