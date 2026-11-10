@@ -136,12 +136,12 @@ body.title #muteBtn{right:calc(10px + env(safe-area-inset-right))}
   <div class="stats">
     <div class="stat"><div class="v" id="stDel">0</div><div class="k">送達單數</div></div>
     <div class="stat"><div class="v" id="stCombo">0</div><div class="k">最高連擊</div></div>
-    <div class="stat"><div class="v" id="stLv">1</div><div class="k">到達等級</div></div>
+    <div class="stat"><div class="v" id="stLv">1</div><div class="k">到達關卡</div></div>
     <div class="stat"><div class="v" id="stNear">0</div><div class="k">驚險閃過</div></div>
     <div class="stat"><div class="v" id="stDog">0</div><div class="k">定住野狗</div></div>
     <div class="stat"><div class="v" id="stTime">0s</div><div class="k">跑單時間</div></div>
   </div>
-  <p>🏆 本機最高分：<b id="bestOver" style="color:#fbbf24">0</b></p>
+  <p>🏆 歷史最高分：<b id="bestOver" style="color:#fbbf24">0</b>　(最高紀錄：Stage <b id="bestStageTxt" style="color:#6ee7b7">1</b>)</p>
   <button class="btn primary" id="againBtn">🔄 再玩一次</button>
   <button class="btn" id="homeBtn2">🏠 回主畫面</button>
 </div></div>
@@ -453,19 +453,21 @@ const pathLen=(a,b)=>bfs(a,b).length*CELL;
 const G={state:'title'};
 let char=store.get('dug_char','M');
 let best=store.get('dug_best',0);
+let bestStage=store.get('dug_best_stage',1);
 let P,cars,dogs,shots,items,pops,order,stats,level,strikes,combo,countdown,shake,itemTimer,orderDelay,banner,lastTick,path,pathTimer,hintT;
 const cam={x:0,y:0};
 const joy={id:null,ox:0,oy:0,x:0,y:0};
 const keys={};
 const CAR_COLORS=['#38bdf8','#f87171','#a78bfa','#34d399','#fbbf24','#f472b6','#e5e7eb'];
-// 晝夜光影與氛圍配色
-const DAY_STYLES=[
-  { sky:'rgba(254,240,138,0.15)', name:'早晨', streetLamp:false },    // 早晨金光
-  { sky:'rgba(255,255,255,0.05)', name:'午餐尖峰', streetLamp:false }, // 正午明亮
-  { sky:'rgba(249,115,22,0.18)', name:'午後', streetLamp:false },    // 暖橘陽光
-  { sky:'rgba(217,70,239,0.22)', name:'黃昏', streetLamp:true },     // 魔幻紫粉夕陽
-  { sky:'rgba(15,23,42,0.38)', name:'夜晚', streetLamp:true },       // 藍調夜市
-  { sky:'rgba(2,6,23,0.55)', name:'深夜', streetLamp:true }          // 寂靜深夜
+
+// 關卡主題設定（每 3 單通關晉級，各關專屬難度與突發事件）
+const STAGE_CONFIG=[
+  { name:'晨間熱身', sky:'rgba(254,240,138,0.14)', desc:'熟悉路況與轉彎手感，車流平緩', lamp:false, dog:0, timeMul:1.0 },
+  { name:'早市野狗出沒', sky:'rgba(255,255,255,0.06)', desc:'🐕 野狗群出沒！聞到香氣會狂追騎士', lamp:false, dog:2, timeMul:0.9 },
+  { name:'午餐爆單衝刺', sky:'rgba(249,115,22,0.18)', desc:'⚡ 時限緊迫！多吃能量飲料衝刺加速', lamp:false, dog:3, timeMul:0.78 },
+  { name:'黃昏交通尖峰', sky:'rgba(217,70,239,0.22)', desc:'🚗 密集車潮湧現！鑽車縫驚險閃避加分', lamp:true, dog:4, timeMul:0.72 },
+  { name:'魔幻午夜飆車', sky:'rgba(15,23,42,0.42)', desc:'🏎️ 夜間超速跑車呼嘯，時限與反應極限', lamp:true, dog:5, timeMul:0.65 },
+  { name:'深夜無盡生存', sky:'rgba(2,6,23,0.60)', desc:'💀 終極考驗！看你能挑戰到第幾單', lamp:true, dog:6, timeMul:0.60 }
 ];
 
 function resetGame(){
@@ -510,15 +512,16 @@ function randomRoadPoint(minDist){
   return {x:VROADS[3],y:HROADS[2]};
 }
 function syncHazards(){
-  const carN=Math.min(26,6+level*2);
-  while(cars.length<carN) cars.push(makeCar());
+  const cfg=STAGE_CONFIG[Math.min(STAGE_CONFIG.length-1,level-1)];
   const isNight=level>=5;
+  const carN=Math.min(28, 7+level*3);
+  while(cars.length<carN) cars.push(makeCar());
   cars.forEach(c=>{
-    const base=70+level*14+rand(0,40);
+    const base=75+level*15+rand(0,40);
     const sp=c.speeder?base*1.55:(isNight?base*1.35:base);
-    c.speed=Math.min(300,Math.max(c.speed,sp));
+    c.speed=Math.min(310,Math.max(c.speed,sp));
   });
-  const dogN=level>=2?Math.min(6,level-1):0;
+  const dogN=cfg.dog;
   while(dogs.length<dogN){const p=randomRoadPoint(500);dogs.push({x:p.x,y:p.y,dx:1,dy:0,wt:rand(1,3),stun:0,eat:0,chase:false});}
 }
 
@@ -564,6 +567,7 @@ function gameOver(reason){
   $('stDog').textContent=stats.dogs;
   $('stTime').textContent=Math.floor(stats.time)+'s';
   $('bestOver').textContent=best;
+  $('bestStageTxt').textContent=bestStage;
   setBodyState('over');
   setTimeout(()=>{if(G.state==='over'){showOnly('over');if(Snd.music)Snd.music.gain.value=0.55;}},900);
 }
@@ -578,31 +582,62 @@ function newOrder(){
   const shop=pick(shops); let cust=pick(customers);
   for(let i=0;i<30;i++){cust=pick(customers);if(pathLen(shop.door,cust.door)>=600)break;}
   const d=pathLen(P,shop.door)+pathLen(shop.door,cust.door);
-  const base=d/210;
-  const f=Math.max(0,1-(level-1)*0.1);
-  const t=base*(1+0.6*f)+5*f+2.5;
-  order={shop,cust,stage:'pickup',time:t,total:t};
+  const cfg=STAGE_CONFIG[Math.min(STAGE_CONFIG.length-1,level-1)];
+
+  // 緊湊時限計算：基礎騎乘時間 × 關卡係數 (Stage 1 剛好，Stage 3~5 必須熟練或吃加速)
+  const baseRideTime=d/235; // 提升標準骑速標準，縮減寬容秒數
+  const t=Math.max(12, (baseRideTime*1.15 + 2.5) * cfg.timeMul);
+
+  // 20% 機率接到金色高額加成 VIP 特殊訂單
+  const isVip=Math.random()<0.22;
+
+  order={shop,cust,stage:'pickup',time:t,total:t,isVip};
   lastTick=-1; pathTimer=0;
-  sfx('order'); pop(P.x,P.y-30,'📲 新訂單！','#6ee7b7',18);
+  sfx('order');
+  if(isVip){
+    pop(P.x,P.y-30,'⭐ 金牌特急單！雙倍工資','#fbbf24',20);
+  } else {
+    pop(P.x,P.y-30,'📲 新訂單！','#6ee7b7',18);
+  }
 }
 function deliver(){
   const tl=Math.max(0,order.time);
+  const remainRatio=tl/order.total;
+
+  // 三星外送評價判定
+  let stars='⭐', starBonus=0, starMsg='壓線送達';
+  if(remainRatio>=0.40){
+    stars='⭐⭐⭐'; starBonus=80; starMsg='完美神速！';
+    P.hp=Math.min(100, P.hp+15); // 3星回血 15
+  } else if(remainRatio>=0.15){
+    stars='⭐⭐'; starBonus=30; starMsg='準時抵達！';
+    P.hp=Math.min(100, P.hp+8);
+  } else {
+    P.hp=Math.min(100, P.hp+3);
+  }
+
   const mult=1+0.2*Math.min(combo,10);
-  const pts=Math.round((100+Math.ceil(tl)*10)*mult);
+  const vipMult=order.isVip?2.0:1.0;
+  const pts=Math.round((100 + Math.ceil(tl)*12 + starBonus) * mult * vipMult);
+
   stats.score+=pts; combo++; stats.maxCombo=Math.max(stats.maxCombo,combo); stats.delivered++;
-  P.hp=Math.min(100,P.hp+5);
-  pop(P.x,P.y-36,'+'+pts,'#fde68a',26);
-  if(combo>1) pop(P.x,P.y-64,'連擊 ×'+combo,'#f472b6',18);
+  pop(P.x,P.y-36,'+'+pts+' '+stars,'#fde68a',24);
+  pop(P.x,P.y-60,starMsg,'#6ee7b7',16);
+
+  if(combo>1) pop(P.x,P.y-84,'連擊 ×'+combo,'#f472b6',18);
   sfx('deliver');
-  if(combo%5===0&&strikes>0){strikes--;pop(P.x,P.y-90,'👍 好評！差評 −1','#6ee7b7',18);}
-  order=null; orderDelay=0.9; path=[];
-  if(stats.delivered%2===0) levelUp();
+  if(combo%5===0&&strikes>0){strikes--;pop(P.x,P.y-104,'👍 好評！差評 −1','#6ee7b7',18);}
+  order=null; orderDelay=0.8; path=[];
+
+  // 每送達 3 單升 1 級關卡 (Stage 推進)
+  if(stats.delivered%3===0) levelUp();
 }
 function levelUp(){
   level++; syncHazards(); sfx('level');
-  const todName=DAY_STYLES[Math.min(DAY_STYLES.length-1,level-1)].name;
-  const msg=level===2?'🐕 野狗出沒！小心被追':'🚗 車流增加、時限縮短';
-  showBanner('LEVEL '+level+'・'+todName,msg,'#6ee7b7');
+  P.hp=Math.min(100, P.hp+25); // 通關補血 25
+  const cfg=STAGE_CONFIG[Math.min(STAGE_CONFIG.length-1,level-1)];
+  showBanner('STAGE '+level+'・'+cfg.name, cfg.desc, '#6ee7b7');
+  if(level>bestStage){ bestStage=level; store.set('dug_best_stage',bestStage); }
 }
 function orderFail(){
   strikes++; combo=0; sfx('fail'); shake=0.25;
@@ -1292,14 +1327,14 @@ function drawHUD(now){
   ctx.fillStyle=combo>0?'#f472b6':'#475569'; ctx.font='900 16px system-ui,sans-serif'; ctx.fillText('×'+combo+(combo>0?'  (加乘 '+(1+0.2*Math.min(combo,10)).toFixed(1)+')':''),L+44,T+63);
 
   // 右：等級、差評（在按鈕下方）
-  const rw=128, rx=R-rw, ry=T+52;
+  const rw=138, rx=R-rw, ry=T+52;
   hudPanel(rx,ry,rw,52);
-  ctx.textAlign='left'; ctx.fillStyle='#6ee7b7'; ctx.font='900 14px system-ui,sans-serif';
-  const curTod=DAY_STYLES[Math.min(DAY_STYLES.length-1,level-1)].name;
-  ctx.fillText('Lv '+level+' '+curTod,rx+10,ry+15);
-  ctx.fillStyle='#94a3b8'; ctx.font='bold 12px system-ui,sans-serif'; ctx.fillText('差評',rx+10,ry+37);
+  ctx.textAlign='left'; ctx.fillStyle='#6ee7b7'; ctx.font='900 13px system-ui,sans-serif';
+  const curCfg=STAGE_CONFIG[Math.min(STAGE_CONFIG.length-1,level-1)];
+  ctx.fillText('St.'+level+' '+curCfg.name.substring(0,6),rx+8,ry+15);
+  ctx.fillStyle='#94a3b8'; ctx.font='bold 12px system-ui,sans-serif'; ctx.fillText('差評',rx+8,ry+37);
   for(let i=0;i<3;i++){
-    ctx.beginPath(); ctx.arc(rx+56+i*22,ry+37,8,0,Math.PI*2);
+    ctx.beginPath(); ctx.arc(rx+54+i*22,ry+37,8,0,Math.PI*2);
     if(i<strikes){ctx.fillStyle='#ef4444';ctx.fill();}else{ctx.strokeStyle='#475569';ctx.lineWidth=2;ctx.stroke();}
   }
 
@@ -1311,12 +1346,16 @@ function drawHUD(now){
   if(order){
     const tgt=order.stage==='pickup'?order.shop:order.cust;
     const ratio=clamp(order.time/order.total,0,1);
-    ctx.fillStyle=order.stage==='pickup'?'#fbbf24':'#34d399'; ctx.font='900 14px system-ui,sans-serif';
-    ctx.fillText((order.stage==='pickup'?'取餐 → ':'送達 → ')+tgt.icon+' '+tgt.name,cxx+cw/2-24,T+15);
-    ctx.textAlign='right'; ctx.fillStyle=order.time<5?'#f87171':'#fff'; ctx.font='900 15px system-ui,sans-serif';
+    const orderTitle=order.isVip?'⭐特急單→ ':(order.stage==='pickup'?'取餐 → ':'送達 → ');
+    ctx.fillStyle=order.isVip?'#fde047':(order.stage==='pickup'?'#fbbf24':'#34d399'); ctx.font='900 14px system-ui,sans-serif';
+    ctx.fillText(orderTitle+tgt.icon+' '+tgt.name,cxx+cw/2-24,T+15);
+    ctx.textAlign='right';
+    const isUrgent=order.time<5;
+    ctx.fillStyle=isUrgent?'#f87171':'#fff';
+    ctx.font=(isUrgent?'900 17px':'900 15px')+' system-ui,sans-serif';
     ctx.fillText(Math.max(0,order.time).toFixed(1)+'s',cxx+cw-10,T+15);
     ctx.fillStyle='#1e293b'; rr(cxx+10,T+29,cw-20,9,5); ctx.fill();
-    ctx.fillStyle=ratio>0.5?'#22c55e':(ratio>0.25?'#f59e0b':'#ef4444');
+    ctx.fillStyle=ratio>0.4?'#22c55e':(ratio>0.15?'#f59e0b':'#ef4444');
     if(ratio>0){rr(cxx+10,T+29,Math.max(9,(cw-20)*ratio),9,5); ctx.fill();}
   }else{
     ctx.fillStyle='#94a3b8'; ctx.font='bold 14px system-ui,sans-serif';
@@ -1384,15 +1423,14 @@ function draw(now){
   ctx.setTransform(s,0,0,s,(-cam.x*ZOOM+sx)*DPR,(-cam.y*ZOOM+sy)*DPR);
   drawWorld(now);
 
-  // 晝夜氛圍濾鏡（依等級呈現晨光、正午、橘黃夕陽、紫粉魔幻或深藍街景）
+  // 晝夜氛圍濾鏡（依關卡呈現晨光、正午、橘黃夕陽、紫粉魔幻或深藍街景）
   if(G.state!=='title'){
-    const todIdx=Math.min(DAY_STYLES.length-1,level-1);
-    const curStyle=DAY_STYLES[todIdx];
-    ctx.fillStyle=curStyle.sky;
+    const cfg=STAGE_CONFIG[Math.min(STAGE_CONFIG.length-1,level-1)];
+    ctx.fillStyle=cfg.sky;
     ctx.fillRect(cam.x-20,cam.y-20,(W/ZOOM)+40,(H/ZOOM)+40);
 
     // 夜晚與深夜時的溫暖街燈光暈
-    if(curStyle.streetLamp){
+    if(cfg.lamp){
       for(const hy of HROADS) for(const vx of VROADS){
         if(inView(vx-90,hy-90,180,180)){
           const lg=ctx.createRadialGradient(vx,hy,15,vx,hy,85);
