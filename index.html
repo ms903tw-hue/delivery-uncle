@@ -279,34 +279,32 @@ function sfx(name){
   }
 }
 
-// 背景音樂：動感輕快旋律（Bass + 和弦 + 旋律線 + 節奏）
+// 舒緩 Lo-Fi City Pop 風格：溫暖七和弦 + 輕快有條理的律動感 (不吵雜、耐聽、有限時節奏)
 const midi=n=>440*Math.pow(2,(n-69)/12);
-// C - Am - F - G
-const BASS_LINE=[
-  36,36,48,36, 36,36,48,36, // C
-  33,33,45,33, 33,33,45,33, // A
-  29,29,41,29, 29,29,41,29, // F
-  31,31,43,31, 31,31,43,31  // G
-];
-const CHORD_NOTES=[
-  [60,64,67], // C
-  [57,60,64], // Am
-  [53,57,60], // F
-  [55,59,62]  // G
-];
-const LEAD_LINE=[
-  64,null,67,null, 72,null,67,64,
-  60,null,64,null, 69,null,64,60,
-  65,null,69,null, 72,null,69,65,
-  67,null,71,null, 74,72,71,67
+
+// 溫暖耐聽的爵士/City-Pop 和弦進行：Cmaj7 - Am7 - Dm7 - G7
+const CHORDS_LOFI=[
+  [48, 55, 59, 64], // Cmaj7 (C-G-B-E)
+  [45, 52, 57, 60], // Am7   (A-E-G-C)
+  [50, 57, 60, 65], // Dm7   (D-A-C-F)
+  [43, 50, 55, 59]  // G7    (G-D-G-B)
 ];
 
-function bpm(){ return G.state==='play'?Math.min(136,116+(level-1)*3):108; }
+// 清新放鬆、不密集搶戲的點綴旋律（木琴/電鋼琴音色）
+const CHILL_MELODY=[
+  71, null, 72, null,  null, 67, null, null,
+  69, null, 67, null,  64, null, null, null,
+  65, null, 67, null,  69, null, 72, null,
+  71, null, 67, null,  62, null, null, null
+];
+
+// 步進速度：輕鬆中帶有穩定推進感
+function bpm(){ return G.state==='play'?Math.min(124, 102+(level-1)*2.5):98; }
 
 function startMusic(){
   if(!Snd.ctx||Snd.seq) return;
   Snd.nextT=Snd.ctx.currentTime+0.05;
-  Snd.seq=setInterval(scheduleMusic,35);
+  Snd.seq=setInterval(scheduleMusic,40);
 }
 
 function stopMusic(){
@@ -330,38 +328,35 @@ function playStep(i,t){
   const bar=(i>>3)%4;
   const s=i%8;
 
-  // 1. 低音貝斯 (Bass)
-  const bn=BASS_LINE[i];
-  if(bn){
-    tone(midi(bn), 0.16, {type:'sawtooth', vol:0.18, t, dest:d});
+  // 1. 溫潤柔和低音 (純 Sine/Triangle 波，低通濾波，完全不刮耳)
+  if(s===0||s===3||s===6){
+    const root=CHORDS_LOFI[bar][0];
+    const oct=s===6?root+12:root;
+    tone(midi(oct-12), 0.22, {type:'sine', vol:0.18, t, dest:d});
   }
 
-  // 2. 鼓點節奏 (Hi-Hat / Kick / Snare)
-  if(s===0||s===4){
-    // 大鼓感
-    tone(110, 0.08, {type:'sine', vol:0.25, slide:35, t, dest:d});
-  }
-  if(s===2||s===6){
-    // 小鼓
-    noise(0.07, {vol:0.12, lp:1400, t, dest:d});
-  }
-  if(s%2===1){
-    // 輕巧 Hi-Hat
-    noise(0.03, {vol:0.04, hp:6000, t, dest:d});
-  }
-
-  // 3. 伴奏柔和切分和弦
-  if(s===2||s===5){
-    const ch=CHORD_NOTES[bar];
-    ch.forEach(n=>{
-      tone(midi(n), 0.12, {type:'triangle', vol:0.06, t, dest:d});
+  // 2. 溫暖 Lo-Fi 電鋼琴和弦（柔和淡入淡出，不吵雜）
+  if(s===1||s===4){
+    const chord=CHORDS_LOFI[bar];
+    chord.forEach((note,idx)=>{
+      tone(midi(note), 0.28, {type:'triangle', vol:0.045, t:t+idx*0.015, dest:d});
     });
   }
 
-  // 4. 清脆主旋律 (在主畫面與遊戲中皆有悠揚配樂)
-  const lead=LEAD_LINE[i];
-  if(lead!==null){
-    tone(midi(lead), 0.13, {type:'sine', vol:0.14, t, dest:d});
+  // 3. 規律但輕巧的「限時推進」輕打擊樂（低音暖鼓 + 柔和沙鈴，沒有尖銳噪聲）
+  if(s===0||s===4){
+    // 圓潤的心跳感低音鼓（有穩定倒數推進節奏）
+    tone(75, 0.09, {type:'sine', vol:0.16, slide:38, t, dest:d});
+  }
+  if(s===2||s===6){
+    // 輕柔的敲響/沙鈴聲
+    noise(0.04, {vol:0.035, hp:5000, lp:9000, t, dest:d});
+  }
+
+  // 4. 休閒優雅的清脆點綴旋律（如夏夜微風）
+  const note=CHILL_MELODY[i];
+  if(note!==null){
+    tone(midi(note), 0.16, {type:'sine', vol:0.08, t, dest:d});
   }
 }
 function setMuted(m){
