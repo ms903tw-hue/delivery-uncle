@@ -349,11 +349,11 @@ function playSirenBurst(kind, volMul=1){
     osc.connect(flt); flt.connect(g); g.connect(Snd.sfx);
     osc.start(t); osc.stop(t+0.91);
   } else {
-    if(t - Snd.lastAmb < 0.85) return;
+    if(t - Snd.lastAmb < 2.4) return;
     Snd.lastAmb=t;
     const osc=c.createOscillator(), flt=c.createBiquadFilter(), g=c.createGain();
     osc.type='sawtooth';
-    flt.type='lowpass'; flt.frequency.setValueAtTime(1750,t);
+    flt.type='lowpass'; flt.frequency.setValueAtTime(1600,t);
     osc.frequency.setValueAtTime(820,t);
     osc.frequency.setValueAtTime(820,t+0.25);
     osc.frequency.linearRampToValueAtTime(615,t+0.27);
@@ -361,7 +361,7 @@ function playSirenBurst(kind, volMul=1){
     osc.frequency.linearRampToValueAtTime(820,t+0.54);
     osc.frequency.setValueAtTime(820,t+0.79);
     osc.frequency.linearRampToValueAtTime(615,t+0.81);
-    const v=0.24*clamp(volMul,0.2,1.2);
+    const v=0.14*clamp(volMul,0.2,1.1);
     g.gain.setValueAtTime(0.0001,t);
     g.gain.linearRampToValueAtTime(v,t+0.025);
     g.gain.setValueAtTime(v,t+1.00);
@@ -696,25 +696,31 @@ function initTrafficSystem(){
   }
 
   peds=[];
-  // 行人精準生成在「人行道安全走道」（斑馬線外側等待區）
+  // 行人在人行道散步，走到十字路口會停下等紅燈，綠燈/紅燈切換時過斑馬線後繼續走
   const PED_NAMES=['阿伯','學生','上班族','辣妹','阿姨'];
-  for(const tl of trafficLights){
-    // 每個路口分配 1~2 位行人在四個角落的人行道上
-    for(const sideX of [-1, 1]){
-      peds.push({
-        tl,
-        sideX, // -1: 左側人行道, 1: 右側人行道
-        crossY: tl.y - HALF - 8, // 橫越時走上方斑馬線中心
-        walkY: tl.y - HALF - 24, // 平常人行道位置 (徹底遠離馬路)
-        x: tl.x + sideX * (HALF + 16),
-        y: tl.y - HALF - 24,
-        role: pick(PED_NAMES),
-        color: pick(['#f43f5e','#38bdf8','#f59e0b','#10b981','#a855f7','#f1f5f9']),
-        isCrossing: false,
-        crossProgress: 0, // 0: 在人行道, 1: 走過馬路到對面人行道
-        warned: false,
-        praised: false
-      });
+  for(const hy of HROADS){
+    const rowTls=trafficLights.filter(t=>t.y===hy).sort((a,b)=>a.x-b.x);
+    if(!rowTls.length) continue;
+    for(let k=0;k<rowTls.length+1;k++){
+      const x0=k===0?40:rowTls[k-1].x+HALF+22;
+      const x1=k===rowTls.length?MAP.w-40:rowTls[k].x-HALF-22;
+      if(x1-x0<60) continue;
+      for(let n=0;n<2;n++){
+        peds.push({
+          hy, rowTls,
+          x:rand(x0,x1),
+          y:hy-HALF-8,
+          dir:Math.random()<0.5?1:-1,
+          speed:rand(32,46),
+          state:'stroll',
+          waitTl:null,
+          role:pick(PED_NAMES),
+          color:pick(['#f43f5e','#38bdf8','#f59e0b','#10b981','#a855f7','#f1f5f9']),
+          isCrossing:false,
+          warned:false,
+          praised:false
+        });
+      }
     }
   }
 }
@@ -791,56 +797,49 @@ function updateTrafficAndPeds(dt){
     }
   }
 
-  // 更新行人
+  // 更新行人（沿人行道散步 → 到路口停等紅燈 → 過斑馬線 → 繼續散步）
   for(const ped of peds){
-    const tl=ped.tl;
-    // 當路口是紅燈時，行人走斑馬線過馬路；若是綠燈或黃燈，行人必須留在兩側人行道
-    const wantCross = (tl.state==='red');
-
-    const leftX = tl.x - (HALF + 16);
-    const rightX = tl.x + (HALF + 16);
-
-    if(wantCross){
-      // 紅燈：行人走斑馬線橫向穿越
-      ped.isCrossing=true;
-      ped.y = ped.crossY; // 嚴格貼在斑馬線內
-
-      if(ped.sideX === -1){
-        // 從左走到右
-        ped.crossProgress = Math.min(1, ped.crossProgress + dt * 0.28);
-      } else {
-        // 從右走到左
-        ped.crossProgress = Math.max(0, ped.crossProgress - dt * 0.28);
-      }
-    } else {
-      // 綠燈/黃燈：退回或走在人行道上，禁止進入馬路中央
+    ped.y = ped.hy - HALF - 8;
+    if(ped.state==='stroll'){
       ped.isCrossing=false;
-      ped.y = ped.walkY;
-      if(ped.sideX === -1){
-        ped.crossProgress = 0;
-      } else {
-        ped.crossProgress = 1;
+      const prevX=ped.x;
+      ped.x += ped.dir * ped.speed * dt;
+      if(ped.x<=30){ped.x=30;ped.dir=1;}
+      else if(ped.x>=MAP.w-30){ped.x=MAP.w-30;ped.dir=-1;}
+      for(const tl of ped.rowTls){
+        const curb=tl.x - ped.dir*(HALF+16);
+        if((ped.dir>0 && prevX<=curb && ped.x>=curb) || (ped.dir<0 && prevX>=curb && ped.x<=curb)){
+          ped.x=curb; ped.waitTl=tl; ped.state='wait'; break;
+        }
+      }
+    } else if(ped.state==='wait'){
+      ped.isCrossing=false;
+      if(ped.waitTl && ped.waitTl.state==='red'){
+        ped.state='cross'; ped.isCrossing=true;
+      }
+    } else if(ped.state==='cross'){
+      ped.isCrossing=true;
+      const crossSp=(ped.waitTl&&ped.waitTl.state==='red')?58:78;
+      ped.x += ped.dir * crossSp * dt;
+      const exitX=ped.waitTl.x + ped.dir*(HALF+18);
+      if((ped.dir>0 && ped.x>=exitX) || (ped.dir<0 && ped.x<=exitX)){
+        ped.x=exitX; ped.isCrossing=false; ped.waitTl=null; ped.state='stroll';
       }
     }
 
-    ped.x = leftX + (rightX - leftX) * ped.crossProgress;
-
-    // 與玩家互動判定
+    // 與玩家互動判定（僅在行人過斑馬線時判定禮讓／撞擊）
     const dPed=dist(ped, P);
-    if(dPed<22&&P.inv<=0&&G.state==='play'){
-      // 撞擊行人（嚴重事故）
+    if(ped.isCrossing && dPed<22 && P.inv<=0 && G.state==='play'){
       damage(35, '💥 撞到路人！');
       stats.score=Math.max(0, stats.score-50);
       sfx('hit');
       pop(ped.x, ped.y-30, '💢 哎唷喂呀！', '#fca5a5', 18);
-    } else if(dPed<46&&ped.isCrossing&&P.moving&&!ped.warned){
-      // 斑馬線上未禮讓行人
+    } else if(ped.isCrossing && dPed<48 && P.moving && !ped.warned){
       ped.warned=true;
       stats.score=Math.max(0, stats.score-20);
       sfx('whistle');
       pop(P.x, P.y-30, '👮 未禮讓行人！-20分', '#f87171', 18);
-    } else if(dPed<50&&ped.isCrossing&&!P.moving&&!ped.praised){
-      // 騎士停下禮讓行人過斑馬線（優良駕駛獎勵）
+    } else if(ped.isCrossing && dPed<54 && !P.moving && !ped.praised){
       ped.praised=true;
       stats.score+=15;
       sfx('praise');
@@ -864,11 +863,12 @@ function makeCarWithType(forcedType){
 
   let cType=forcedType || 'sedan';
   if(!forcedType){
+    const ambCount=cars.filter(x=>x.type==='ambulance').length;
     if(isSpeeder) cType='speed';
     else if(Math.random()<(curMapIdx===3?0.26:0.20)) cType='police';      // 巡邏警車
-    else if(Math.random()<0.18) cType='ambulance';   // 119救護車
-    else if(Math.random()<0.32) cType='taxi';        // 台灣小黃
-    else if(Math.random()<0.30) cType='truck';       // 藍色三噸半
+    else if(ambCount<1 && Math.random()<0.08) cType='ambulance';   // 119救護車（同場最多 1 輛，避免鳴笛過於頻繁）
+    else if(Math.random()<0.34) cType='taxi';        // 台灣小黃
+    else if(Math.random()<0.32) cType='truck';       // 藍色三噸半
   }
 
   let cColor=pick(CAR_COLORS);
@@ -1373,17 +1373,17 @@ function updateCars(dt){
       c.speed = 200; // 緊急奔馳
       if(!activePlay) continue;
 
-      // 救護車進入畫面或靠近時立即鳴笛，並在附近持續循環鳴笛
-      const visibleOrNear = inView(cp.x - 35, cp.y - 35, 70, 70) || dToP < 480;
-      const ambVol = clamp(1.1 - dToP / 700, 0.35, 1);
-      if(visibleOrNear){
+      // 救護車靠近玩家且尚未駛離時才適度鳴笛（避免持續洗腦）
+      const visibleOrNear = dToP < 360 || (inView(cp.x - 20, cp.y - 20, 40, 40) && dToP < 440);
+      const ambVol = clamp(1.05 - dToP / 520, 0.25, 0.95);
+      if(visibleOrNear && !c.passedPlayer){
         if(!c.appearedPlayed){
           c.appearedPlayed = true;
           c.sirenTimer = 0;
           sfx('amb', ambVol);
         } else {
           c.sirenTimer = (c.sirenTimer || 0) + dt;
-          if(c.sirenTimer >= 1.25){
+          if(c.sirenTimer >= 2.8){
             c.sirenTimer = 0;
             sfx('amb', ambVol);
           }
@@ -1727,6 +1727,34 @@ function drawWorld(now){
   for(const c of VROADS) for(const [y0,y1] of vSegs(c)){ctx.moveTo(c,y0);ctx.lineTo(c,y1);}
   ctx.stroke(); ctx.setLineDash([]);
 
+  // 3.5 車道行進方向箭頭（右行制：橫街下道→右/上道→左；縱街右道→上/左道→下）
+  const laneOff=Math.min(30,Math.round(HALF*0.46));
+  const drawLaneArrow=(ax,ay,ang)=>{
+    if(!inView(ax-18,ay-18,36,36) || !onRoad(ax,ay,12)) return;
+    for(const vx of VROADS) if(Math.abs(ax-vx)<HALF+28) return;
+    for(const hy of HROADS) if(Math.abs(ay-hy)<HALF+28) return;
+    ctx.save(); ctx.translate(ax,ay); ctx.rotate(ang);
+    ctx.fillStyle='rgba(255,255,255,0.22)';
+    ctx.beginPath();
+    ctx.moveTo(12,0); ctx.lineTo(2,-7); ctx.lineTo(2,-3); ctx.lineTo(-10,-3);
+    ctx.lineTo(-10,3); ctx.lineTo(2,3); ctx.lineTo(2,7); ctx.closePath(); ctx.fill();
+    ctx.restore();
+  };
+  for(const hy of HROADS){
+    for(let ax=110;ax<MAP.w-80;ax+=220){
+      drawLaneArrow(ax, hy+laneOff, 0);
+      drawLaneArrow(ax, hy-laneOff, Math.PI);
+    }
+  }
+  for(const vx of VROADS){
+    for(const [y0,y1] of vSegs(vx)){
+      for(let ay=y0+90;ay<y1-70;ay+=220){
+        drawLaneArrow(vx+laneOff, ay, -Math.PI/2);
+        drawLaneArrow(vx-laneOff, ay, Math.PI/2);
+      }
+    }
+  }
+
   // 橋樑護欄與未架橋河岸防撞護欄
   if(river){
     for(const c of VROADS){
@@ -1751,7 +1779,7 @@ function drawWorld(now){
 
   // 4. 十字路口（斑馬線 + 黃色網狀禁停區 + 紅綠燈號誌燈）
   for(const tl of trafficLights){
-    if(!inView(tl.x-HALF-20,tl.y-HALF-20,HALF*2+40,HALF*2+40)) continue;
+    if(!inView(tl.x-HALF-70,tl.y-HALF-70,HALF*2+140,HALF*2+140)) continue;
 
     // 路口底色
     ctx.fillStyle='#222936';
@@ -1775,9 +1803,9 @@ function drawWorld(now){
     ctx.moveTo(tl.x+28,tl.y-28); ctx.lineTo(tl.x-28,tl.y+28);
     ctx.stroke();
 
-    // 4.1 路口停止線與機車停等區（紅燈時停等線亮紅燈警示）
-    const isRed = (tl.state === 'red');
-    ctx.strokeStyle = isRed ? 'rgba(239,68,68,0.9)' : 'rgba(255,255,255,0.7)';
+    // 4.1 路口停止線與機車停等區（紅/黃燈時停等線亮燈警示）
+    const isRed = (tl.state === 'red'), isYel = (tl.state === 'yellow');
+    ctx.strokeStyle = isRed ? 'rgba(239,68,68,0.9)' : (isYel ? 'rgba(245,158,11,0.85)' : 'rgba(255,255,255,0.7)');
     ctx.lineWidth = 2.5;
     ctx.strokeRect(tl.x-HALF+2, tl.y-HALF-28, HALF*2-4, 10);
     ctx.strokeRect(tl.x-HALF+2, tl.y+HALF+18, HALF*2-4, 10);
@@ -1840,15 +1868,19 @@ function drawWorld(now){
       }
     });
 
-    // 號誌上方深色懸浮倒數牌（在任何草皮、建物前都極度顯眼）
+    // 號誌上方深色懸浮倒數牌 + 對角左下角同步倒數牌（確保由下往上／由右往左行駛時也看得見秒數）
     const tagText = (tl.state==='red'?'🔴紅燈 ':(tl.state==='yellow'?'🟡黃燈 ':'🟢綠燈 ')) + remSec + 's';
     ctx.font = '900 11px system-ui,sans-serif';
     const tagW = ctx.measureText(tagText).width + 12;
-    ctx.fillStyle = 'rgba(2,6,23,0.92)';
-    rrc(ctx, lx - tagW/2, ly - 46, tagW, 16, 8); ctx.fill();
-    ctx.strokeStyle = lightCol; ctx.lineWidth = 1.5; ctx.stroke();
-    ctx.fillStyle = lightCol; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText(tagText, lx, ly - 38);
+    const drawTag=(tx,ty)=>{
+      ctx.fillStyle = 'rgba(2,6,23,0.92)';
+      rrc(ctx, tx - tagW/2, ty - 8, tagW, 16, 8); ctx.fill();
+      ctx.strokeStyle = lightCol; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.fillStyle = lightCol; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(tagText, tx, ty);
+    };
+    drawTag(lx, ly - 38);
+    drawTag(tl.x - HALF - 18, tl.y + HALF + 18);
   }
 
   // 4.5 施工 / 夜市攤販封閉路障
@@ -1869,14 +1901,15 @@ function drawWorld(now){
     ctx.fillText(rb.label||'🚧 封路',rb.x+rb.w/2,rb.y+rb.h/2);
   }
 
-  // 5. 行人（漫步路人 / 斑馬線過路人）
+  // 5. 行人（沿人行道漫步／路口停等／斑馬線過馬路）
   for(const ped of peds){
     if(!inView(ped.x-15,ped.y-15,30,30)) continue;
+    const walkBob=(ped.state!=='wait')?Math.sin(now/110+ped.x*0.08)*1.6:0;
     ctx.save();
-    ctx.translate(ped.x,ped.y);
+    ctx.translate(ped.x,ped.y+walkBob);
     // 影子
     ctx.fillStyle='rgba(0,0,0,0.35)';
-    ctx.beginPath(); ctx.ellipse(0,3,7,4,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(0,3-walkBob*0.5,7,4,0,0,Math.PI*2); ctx.fill();
 
     // 衣服身體
     ctx.fillStyle=ped.color;
@@ -1887,8 +1920,8 @@ function drawWorld(now){
     ctx.fillStyle='#fde68a';
     ctx.beginPath(); ctx.arc(0,-1.5,2.6,0,Math.PI*2); ctx.fill();
 
-    // 正在過馬路時頭頂小對話框或警戒符號
-    if(ped.cross){
+    // 過馬路提示🚶；路口停等時顯示微小停等點
+    if(ped.isCrossing){
       ctx.font='12px system-ui,sans-serif';
       ctx.textAlign='center';
       ctx.fillText('🚶',0,-12);
@@ -1896,24 +1929,25 @@ function drawWorld(now){
     ctx.restore();
   }
 
-  // 6. 店家／顧客招牌（發光霓虹燈招牌效果）
+  // 6. 店家／顧客招牌（清楚區分 🍳店家 vs 🏠顧客，加上目前目標發光提示）
   const tgt=order?(order.stage==='pickup'?order.shop:order.cust):null;
   ctx.textAlign='center'; ctx.textBaseline='middle';
   for(const p of places){
     if(!inView(p.x,p.y-40,p.w,p.h+80)) continue;
     const active=p===tgt;
+    const isShop=p.type==='shop';
 
     // 騎樓陰影
     ctx.fillStyle='rgba(0,0,0,0.38)';
     rrc(ctx,p.x+4,p.y+6,p.w,p.h,10); ctx.fill();
 
-    // 店家招牌底板
-    ctx.fillStyle=p.type==='shop'?'#9a3412':'#0f766e';
+    // 店家(暖橘棕) / 顧客(冷青藍) 招牌底板
+    ctx.fillStyle=isShop?'#9a3412':'#1e3a5f';
     if(active) ctx.fillStyle=order.stage==='pickup'?'#ea580c':'#059669';
     rrc(ctx,p.x,p.y,p.w,p.h,10); ctx.fill();
 
     // 招牌霓虹高亮外框
-    ctx.strokeStyle=active?'#ffffff':'rgba(255,255,255,0.4)';
+    ctx.strokeStyle=active?(order.stage==='pickup'?'#fde047':'#6ee7b7'):(isShop?'rgba(251,146,60,0.6)':'rgba(56,189,248,0.55)');
     ctx.lineWidth=active?3.5:1.5; ctx.stroke();
 
     // 遮雨棚橫條紋（台灣傳統紅白/綠白遮棚）
@@ -1922,9 +1956,15 @@ function drawWorld(now){
       ctx.fillRect(ax,p.y+p.h-7,8,5);
     }
 
+    // 類別小標籤（店家 vs 顧客）
+    ctx.fillStyle=isShop?'rgba(251,146,60,0.92)':'rgba(56,189,248,0.92)';
+    rrc(ctx,p.x+6,p.y-10,48,17,6); ctx.fill();
+    ctx.fillStyle='#0f172a'; ctx.font='900 10px system-ui,sans-serif';
+    ctx.fillText(isShop?'🍳店家':'🏠顧客',p.x+30,p.y-1.5);
+
     // 招牌字體與 Emoji
-    ctx.fillStyle='#ffffff'; ctx.font='900 18px system-ui,sans-serif';
-    ctx.fillText(p.icon+' '+p.name,p.x+p.w/2,p.y+p.h/2-2);
+    ctx.fillStyle='#ffffff'; ctx.font='900 17px system-ui,sans-serif';
+    ctx.fillText(p.icon+' '+p.name,p.x+p.w/2,p.y+p.h/2-1);
 
     // 門口發光圈
     ctx.strokeStyle=active?'rgba(255,255,255,0.95)':'rgba(255,255,255,0.2)';
@@ -1934,18 +1974,25 @@ function drawWorld(now){
   }
   // 導航光點
   if(order&&path.length){
-    ctx.fillStyle=order.stage==='pickup'?'rgba(251,191,36,.75)':'rgba(52,211,153,.75)';
+    ctx.fillStyle=order.stage==='pickup'?'rgba(251,191,36,.8)':'rgba(52,211,153,.8)';
     const off=Math.floor(now/120)%3;
     for(let i=2+off;i<path.length;i+=3){const c=path[i];ctx.beginPath();ctx.arc((c%GW)*CELL+CELL/2,((c/GW)|0)*CELL+CELL/2,4,0,Math.PI*2);ctx.fill();}
   }
-  // 目標光圈
+  // 目標光圈與超顯眼狀態標籤（取餐點 vs 送達這裡）
   if(tgt){
-    const col=order.stage==='pickup'?'#fbbf24':'#34d399';
+    const isPick=order.stage==='pickup';
+    const col=isPick?'#fbbf24':'#34d399';
     ctx.strokeStyle=col; ctx.lineWidth=4;
     ctx.beginPath(); ctx.arc(tgt.door.x,tgt.door.y,40+Math.sin(now/150)*6,0,Math.PI*2); ctx.stroke();
-    const by=(tgt.side==='top'?tgt.y-26:tgt.y+tgt.h+26)+Math.sin(now/200)*5;
-    ctx.font='26px system-ui,sans-serif'; ctx.fillText(tgt.side==='top'?'⬇️':'⬆️',tgt.door.x,tgt.side==='top'?tgt.door.y-50+Math.sin(now/200)*5:tgt.door.y+50+Math.sin(now/200)*5);
-    void by;
+    const bob=Math.sin(now/180)*5;
+    const ty=tgt.side==='top'?tgt.door.y-46+bob:tgt.door.y+46+bob;
+    const lbl=isPick?'🍳 取餐點！':'📦 送達這裡！';
+    ctx.font='900 13px system-ui,sans-serif';
+    const lw=ctx.measureText(lbl).width+16;
+    ctx.fillStyle=isPick?'#b45309':'#047857';
+    rrc(ctx,tgt.door.x-lw/2,ty-12,lw,24,12); ctx.fill();
+    ctx.strokeStyle=col; ctx.lineWidth=2; ctx.stroke();
+    ctx.fillStyle='#ffffff'; ctx.fillText(lbl,tgt.door.x,ty);
   }
   // 道具（高對比亮麗圓盤光暈 + 動態跳動光柱與文字標籤）
   for(const it of items){
@@ -2459,6 +2506,17 @@ function drawPlayer(now){
   ctx.rotate(P.angle);
   renderRider(ctx,char,now,P.moving,!!(order&&order.stage==='deliver'),1.18,P.boost>0);
   ctx.restore();
+  if(order&&order.stage==='deliver'){
+    ctx.save();
+    ctx.font='900 10px system-ui,sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillStyle='rgba(4,120,87,0.92)';
+    rrc(ctx,P.x-28,P.y-34,56,16,8); ctx.fill();
+    ctx.strokeStyle='#6ee7b7'; ctx.lineWidth=1.2; ctx.stroke();
+    ctx.fillStyle='#ffffff';
+    ctx.fillText('📦 送餐中',P.x,P.y-26);
+    ctx.restore();
+  }
 }
 function drawCharPreviews(now){
   [['prevM','M'],['prevF','F']].forEach(([id,g])=>{
@@ -2517,9 +2575,10 @@ function drawHUD(now){
   if(order){
     const tgt=order.stage==='pickup'?order.shop:order.cust;
     const ratio=clamp(order.time/order.total,0,1);
-    const orderTitle=order.isVip?'⭐特急單→ ':(order.stage==='pickup'?'取餐 → ':'送達 → ');
-    ctx.fillStyle=order.isVip?'#fde047':(order.stage==='pickup'?'#fbbf24':'#34d399'); ctx.font='900 14px system-ui,sans-serif';
-    ctx.fillText(orderTitle+tgt.icon+' '+tgt.name,cxx+cw/2-24,T+15);
+    const isPick=(order.stage==='pickup');
+    const stepTag=order.isVip?(isPick?'⭐特急取餐→':'⭐特急送達→'):(isPick?'【1.取餐】':'【2.送達】📦');
+    ctx.fillStyle=order.isVip?'#fde047':(isPick?'#fbbf24':'#34d399'); ctx.font='900 13px system-ui,sans-serif';
+    ctx.fillText(stepTag+tgt.icon+tgt.name,cxx+cw/2-22,T+15);
     ctx.textAlign='right';
     const isUrgent=order.time<5;
     ctx.fillStyle=isUrgent?'#f87171':'#fff';
@@ -2536,6 +2595,7 @@ function drawHUD(now){
   // 畫面外的目標箭頭
   if(order){
     const tgt=order.stage==='pickup'?order.shop:order.cust;
+    const isPick=(order.stage==='pickup');
     const sx=(tgt.door.x-cam.x)*ZOOM, sy=(tgt.door.y-cam.y)*ZOOM;
     const m=50, top=T+110;
     if(sx<m||sx>W-m||sy<top||sy>H-m){
@@ -2543,11 +2603,11 @@ function drawHUD(now){
       const ang=Math.atan2(sy-py,sx-px);
       const ex=clamp(sx,m+safe.l,W-m-safe.r), ey=clamp(sy,top,H-m-safe.b);
       ctx.save(); ctx.translate(ex,ey); ctx.rotate(ang);
-      ctx.fillStyle=order.stage==='pickup'?'#fbbf24':'#34d399';
+      ctx.fillStyle=isPick?'#fbbf24':'#34d399';
       ctx.beginPath(); ctx.moveTo(20,0); ctx.lineTo(-10,-13); ctx.lineTo(-4,0); ctx.lineTo(-10,13); ctx.closePath(); ctx.fill();
       ctx.restore();
-      ctx.fillStyle='#fff'; ctx.font='bold 12px system-ui,sans-serif'; ctx.textAlign='center';
-      ctx.fillText(Math.round(dist(P,tgt.door)/10)*10+'m',ex-Math.cos(ang)*30,ey-Math.sin(ang)*30);
+      ctx.fillStyle=isPick?'#fde68a':'#a7f3d0'; ctx.font='900 12px system-ui,sans-serif'; ctx.textAlign='center';
+      ctx.fillText((isPick?'取餐 ':'送達 ')+Math.round(dist(P,tgt.door)/10)*10+'m',ex-Math.cos(ang)*32,ey-Math.sin(ang)*32);
     }
   }
 
