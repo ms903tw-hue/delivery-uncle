@@ -510,8 +510,8 @@ const MAPS=[
   {
     id:'nightmarket', idx:1, icon:'🏮', name:'2. 夜市美食街',
     shortDesc:'窄巷攤販施工封路・考驗繞道反應',
-    mechTag:'路幅較窄・🚧施工路障・野狗多',
-    goalOrders:4, dogBase:4, carBase:10, speedMul:1.02, timeMul:0.92, speedRatio:0.12, energyRatio:0.30,
+    mechTag:'路幅較窄・🚧施工路障・繞道送餐',
+    goalOrders:4, dogBase:2, carBase:10, speedMul:1.02, timeMul:0.92, speedRatio:0.12, energyRatio:0.30,
     sky:'rgba(249,115,22,0.18)', lamp:true, ground:'#140f14',
     size:{w:1800,h:1280}, half:52, hRoads:[130,480,830,1150], vRoads:[150,650,1150,1650], seed:20261122,
     hues:['#7c2d12','#9a3412','#831843','#713f12','#581c87'],
@@ -554,7 +554,7 @@ const MAPS=[
     id:'harbor', idx:3, icon:'⚓', name:'4. 河濱港灣區',
     shortDesc:'大河阻隔南北岸・善用兩座跨河大橋',
     mechTag:'🌉 跨河瓶頸・警車高密巡邏',
-    goalOrders:5, dogBase:5, carBase:15, speedMul:1.20, timeMul:0.83, speedRatio:0.24, energyRatio:0.36,
+    goalOrders:5, dogBase:4, carBase:15, speedMul:1.20, timeMul:0.83, speedRatio:0.24, energyRatio:0.36,
     sky:'rgba(2,6,23,0.44)', lamp:true, ground:'#08121a',
     size:{w:1900,h:1360}, half:58, hRoads:[140,440,920,1220], vRoads:[170,680,1230,1730], seed:20261144,
     hues:['#164e63','#1e3a8a','#334155','#7c2d12','#065f46'],
@@ -684,19 +684,30 @@ const keys={};
 const CAR_TYPES=['taxi','truck','sedan','speed'];
 const CAR_COLORS=['#38bdf8','#f87171','#a78bfa','#34d399','#fbbf24','#f472b6','#e5e7eb'];
 
+function tlStates(tl){
+  const t=tl.timer;
+  if(t<5.5) return {h:'green', v:'red', hRem:Math.ceil(5.5-t), vRem:Math.ceil(7.0-t)};
+  if(t<7.0) return {h:'yellow', v:'red', hRem:Math.ceil(7.0-t), vRem:Math.ceil(7.0-t)};
+  if(t<12.5) return {h:'red', v:'green', hRem:Math.ceil(14.0-t), vRem:Math.ceil(12.5-t)};
+  return {h:'red', v:'yellow', hRem:Math.ceil(14.0-t), vRem:Math.ceil(14.0-t)};
+}
+
 function initTrafficSystem(){
   trafficLights=[];
   for(const hy of HROADS) for(const vx of VROADS){
     if(!onRoad(vx,hy,14)) continue;
-    trafficLights.push({
+    const tl={
       x:vx, y:hy,
-      timer:rand(0,12),
-      state:'green'
-    });
+      timer:rand(0,14),
+      hState:'green', vState:'red', hRem:6, vRem:7
+    };
+    const st=tlStates(tl);
+    tl.hState=st.h; tl.vState=st.v; tl.hRem=st.hRem; tl.vRem=st.vRem;
+    trafficLights.push(tl);
   }
 
   peds=[];
-  // 行人在人行道散步，走到十字路口會停下等紅燈，綠燈/紅燈切換時過斑馬線後繼續走
+  // 行人在人行道散步，走到十字路口停等，待縱向紅燈（橫向綠燈）時過斑馬線後繼續走
   const PED_NAMES=['阿伯','學生','上班族','辣妹','阿姨'];
   for(const hy of HROADS){
     const rowTls=trafficLights.filter(t=>t.y===hy).sort((a,b)=>a.x-b.x);
@@ -709,7 +720,7 @@ function initTrafficSystem(){
         peds.push({
           hy, rowTls,
           x:rand(x0,x1),
-          y:hy-HALF-8,
+          y:hy-HALF-9,
           dir:Math.random()<0.5?1:-1,
           speed:rand(32,46),
           state:'stroll',
@@ -754,17 +765,18 @@ function resetGame(){
 function updateTrafficAndPeds(dt){
   if(redCooldown>0) redCooldown-=dt;
 
-  // 更新號誌
+  // 更新號誌（橫向與縱向交替綠紅燈，週期 14 秒）
   for(const tl of trafficLights){
-    tl.timer=(tl.timer+dt)%13;
-    if(tl.timer<6.5) tl.state='green';
-    else if(tl.timer<8.5) tl.state='yellow';
-    else tl.state='red';
+    tl.timer=(tl.timer+dt)%14;
+    const st=tlStates(tl);
+    tl.hState=st.h; tl.vState=st.v;
+    tl.hRem=st.hRem; tl.vRem=st.vRem;
 
-    // 闖紅燈判定（當十字路口為紅燈時，玩家衝過十字路口中心區域）
-    if(tl.state==='red'&&redCooldown<=0&&G.state==='play'&&countdown<=0){
+    // 闖紅燈判定（依玩家行進軸向檢查對應號誌，衝過十字路口中心區域開罰）
+    if(redCooldown<=0&&G.state==='play'&&countdown<=0){
       const dP=Math.hypot(P.x-tl.x, P.y-tl.y);
-      if(dP<HALF-8&&P.moving){
+      const axisState = Math.abs(P.fx)>=Math.abs(P.fy) ? tl.hState : tl.vState;
+      if(axisState==='red'&&dP<HALF-8&&P.moving){
         // 檢查路口附近是否有巡邏警車（380 像素內）
         let cop = null;
         for(const c of cars){
@@ -797,9 +809,9 @@ function updateTrafficAndPeds(dt){
     }
   }
 
-  // 更新行人（沿人行道散步 → 到路口停等紅燈 → 過斑馬線 → 繼續散步）
+  // 更新行人（沿人行道散步 → 到路口停等 → 待縱向紅燈/橫向綠燈時過斑馬線 → 繼續散步）
   for(const ped of peds){
-    ped.y = ped.hy - HALF - 8;
+    ped.y = ped.hy - HALF - 9;
     if(ped.state==='stroll'){
       ped.isCrossing=false;
       const prevX=ped.x;
@@ -814,12 +826,12 @@ function updateTrafficAndPeds(dt){
       }
     } else if(ped.state==='wait'){
       ped.isCrossing=false;
-      if(ped.waitTl && ped.waitTl.state==='red'){
+      if(ped.waitTl && ped.waitTl.vState==='red' && ped.waitTl.vRem>=2){
         ped.state='cross'; ped.isCrossing=true;
       }
     } else if(ped.state==='cross'){
       ped.isCrossing=true;
-      const crossSp=(ped.waitTl&&ped.waitTl.state==='red')?58:78;
+      const crossSp=(ped.waitTl&&ped.waitTl.vState==='red')?62:85;
       ped.x += ped.dir * crossSp * dt;
       const exitX=ped.waitTl.x + ped.dir*(HALF+18);
       if((ped.dir>0 && ped.x>=exitX) || (ped.dir<0 && ped.x<=exitX)){
@@ -864,8 +876,10 @@ function makeCarWithType(forcedType){
   let cType=forcedType || 'sedan';
   if(!forcedType){
     const ambCount=cars.filter(x=>x.type==='ambulance').length;
+    const copCount=cars.filter(x=>x.type==='police').length;
+    const maxCop=(curMapIdx===3 || (gameMode==='endless' && level>=4)) ? 2 : 1;
     if(isSpeeder) cType='speed';
-    else if(Math.random()<(curMapIdx===3?0.26:0.20)) cType='police';      // 巡邏警車
+    else if(copCount<maxCop && Math.random()<(curMapIdx===3?0.22:0.14)) cType='police'; // 巡邏警車（限制同場最多 1～2 輛）
     else if(ambCount<1 && Math.random()<0.08) cType='ambulance';   // 119救護車（同場最多 1 輛，避免鳴笛過於頻繁）
     else if(Math.random()<0.34) cType='taxi';        // 台灣小黃
     else if(Math.random()<0.32) cType='truck';       // 藍色三噸半
@@ -891,6 +905,11 @@ function makeCarWithType(forcedType){
   const car={
     axis,roadCenter:c,laneOff,lane:c+side*laneOff,dir:axis==='h'?side:-side,len:axis==='h'?MAP.w:MAP.h,pos:0,
     speed:Math.min(320,baseSp),
+    curSpeed:Math.min(320,baseSp),
+    braking:false,
+    redChoiceTl:null,
+    willRunRed:false,
+    hornCooldown:0,
     type:cType,
     color:cColor,
     w, h,
@@ -1265,9 +1284,100 @@ function inputVec(){
 function updateCars(dt){
   const activePlay = (G.state === 'play' && countdown <= 0);
   for(const c of cars){
-    // 移動（遇到施工路障或未架橋的河岸則平順掉頭）
+    // 移動（一般車停紅燈、排隊不重疊、不追撞等紅燈的外送員；遇到施工路障或河岸則平順掉頭）
     const prevPos=c.pos;
-    c.pos+=c.dir*c.speed*dt;
+    if(c.hornCooldown>0) c.hornCooldown-=dt;
+
+    const isEmergency = (c.type==='ambulance') || (c.type==='police' && c.chasing);
+    let maxStep = c.speed * dt;
+    let mustYieldStop = false;
+    const front = c.pos + c.dir * ((c.w || 48) / 2);
+
+    if(!isEmergency){
+      // A. 十字路口紅黃燈檢查（橫向 hState / 縱向 vState）
+      for(const tl of trafficLights){
+        if(c.axis==='h' ? (tl.y!==c.roadCenter) : (tl.x!==c.roadCenter)) continue;
+        const tlPos = c.axis==='h' ? tl.x : tl.y;
+        const sig = c.axis==='h' ? tl.hState : tl.vState;
+        const stopEdge = tlPos - c.dir * (HALF + 24);
+        const dToLine = (stopEdge - front) * c.dir;
+
+        if(dToLine >= -6 && dToLine < 135){
+          if(c.speeder && c.redChoiceTl !== tl){
+            c.redChoiceTl = tl;
+            c.willRunRed = Math.random() < 0.72; // 超速跑車高機率搶黃／闖紅燈
+          }
+          const ignoreRed = c.speeder && c.willRunRed;
+          if(!ignoreRed && (sig==='red' || (sig==='yellow' && dToLine > 18))){
+            mustYieldStop = true;
+            maxStep = Math.min(maxStep, Math.max(0, dToLine));
+          }
+        } else if(c.redChoiceTl === tl && dToLine < -HALF){
+          c.redChoiceTl = null;
+        }
+      }
+
+      // B. 禮讓正在過斑馬線的行人
+      if(c.axis==='v'){
+        for(const ped of peds){
+          if(!ped.isCrossing) continue;
+          if(Math.abs(ped.x - c.lane) < 28){
+            const dPed = (ped.y - front) * c.dir;
+            if(dPed >= -4 && dPed < 52){
+              mustYieldStop = true;
+              maxStep = Math.min(maxStep, Math.max(0, dPed - 10));
+            }
+          }
+        }
+      }
+
+      // C. 同車道前車偵測（排隊保持安全車距，不重疊）
+      for(const o of cars){
+        if(o===c || o.axis!==c.axis || o.roadCenter!==c.roadCenter || o.dir!==c.dir) continue;
+        if(Math.abs(o.lane - c.lane) > 12) continue;
+        const oRear = o.pos - c.dir * ((o.w || 48) / 2);
+        const gap = (oRear - front) * c.dir;
+        if(gap > -6 && gap < 110){
+          const safeGap = 14;
+          if(gap <= safeGap + 18) mustYieldStop = true;
+          maxStep = Math.min(maxStep, Math.max(0, gap - safeGap));
+        }
+      }
+
+      // D. 保護同車道前方之外送員（停紅燈或一般車距內煞停，不從背後直接追撞）
+      if(activePlay && P){
+        const lateral = c.axis==='h' ? Math.abs(P.y - c.lane) : Math.abs(P.x - c.lane);
+        const laneHitW = ((c.h || 26) / 2) + P.r + 3;
+        if(lateral < laneHitW){
+          const dToRiderRear = ((c.axis==='h' ? P.x : P.y) - front) * c.dir - P.r;
+          if(dToRiderRear >= -4 && dToRiderRear < 115 && (!c.speeder || !P.moving)){
+            mustYieldStop = true;
+            maxStep = Math.min(maxStep, Math.max(0, dToRiderRear - 14));
+            if(dToRiderRear < 34 && !P.moving && c.hornCooldown <= 0 && !c.speeder){
+              let atRed = false;
+              for(const tl of trafficLights){
+                const sig = c.axis==='h' ? tl.hState : tl.vState;
+                if(Math.hypot(P.x - tl.x, P.y - tl.y) < HALF + 65 && sig !== 'green'){ atRed = true; break; }
+              }
+              if(!atRed){
+                c.hornCooldown = 4.5;
+                const cpNow = carPos(c);
+                pop(cpNow.x, cpNow.y - 24, '📣 嗶嗶～', '#fde047', 14);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    const targetSpeed = (dt > 0) ? Math.min(c.speed, maxStep / dt) : c.speed;
+    if(typeof c.curSpeed !== 'number') c.curSpeed = c.speed;
+    const accelRate = targetSpeed < c.curSpeed ? 11 : 5;
+    c.curSpeed += (targetSpeed - c.curSpeed) * Math.min(1, dt * accelRate);
+    const actualStep = Math.min(maxStep, c.curSpeed * dt);
+    c.braking = mustYieldStop || (c.curSpeed < c.speed * 0.65);
+
+    c.pos += c.dir * actualStep;
     if(c.pos>c.len+60) c.pos=-60; else if(c.pos<-60) c.pos=c.len+60;
 
     let cp = carPos(c);
@@ -1701,7 +1811,37 @@ function drawWorld(now){
     }
   }
 
-  // 3. 柏油馬路（濃黑純淨柏油色 #151922，與街區強烈對比）
+  // 2.8 連續人行道（位於所有馬路兩側 14px，石磚鋪面＋淺灰緣石，與路口斑馬線銜接）
+  const vSegSidewalk = !river ? [[0,MAP.h]] : [[0,river.y-8],[river.y+river.h+8,MAP.h]];
+  ctx.fillStyle='#94a3b8';
+  for(const c of HROADS) ctx.fillRect(0,c-HALF-15,MAP.w,HALF*2+30);
+  for(const c of VROADS) for(const [y0,y1] of vSegSidewalk) ctx.fillRect(c-HALF-15,y0,HALF*2+30,y1-y0);
+  ctx.fillStyle='#64748b';
+  for(const c of HROADS) ctx.fillRect(0,c-HALF-14,MAP.w,HALF*2+28);
+  for(const c of VROADS) for(const [y0,y1] of vSegSidewalk) ctx.fillRect(c-HALF-14,y0,HALF*2+28,y1-y0);
+  // 石磚分隔線（僅在可視範圍內繪製，兼顧質感與效能）
+  ctx.fillStyle='rgba(15,23,42,0.28)';
+  const swX0=Math.max(0,Math.floor(cam.x/20)*20), swX1=Math.min(MAP.w,cam.x+W/ZOOM+20);
+  const swY0=Math.max(0,Math.floor(cam.y/20)*20), swY1=Math.min(MAP.h,cam.y+H/ZOOM+20);
+  for(const c of HROADS){
+    if(c+HALF+16<cam.y || c-HALF-16>cam.y+H/ZOOM) continue;
+    for(let x=swX0;x<=swX1;x+=20){
+      ctx.fillRect(x,c-HALF-14,1.5,11);
+      ctx.fillRect(x,c+HALF+3,1.5,11);
+    }
+  }
+  for(const c of VROADS){
+    if(c+HALF+16<cam.x || c-HALF-16>cam.x+W/ZOOM) continue;
+    for(const [y0,y1] of vSegSidewalk){
+      const yy0=Math.max(y0,swY0), yy1=Math.min(y1,swY1);
+      for(let y=yy0;y<=yy1;y+=20){
+        ctx.fillRect(c-HALF-14,y,11,1.5);
+        ctx.fillRect(c+HALF+3,y,11,1.5);
+      }
+    }
+  }
+
+  // 3. 柏油馬路（濃黑純淨柏油色 #151922，與人行道及街區強烈對比）
   const vSegs=c=>{
     if(!river || bridges.includes(c)) return [[0,MAP.h]];
     return [[0,river.y-8],[river.y+river.h+8,MAP.h]];
@@ -1730,25 +1870,26 @@ function drawWorld(now){
   // 3.5 車道行進方向箭頭（右行制：橫街下道→右/上道→左；縱街右道→上/左道→下）
   const laneOff=Math.min(30,Math.round(HALF*0.46));
   const drawLaneArrow=(ax,ay,ang)=>{
-    if(!inView(ax-18,ay-18,36,36) || !onRoad(ax,ay,12)) return;
-    for(const vx of VROADS) if(Math.abs(ax-vx)<HALF+28) return;
-    for(const hy of HROADS) if(Math.abs(ay-hy)<HALF+28) return;
+    if(!inView(ax-24,ay-24,48,48) || !onRoad(ax,ay,10)) return;
+    for(const vx of VROADS) if(Math.abs(ax-vx)<HALF+22) return;
+    for(const hy of HROADS) if(Math.abs(ay-hy)<HALF+22) return;
     ctx.save(); ctx.translate(ax,ay); ctx.rotate(ang);
-    ctx.fillStyle='rgba(255,255,255,0.22)';
     ctx.beginPath();
-    ctx.moveTo(12,0); ctx.lineTo(2,-7); ctx.lineTo(2,-3); ctx.lineTo(-10,-3);
-    ctx.lineTo(-10,3); ctx.lineTo(2,3); ctx.lineTo(2,7); ctx.closePath(); ctx.fill();
+    ctx.moveTo(17,0); ctx.lineTo(3,-9); ctx.lineTo(3,-4); ctx.lineTo(-14,-4);
+    ctx.lineTo(-14,4); ctx.lineTo(3,4); ctx.lineTo(3,9); ctx.closePath();
+    ctx.fillStyle='rgba(255,255,255,0.52)'; ctx.fill();
+    ctx.strokeStyle='rgba(15,23,42,0.45)'; ctx.lineWidth=1.2; ctx.stroke();
     ctx.restore();
   };
   for(const hy of HROADS){
-    for(let ax=110;ax<MAP.w-80;ax+=220){
+    for(let ax=70;ax<MAP.w-60;ax+=140){
       drawLaneArrow(ax, hy+laneOff, 0);
       drawLaneArrow(ax, hy-laneOff, Math.PI);
     }
   }
   for(const vx of VROADS){
     for(const [y0,y1] of vSegs(vx)){
-      for(let ay=y0+90;ay<y1-70;ay+=220){
+      for(let ay=y0+70;ay<y1-60;ay+=140){
         drawLaneArrow(vx+laneOff, ay, -Math.PI/2);
         drawLaneArrow(vx-laneOff, ay, Math.PI/2);
       }
@@ -1803,84 +1944,15 @@ function drawWorld(now){
     ctx.moveTo(tl.x+28,tl.y-28); ctx.lineTo(tl.x-28,tl.y+28);
     ctx.stroke();
 
-    // 4.1 路口停止線與機車停等區（紅/黃燈時停等線亮燈警示）
-    const isRed = (tl.state === 'red'), isYel = (tl.state === 'yellow');
-    ctx.strokeStyle = isRed ? 'rgba(239,68,68,0.9)' : (isYel ? 'rgba(245,158,11,0.85)' : 'rgba(255,255,255,0.7)');
-    ctx.lineWidth = 2.5;
+    // 4.1 路口雙向停止線與機車停等區（橫向依 hState、縱向依 vState 分別顯示綠／黃／紅）
+    const sigCol=s=>s==='red'?'rgba(239,68,68,0.92)':(s==='yellow'?'rgba(245,158,11,0.90)':'rgba(34,197,94,0.68)');
+    ctx.lineWidth = 2.8;
+    ctx.strokeStyle = sigCol(tl.vState);
     ctx.strokeRect(tl.x-HALF+2, tl.y-HALF-28, HALF*2-4, 10);
     ctx.strokeRect(tl.x-HALF+2, tl.y+HALF+18, HALF*2-4, 10);
+    ctx.strokeStyle = sigCol(tl.hState);
     ctx.strokeRect(tl.x-HALF-28, tl.y-HALF+2, 10, HALF*2-4);
     ctx.strokeRect(tl.x+HALF+18, tl.y-HALF+2, 10, HALF*2-4);
-
-    // 4.2 立體紅綠燈號誌桿（加基座、加高、亮黃遮光背板、深黑號誌箱與倒數牌）
-    const remSec = Math.ceil(tl.state==='green' ? (6.5-tl.timer) : (tl.state==='yellow' ? (8.5-tl.timer) : (13.0-tl.timer)));
-    const lightCol = tl.state==='green'?'#22c55e':(tl.state==='yellow'?'#f59e0b':'#ef4444');
-    const lx = tl.x + HALF + 12, ly = tl.y - HALF - 12;
-
-    // 號誌水泥立體基座（與草皮樹木形成強烈對比邊界）
-    ctx.fillStyle = '#334155';
-    ctx.fillRect(lx-14, ly-28, 28, 66);
-    ctx.strokeStyle = '#facc15'; ctx.lineWidth = 1.5;
-    ctx.strokeRect(lx-14, ly-28, 28, 66);
-
-    // 深鐵黑金屬立柱
-    ctx.fillStyle = '#0f172a';
-    ctx.fillRect(lx-3, ly+14, 6, 24);
-    ctx.fillStyle = '#64748b';
-    ctx.fillRect(lx-1, ly+14, 2, 24);
-
-    // 台灣標準號誌高對比亮黃遮光背板
-    ctx.fillStyle = '#facc15';
-    rrc(ctx, lx-13, ly-27, 26, 42, 4); ctx.fill();
-    ctx.strokeStyle = '#020617'; ctx.lineWidth = 1.5; ctx.stroke();
-
-    // 號誌黑箱主體
-    ctx.fillStyle = '#020617';
-    rrc(ctx, lx-10, ly-24, 20, 36, 3); ctx.fill();
-
-    // 三色燈泡與遮光罩帽緣
-    ['#ef4444','#f59e0b','#22c55e'].forEach((col,idx)=>{
-      const cy = ly-16 + idx*11;
-      const isActive = (tl.state==='red'&&idx===0)||(tl.state==='yellow'&&idx===1)||(tl.state==='green'&&idx===2);
-
-      // 遮光罩帽緣 (黑色弧線)
-      ctx.strokeStyle = '#64748b'; ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(lx, cy, 6, Math.PI, 0, false);
-      ctx.stroke();
-
-      // 暗色底座
-      ctx.fillStyle = '#1e293b';
-      ctx.beginPath(); ctx.arc(lx, cy, 4.5, 0, Math.PI*2); ctx.fill();
-
-      if(isActive){
-        // 發光強光束
-        ctx.fillStyle = col;
-        ctx.beginPath(); ctx.arc(lx, cy, 5, 0, Math.PI*2); ctx.fill();
-
-        // 外層高亮爆光 Halo 光暈
-        ctx.strokeStyle = col; ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.arc(lx, cy, 8, 0, Math.PI*2); ctx.stroke();
-
-        // 核心高光亮點
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath(); ctx.arc(lx-1.5, cy-1.5, 1.8, 0, Math.PI*2); ctx.fill();
-      }
-    });
-
-    // 號誌上方深色懸浮倒數牌 + 對角左下角同步倒數牌（確保由下往上／由右往左行駛時也看得見秒數）
-    const tagText = (tl.state==='red'?'🔴紅燈 ':(tl.state==='yellow'?'🟡黃燈 ':'🟢綠燈 ')) + remSec + 's';
-    ctx.font = '900 11px system-ui,sans-serif';
-    const tagW = ctx.measureText(tagText).width + 12;
-    const drawTag=(tx,ty)=>{
-      ctx.fillStyle = 'rgba(2,6,23,0.92)';
-      rrc(ctx, tx - tagW/2, ty - 8, tagW, 16, 8); ctx.fill();
-      ctx.strokeStyle = lightCol; ctx.lineWidth = 1.5; ctx.stroke();
-      ctx.fillStyle = lightCol; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(tagText, tx, ty);
-    };
-    drawTag(lx, ly - 38);
-    drawTag(tl.x - HALF - 18, tl.y + HALF + 18);
   }
 
   // 4.5 施工 / 夜市攤販封閉路障
@@ -2175,20 +2247,22 @@ function drawWorld(now){
       ctx.fillText('🚑 119救護', r.x+r.w/2, r.y-8);
     }
 
-    // 車前大燈與紅色尾燈
+    // 車前大燈與紅色尾燈（減速／停紅燈時煞車尾燈亮紅加粗）
     ctx.fillStyle='#fef08a'; // 前燈亮黃
+    const tailCol=c.braking?'#ff1e42':'#ef4444';
+    const tailLen=c.braking?4.5:3;
     if(isHoriz){
       const fx=c.dir>0?r.x+r.w-3:r.x;
-      const rx=c.dir>0?r.x:r.x+r.w-3;
+      const rx=c.dir>0?r.x:r.x+r.w-tailLen;
       ctx.fillRect(fx, r.y+3, 3, 5); ctx.fillRect(fx, r.y+r.h-8, 3, 5);
-      ctx.fillStyle='#ef4444'; // 尾燈紅
-      ctx.fillRect(rx, r.y+3, 3, 5); ctx.fillRect(rx, r.y+r.h-8, 3, 5);
+      ctx.fillStyle=tailCol;
+      ctx.fillRect(rx, r.y+2.5, tailLen, 6); ctx.fillRect(rx, r.y+r.h-8.5, tailLen, 6);
     } else {
       const fy=c.dir>0?r.y+r.h-3:r.y;
-      const ry=c.dir>0?r.y:r.y+r.h-3;
+      const ry=c.dir>0?r.y:r.y+r.h-tailLen;
       ctx.fillRect(r.x+3, fy, 5, 3); ctx.fillRect(r.x+r.w-8, fy, 5, 3);
-      ctx.fillStyle='#ef4444';
-      ctx.fillRect(r.x+3, ry, 5, 3); ctx.fillRect(r.x+r.w-8, ry, 5, 3);
+      ctx.fillStyle=tailCol;
+      ctx.fillRect(r.x+2.5, ry, 6, tailLen); ctx.fillRect(r.x+r.w-8.5, ry, 6, tailLen);
     }
   }
   // 野狗（追擊時增加強烈警戒紅光圈、暴走驚嘆號、連線警戒預警）
@@ -2231,7 +2305,63 @@ function drawWorld(now){
   for(const s of shots){ctx.save();ctx.translate(s.x,s.y);ctx.rotate(s.rot);ctx.fillText('🍗',0,0);ctx.restore();}
   // 玩家
   if(!(P.inv>0&&Math.floor(now/90)%2)) drawPlayer(now);
+  // 9.5 高空紅綠燈號誌層（繪於店家招牌、車輛、外送員之上，確保燈號與秒數永遠不被遮住）
+  const stCol=s=>s==='green'?'#22c55e':(s==='yellow'?'#f59e0b':'#ef4444');
+  for(const tl of trafficLights){
+    if(!inView(tl.x-HALF-90,tl.y-HALF-90,HALF*2+180,HALF*2+180)) continue;
+    const hCol=stCol(tl.hState), vCol=stCol(tl.vState);
+    const lx = tl.x + HALF + 10, ly = tl.y - HALF - 10;
+
+    // 號誌立柱與雙向緊湊燈箱（左↔橫向、右↕縱向）
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(lx-2.5, ly+10, 5, 18);
+    ctx.fillStyle = '#facc15';
+    rrc(ctx, lx-17, ly-18, 34, 30, 5); ctx.fill();
+    ctx.strokeStyle = '#020617'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#020617';
+    rrc(ctx, lx-14, ly-15, 28, 24, 3); ctx.fill();
+
+    // 左圓燈＝橫向(↔) / 右圓燈＝縱向(↕)
+    [[lx-7, hCol, '↔'], [lx+7, vCol, '↕']].forEach(([cx, col, sym])=>{
+      ctx.fillStyle = col;
+      ctx.beginPath(); ctx.arc(cx, ly-6, 4.5, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = col; ctx.lineWidth = 1.8;
+      ctx.beginPath(); ctx.arc(cx, ly-6, 6.5, 0, Math.PI*2); ctx.stroke();
+      ctx.fillStyle = '#cbd5e1'; ctx.font='900 8px system-ui,sans-serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(sym, cx, ly+4);
+    });
+
+    // 右上＆左下雙角懸浮雙向倒數牌（同時顯示 橫↔ 與 縱↕ 燈號及剩餘秒數）
+    const hTxt = '↔' + tl.hRem + 's', vTxt = '↕' + tl.vRem + 's';
+    ctx.font = '900 11px system-ui,sans-serif';
+    const w1 = ctx.measureText(hTxt).width, w2 = ctx.measureText(vTxt).width;
+    const tagW = w1 + w2 + 34;
+    const drawDualTag=(tx,ty)=>{
+      const x0 = tx - tagW/2;
+      ctx.fillStyle = 'rgba(2,6,23,0.94)';
+      rrc(ctx, x0, ty - 9, tagW, 18, 9); ctx.fill();
+      ctx.strokeStyle = '#64748b'; ctx.lineWidth = 1.5; ctx.stroke();
+      // 橫向指示燈點 + 秒數
+      ctx.fillStyle = hCol;
+      ctx.beginPath(); ctx.arc(x0 + 10, ty, 3.8, 0, Math.PI*2); ctx.fill();
+      ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = hCol;
+      ctx.fillText(hTxt, x0 + 16, ty + 0.5);
+      // 分隔線
+      ctx.fillStyle = 'rgba(148,163,184,0.4)';
+      ctx.fillRect(x0 + 19 + w1, ty - 5, 1, 10);
+      // 縱向指示燈點 + 秒數
+      const vx0 = x0 + 23 + w1;
+      ctx.fillStyle = vCol;
+      ctx.beginPath(); ctx.arc(vx0 + 3, ty, 3.8, 0, Math.PI*2); ctx.fill();
+      ctx.fillText(vTxt, vx0 + 9, ty + 0.5);
+    };
+    drawDualTag(lx, ly - 30);
+    drawDualTag(tl.x - HALF - 16, tl.y + HALF + 16);
+  }
   // 飄字
+  ctx.textAlign='center'; ctx.textBaseline='middle';
   for(const p of pops){
     ctx.globalAlpha=Math.min(1,p.t*2);
     ctx.font='900 '+p.size+'px system-ui,sans-serif';
