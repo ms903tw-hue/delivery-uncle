@@ -141,7 +141,7 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
     <button class="btn" id="howBtn">📖 玩法說明</button>
     <button class="btn" id="storyBtn" style="min-width:auto;padding:11px 14px">📜 故事</button>
   </div>
-  <div class="small">單機遊戲・不需網路・建議橫向遊玩 <span style="display:inline-block;margin-left:6px;padding:2px 6px;border-radius:6px;background:#1e293b;border:1px solid #475569;color:#38bdf8;font-weight:bold;">v1.3.3</span></div>
+  <div class="small">單機遊戲・不需網路・建議橫向遊玩 <span style="display:inline-block;margin-left:6px;padding:2px 6px;border-radius:6px;background:#1e293b;border:1px solid #475569;color:#38bdf8;font-weight:bold;">v1.4.0</span></div>
 </div></div>
 
 <!-- 開頭派單故事 -->
@@ -179,10 +179,10 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
   <div class="howGrid">
     <div class="howBox"><div class="t">🎯 目標</div>系統自動派單：先騎到<b>店家</b>取餐，再在<b>時限內</b>送到<b>顧客</b>手上。跟著地上的光點路線走，盡量拿高分！</div>
     <div class="howBox"><div class="t">🕹️ 操作</div><b>手機</b>：按住畫面任一處拖曳＝搖桿移動；右下按鈕＝丟雞腿。<br><b>電腦</b>：WASD／方向鍵移動、空白鍵丟雞腿、P 暫停、M 靜音；滑鼠按住拖曳也能移動。</div>
-    <div class="howBox"><div class="t">💯 計分</div>送達 = 100 分 + 剩餘秒數 × 12，依星級給予額外獎勵與回血。<br>連續準時送達 <b>3 單 (Combo ≥ 3)</b> 必定解鎖<b>【⭐金牌特急單】</b>獲雙倍工資！驚險閃車 +10，禮讓行人 +15。</div>
-    <div class="howBox"><div class="t">🚦 交通法規</div>路口<b>紅綠燈</b>：闖紅燈罰 <b>-30 分</b>；若<b>附近有巡邏警車</b>會引發<b>警車追捕</b>！利用轉彎與衝刺甩開 <b>+35 分</b>，被捕重罰 <b>-60 分</b>！<br>斑馬線<b>禮讓行人 +15 分</b>，撞人 <b>-50 分與 35 體力</b>。<br>遇到鳴笛救護車<b>靠邊禮讓 +25 分</b>，擋道阻礙救援重罰 <b>-50 分與 20 體力</b>！</div>
+    <div class="howBox"><div class="t">💯 計分</div>送達 = 100 分 + 剩餘秒數 × 12，依星級給予額外獎勵與回血。<br>連擊 <b>≥ 3 且上一單滿 3 星無差評</b> 觸發<b>【⭐金牌特急單】</b>，時限更趕、享 <b>2.5 倍</b>工資！驚險閃車 +10，禮讓行人 +15。</div>
+    <div class="howBox"><div class="t">🚦 交通法規</div>路口<b>紅綠燈</b>：闖紅燈罰 <b>-30 分</b>（夜間閃黃路口不罰）；若<b>附近有巡邏警車</b>會引發<b>警車追捕</b>！甩開 <b>+35 分</b>，被捕 <b>-60 分</b>！<br>斑馬線<b>禮讓行人 +15 分</b>，撞人 <b>-50 分與 35 體力</b>；禮讓救護車 <b>+25 分</b>！</div>
     <div class="howBox"><div class="t">⚠️ 危險</div>撞車 −25 體力、被野狗咬 −15 體力。<br>拾取 🍱 回復體力、🍗 補充雞腿、⚡ 能量飲料衝刺加速 3.5 秒。</div>
-    <div class="howBox"><div class="t">📈 模式</div><b>🏆 闖關模式</b>：橫跨 <b>8 大台灣著名景點</b>，完成各區目標單數即可解鎖下一站（九份燈籠山城、墾丁椰林海岸、淡水夕陽河岸、高美風車濕地、阿里山櫻花鐵道、信義跨夜摩天城等）。<br><b>♾️ 無限模式</b>：在已解鎖的景點地圖無限跑單，難度隨單數飆升！</div>
+    <div class="howBox"><div class="t">📈 模式</div><b>🏆 闖關模式</b>：<b>11 大景點環台路線</b>（北起大稻埕 → 淡水 → 高美 → 阿里山 → 安平 → 高雄 85 → 墾丁 → 台東熱氣球 → 花蓮太魯閣 → 九份 → 台北 101 壓軸）！<br><b>♾️ 無限模式</b>：在已解鎖的景點地圖無限跑單，難度隨單數飆升！</div>
     <div class="howBox"><div class="t">💀 結束</div><b>體力歸零</b>或累積 <b>3 個差評</b>（訂單逾時）就結束。連續準時送 5 單可消除 1 個差評。</div>
   </div>
   <div style="text-align:center;margin-top:8px"><button class="btn primary" id="howClose">我知道了</button></div>
@@ -191,7 +191,7 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
 <!-- 暫停 -->
 <div class="overlay" id="pause"><div class="card">
   <h2>⏸ 暫停中</h2>
-  <p>休息一下，訂單計時已暫停。</p><div style="font-size:12px;color:#64748b;margin-bottom:8px;">版本 v1.3.3</div>
+  <p>休息一下，訂單計時已暫停。</p><div style="font-size:12px;color:#64748b;margin-bottom:8px;">版本 v1.4.0</div>
   <button class="btn primary" id="resumeBtn">▶ 繼續</button>
   <button class="btn" id="restartBtn">🔄 重新開始</button>
   <button class="btn" id="homeBtn1">🏠 回主畫面</button>
@@ -215,7 +215,7 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
   <button class="btn green" id="nextStageBtn" style="display:none">➡ 挑戰下一關</button>
   <button class="btn primary" id="againBtn">🔄 再玩一次</button>
   <button class="btn" id="mapBtn">🗺️ 換地圖</button>
-  <button class="btn" id="homeBtn2">🏠 回主畫面</button><div style="font-size:11px;color:#64748b;margin-top:6px">外送大叔 v1.3.3</div>
+  <button class="btn" id="homeBtn2">🏠 回主畫面</button><div style="font-size:11px;color:#64748b;margin-top:6px">外送大叔 v1.4.0</div>
 </div></div>
 
 <!-- 直式提示 -->
@@ -490,7 +490,43 @@ const BGM_THEMES={
       76,null,74,null, 72,null,null,null
     ]
   },
-  // 8. 台北信義跨夜摩天城：跨夜霓虹 Synthwave 電音衝刺（Em - C - D - Bm7）
+  // 8. 高雄愛河 85 港灣夜色：港都 City-Funk Night Pop（Am7 - Fmaj7 - Dm7 - E7）
+  kaohsiung:{
+    bpm:108, bassType:'triangle', chordType:'triangle', chordSteps:[1,5], chordDur:0.19, chordVol:0.044,
+    perc:'bossa', melType:'sine', melDur:0.16, melVol:0.082, melHarm:12,
+    chords:[[45,52,57,60],[41,48,53,57],[50,57,60,65],[40,47,52,56]],
+    melody:[
+      76,null,79,81, null,76,74,null,
+      72,null,76,74, 72,null,69,null,
+      74,null,77,76, 74,null,72,null,
+      71,null,74,76, 79,null,76,null
+    ]
+  },
+  // 9. 台東鹿野熱氣球縱谷：縱谷晨風晴空民謠電音（D - A - Bm7 - G）
+  taitung:{
+    bpm:102, bassType:'sine', chordType:'triangle', chordSteps:[0,3,6], chordDur:0.22, chordVol:0.042,
+    perc:'reggae', melType:'sine', melDur:0.17, melVol:0.084, melHarm:12,
+    chords:[[50,57,62,66],[45,52,57,61],[47,54,59,62],[43,50,55,59]],
+    melody:[
+      78,null,81,null, 86,null,81,78,
+      76,null,78,76, 73,null,null,null,
+      74,null,78,81, 79,null,78,74,
+      71,null,74,78, 76,null,null,null
+    ]
+  },
+  // 10. 花蓮太魯閣山海峽谷：太魯閣壯闊鼓笛交響（Em7 - D6 - Cmaj7 - B7）
+  taroko:{
+    bpm:104, bassType:'triangle', chordType:'triangle', chordSteps:[0,4], chordDur:0.28, chordVol:0.040,
+    perc:'temple', melType:'sine', melDur:0.20, melVol:0.084, melHarm:12,
+    chords:[[40,47,52,59],[50,57,62,66],[48,55,59,64],[47,54,57,63]],
+    melody:[
+      79,null,76,79, 83,null,79,null,
+      78,null,74,78, 81,null,null,null,
+      76,null,72,76, 79,null,76,null,
+      75,null,71,75, 79,null,null,null
+    ]
+  },
+  // 11. 台北信義跨夜摩天城：跨夜霓虹 Synthwave 電音衝刺（Em - C - D - Bm7）
   xinyi:{
     bpm:118, bassType:'sawtooth', bassLp:760, chordType:'sawtooth', chordLp:1400, chordSteps:[0,4], chordDur:0.20, chordVol:0.026,
     perc:'synth', melType:'triangle', melDur:0.13, melVol:0.078,
@@ -608,15 +644,15 @@ function setMuted(m){
   if(Snd.master) Snd.master.gain.value=m?0:0.9;
 }
 
-/* ===================== 多地圖系統（8 大台灣著名景點：專屬建築、地形、氛圍與動態景觀） ===================== */
+/* ===================== 多地圖系統（11 大台灣環台景點：北→南→東→回北，含上方全景地標與專屬玩法） ===================== */
 const MAPS=[
   {
     id:'oldtown', idx:0, theme:'dadaocheng', icon:'🏘️', name:'1. 台北・大稻埕老街',
-    shortDesc:'紅磚山牆與迪化騎樓・新手暖身首選',
-    mechTag:'標準寬敞街道・紅磚燈籠街景',
-    goalOrders:3, dogBase:1, carBase:8, maxCops:1, speedMul:0.94, timeMul:1.0, speedRatio:0.08, energyRatio:0.28,
+    shortDesc:'北起點・紅磚山牆與迪化騎樓・新手暖身首選',
+    mechTag:'⛩️霞海城隍廟・紅磚燈籠街景',
+    goalOrders:3, dogBase:1, carBase:6, maxCops:1, speedMul:0.86, timeMul:1.15, speedRatio:0.06, energyRatio:0.28,
     sky:'rgba(254,240,138,0.10)', lamp:false, ground:'#171311',
-    size:{w:1800,h:1200}, half:65, hRoads:[150,600,1050], vRoads:[150,650,1150,1650], seed:20261110,
+    size:{w:1800,h:1320}, half:65, hRoads:[270,720,1170], vRoads:[150,650,1150,1650], seed:20261110,
     hues:['#88311b','#9a3412','#78350f','#6b3022','#573628'],
     roadblocks:[], river:null, bridges:[], coast:null,
     shops:[
@@ -630,80 +666,14 @@ const MAPS=[
     ]
   },
   {
-    id:'nightmarket', idx:1, theme:'jiufen', icon:'🏮', name:'2. 新北・九份燈籠山城',
-    shortDesc:'整排紅燈籠與窄巷攤販・山城繞道送餐',
-    mechTag:'🏮滿街紅燈籠・🚧山城施工繞道',
-    goalOrders:4, dogBase:2, carBase:10, maxCops:1, speedMul:1.00, timeMul:0.93, speedRatio:0.12, energyRatio:0.30,
-    sky:'rgba(234,88,12,0.18)', lamp:true, ground:'#140d14',
-    size:{w:1800,h:1280}, half:52, hRoads:[130,480,830,1150], vRoads:[150,650,1150,1650], seed:20261122,
-    hues:['#4a2518','#5c2b1e','#3f222c','#4c2f1b','#38253d'],
-    roadblocks:[
-      {x:860,y:428,w:80,h:104,label:'🚧 山城階修'},
-      {x:598,y:615,w:104,h:80,label:'🏮 攤販封街'},
-      {x:1360,y:778,w:80,h:104,label:'🚧 巷道施工'}
-    ],
-    river:null, bridges:[], coast:null,
-    shops:[
-      ['阿柑芋圓舖','🍧',0,'top',0],['阿蘭草仔粿','🍡',1,'top',1],['紅糟肉圓攤','🥟',2,'top',0],
-      ['金瓜炭烤屋','🍢',3,'bottom',1],['山城蜂蜜茶','🍯',5,'top',1]
-    ],
-    customers:[
-      ['豎崎觀景台','🏮',0,'bottom',1],['紅燈籠茶樓','🍵',3,'top',0],['昇平老戲院','🎬',4,'bottom',1],
-      ['山海民宿','🏠',6,'top',0],['黃金礦業館','⛏️',7,'top',1],['九份郵局前','📮',8,'bottom',0],
-      ['基山文創坊','🎪',2,'bottom',1],['輕便路客棧','🏨',6,'bottom',1]
-    ]
-  },
-  {
-    id:'kenting', idx:2, theme:'kenting', icon:'🌴', name:'3. 屏東・墾丁南國大道',
-    shortDesc:'椰林沙灘與蔚藍海岸・高速奔馳吃加速',
-    mechTag:'🌊蔚藍沙灘・🌴搖曳椰林・跑車多',
-    goalOrders:4, dogBase:2, carBase:11, maxCops:1, speedMul:1.12, timeMul:0.92, speedRatio:0.24, energyRatio:0.38,
-    sky:'rgba(56,189,248,0.08)', lamp:false, ground:'#152836',
-    size:{w:1960,h:1240}, half:66, hRoads:[160,560,960], vRoads:[160,720,1260,1800], seed:20261155,
-    hues:['#0f766e','#0284c7','#0369a1','#115e59','#1e40af'],
-    roadblocks:[], river:null, bridges:[], coast:{y:1026},
-    shops:[
-      ['南國芒果冰','🥭',0,'top',0],['墾丁海鮮屋','🦞',1,'bottom',1],['沙灘塔可車','🌮',2,'top',1],
-      ['椰林現打汁','🥥',3,'bottom',0],['恆春綠豆蒜','🥣',5,'bottom',1]
-    ],
-    customers:[
-      ['白沙渡假村','🏖️',0,'bottom',1],['海角衝浪店','🏄',1,'top',0],['船帆石民宿','🏡',2,'bottom',0],
-      ['南灣救生站','🛟',3,'top',0],['海生展示館','🐠',4,'top',1],['鵝鑾鼻燈塔','🗼',4,'bottom',0],
-      ['珊瑚潛水坊','🤿',5,'top',0],['星空露營車','🚐',3,'top',1]
-    ]
-  },
-  {
-    id:'tainan', idx:3, theme:'anping', icon:'⛩️', name:'4. 台南・安平古堡古都',
-    shortDesc:'紅磚古堡城垛與廟口牌樓・古都美食巷弄',
-    mechTag:'🧱古堡紅磚垛・⛩️廟會封路繞行',
-    goalOrders:4, dogBase:3, carBase:12, maxCops:1, speedMul:1.08, timeMul:0.90, speedRatio:0.18, energyRatio:0.32,
-    sky:'rgba(245,158,11,0.12)', lamp:false, ground:'#1b1411',
-    size:{w:1860,h:1300}, half:56, hRoads:[150,510,870,1170], vRoads:[160,640,1200,1700], seed:20261166,
-    hues:['#991b1b','#9a3412','#7c2d12','#b45309','#6b211b'],
-    roadblocks:[
-      {x:584,y:650,w:112,h:76,label:'⛩️ 廟會繞境'},
-      {x:1410,y:814,w:80,h:112,label:'🧱 古蹟修繕'}
-    ],
-    river:null, bridges:[], coast:null,
-    shops:[
-      ['安平鮮蝦捲','🍤',0,'top',0],['府城棺材板','🍞',1,'bottom',1],['清晨牛肉湯','🍲',2,'top',1],
-      ['傳統白豆花','🍮',4,'bottom',0],['古都虱目魚','🐟',6,'top',1]
-    ],
-    customers:[
-      ['安平紅古堡','🏰',0,'bottom',1],['大天后廟口','⛩️',3,'top',0],['億載金城門','🧱',5,'bottom',1],
-      ['安平老樹屋','🌳',4,'top',0],['德記洋行館','🏛️',7,'top',1],['運河遊船站','⛵',8,'bottom',0],
-      ['延平老街口','🏮',2,'bottom',1],['古蹟修復處','📜',6,'bottom',0]
-    ]
-  },
-  {
-    id:'harbor', idx:4, theme:'tamsui', icon:'🌅', name:'5. 新北・淡水金色河岸',
-    shortDesc:'夕陽淡水河與紅色鋼拱橋・警車高密巡邏',
-    mechTag:'🌉紅色跨河大橋・🌅金色夕陽河畔',
-    goalOrders:5, dogBase:3, carBase:13, maxCops:2, speedMul:1.15, timeMul:0.88, speedRatio:0.20, energyRatio:0.34,
-    sky:'rgba(234,88,12,0.20)', lamp:true, ground:'#13121b',
-    size:{w:1900,h:1360}, half:58, hRoads:[140,440,920,1220], vRoads:[170,680,1230,1730], seed:20261144,
+    id:'harbor', idx:1, theme:'tamsui', icon:'🌅', name:'2. 新北・淡水金色河岸',
+    shortDesc:'北西出海口・夕陽淡水河與關渡紅拱橋・跨河接單',
+    mechTag:'🌉跨海紅色拱橋・🌅金色夕陽河畔',
+    goalOrders:4, dogBase:1, carBase:8, maxCops:1, speedMul:0.93, timeMul:1.05, speedRatio:0.10, energyRatio:0.32,
+    sky:'rgba(249,115,22,0.14)', lamp:false, ground:'#151320',
+    size:{w:1900,h:1480}, half:58, hRoads:[260,560,1040,1340], vRoads:[170,680,1230,1730], seed:20261144,
     hues:['#7c2d12','#1e3a8a','#334155','#831843','#164e63'],
-    roadblocks:[], river:{y:615,h:130}, bridges:[170,1230], coast:null,
+    roadblocks:[], river:{y:735,h:130}, bridges:[170,1230], coast:null,
     shops:[
       ['老街阿給店','🥘',0,'top',0],['黑皮鐵蛋坊','🥚',1,'bottom',1],['現炸魚酥舖','🐟',2,'top',1],
       ['巨無霸花枝','🦑',3,'bottom',0],['河岸咖啡屋','☕',5,'top',0]
@@ -715,16 +685,16 @@ const MAPS=[
     ]
   },
   {
-    id:'gaomei', idx:5, theme:'gaomei', icon:'🌾', name:'6. 台中・高美風車濕地',
-    shortDesc:'夕陽濕地與旋轉白色大風車・保護區繞行',
-    mechTag:'🌀旋轉巨大風車・🌾濕地木棧封道',
-    goalOrders:5, dogBase:3, carBase:14, maxCops:2, speedMul:1.18, timeMul:0.87, speedRatio:0.26, energyRatio:0.36,
-    sky:'rgba(168,85,247,0.20)', lamp:true, ground:'#111420',
-    size:{w:1960,h:1320}, half:60, hRoads:[150,520,890,1190], vRoads:[170,680,1280,1790], seed:20261177,
+    id:'gaomei', idx:2, theme:'gaomei', icon:'🌾', name:'3. 台中・高美風車濕地',
+    shortDesc:'中部西岸・夕陽濕地與旋轉大風車・暮色閃黃初體驗',
+    mechTag:'🌀旋轉白色大風車・⚡暮色閃黃路口',
+    goalOrders:4, dogBase:2, carBase:10, maxCops:1, speedMul:0.99, timeMul:0.98, speedRatio:0.14, energyRatio:0.34,
+    sky:'rgba(168,85,247,0.19)', lamp:true, ground:'#111420',
+    size:{w:1960,h:1440}, half:60, hRoads:[270,640,1010,1310], vRoads:[170,680,1280,1790], seed:20261177,
     hues:['#374151','#312e81','#1e3a5f','#4c1d95','#1f2937'],
     roadblocks:[
-      {x:940,y:460,w:80,h:120,label:'🌾 濕地護欄'},
-      {x:1220,y:665,w:120,h:80,label:'🚧 木棧維修'}
+      {x:940,y:580,w:80,h:120,label:'🌾 濕地護欄'},
+      {x:1220,y:785,w:120,h:80,label:'🚧 木棧維修'}
     ],
     river:null, bridges:[], coast:null,
     shops:[
@@ -738,16 +708,16 @@ const MAPS=[
     ]
   },
   {
-    id:'alishan', idx:6, theme:'alishan', icon:'🌸', name:'7. 嘉義・阿里山櫻花鐵道',
-    shortDesc:'漫天粉櫻與森林鐵道・山霧平交道急送',
-    mechTag:'🌸飄落粉櫻雪・🚂森林鐵道平交',
-    goalOrders:5, dogBase:4, carBase:14, maxCops:2, speedMul:1.20, timeMul:0.85, speedRatio:0.24, energyRatio:0.38,
+    id:'alishan', idx:3, theme:'alishan', icon:'🌸', name:'4. 嘉義・阿里山櫻花鐵道',
+    shortDesc:'中南山區・雲海高山森林小火車與飄落粉櫻雪',
+    mechTag:'🚂山巒蒸汽小火車・🌸漫天粉櫻雪',
+    goalOrders:4, dogBase:2, carBase:12, maxCops:2, speedMul:1.05, timeMul:0.94, speedRatio:0.18, energyRatio:0.36,
     sky:'rgba(244,114,182,0.14)', lamp:true, ground:'#14171a',
-    size:{w:1960,h:1320}, half:55, hRoads:[140,490,840,1180], vRoads:[170,660,1260,1790], seed:20261188,
+    size:{w:1960,h:1440}, half:55, hRoads:[260,610,960,1300], vRoads:[170,660,1260,1790], seed:20261188,
     hues:['#5c3d2e','#78350f','#4a3728','#3f4f3c','#6b4423'],
     roadblocks:[
-      {x:605,y:625,w:110,h:80,label:'🚂 鐵道平交'},
-      {x:1480,y:435,w:80,h:110,label:'🪨 山道整修'}
+      {x:605,y:745,w:110,h:80,label:'🚂 鐵道平交'},
+      {x:1480,y:555,w:80,h:110,label:'🪨 山道整修'}
     ],
     river:null, bridges:[], coast:null,
     shops:[
@@ -761,12 +731,143 @@ const MAPS=[
     ]
   },
   {
-    id:'techpark', idx:7, theme:'xinyi', icon:'🏙️', name:'8. 台北・信義跨夜摩天城',
-    shortDesc:'玻璃帷幕與竹節地標高塔・極限車潮總決戰',
-    mechTag:'🗼發光地標塔・🎆夜空煙火・極限飆速',
-    goalOrders:6, dogBase:4, carBase:16, maxCops:2, speedMul:1.26, timeMul:0.83, speedRatio:0.35, energyRatio:0.45,
+    id:'tainan', idx:4, theme:'anping', icon:'⛩️', name:'5. 台南・安平古堡古都',
+    shortDesc:'南部古都・紅白安平古堡與廟會繞境封路',
+    mechTag:'🏰紅白古堡城垛・⛩️廟會封路繞行',
+    goalOrders:5, dogBase:3, carBase:14, maxCops:2, speedMul:1.11, timeMul:0.90, speedRatio:0.22, energyRatio:0.36,
+    sky:'rgba(245,158,11,0.12)', lamp:false, ground:'#1b1411',
+    size:{w:1860,h:1420}, half:56, hRoads:[270,630,990,1290], vRoads:[160,640,1200,1700], seed:20261166,
+    hues:['#991b1b','#9a3412','#7c2d12','#b45309','#6b211b'],
+    roadblocks:[
+      {x:584,y:770,w:112,h:76,label:'⛩️ 廟會繞境'},
+      {x:1410,y:934,w:80,h:112,label:'🧱 古蹟修繕'}
+    ],
+    river:null, bridges:[], coast:null,
+    shops:[
+      ['安平鮮蝦捲','🍤',0,'top',0],['府城棺材板','🍞',1,'bottom',1],['清晨牛肉湯','🍲',2,'top',1],
+      ['傳統白豆花','🍮',4,'bottom',0],['古都虱目魚','🐟',6,'top',1]
+    ],
+    customers:[
+      ['安平紅古堡','🏰',0,'bottom',1],['大天后廟口','⛩️',3,'top',0],['億載金城門','🧱',5,'bottom',1],
+      ['安平老樹屋','🌳',4,'top',0],['德記洋行館','🏛️',7,'top',1],['運河遊船站','⛵',8,'bottom',0],
+      ['延平老街口','🏮',2,'bottom',1],['古蹟修復處','📜',6,'bottom',0]
+    ]
+  },
+  {
+    id:'kaohsiung', idx:5, theme:'kaohsiung', icon:'🚢', name:'6. 高雄・愛河85港灣夜色',
+    shortDesc:'南台灣大港・85大樓與流行音樂海灣・貨卡車潮',
+    mechTag:'🏢高雄85大樓・🚢港灣運河雙橋',
+    goalOrders:5, dogBase:3, carBase:16, maxCops:2, speedMul:1.17, timeMul:0.86, speedRatio:0.25, energyRatio:0.38,
+    sky:'rgba(14,165,233,0.18)', lamp:true, ground:'#0d1322',
+    size:{w:1980,h:1480}, half:60, hRoads:[270,580,1060,1360], vRoads:[170,710,1270,1810], seed:20261191,
+    hues:['#0f172a','#1e3a5f','#164e63','#312e81','#1e293b'],
+    roadblocks:[], river:{y:755,h:130}, bridges:[170,710,1810], coast:null,
+    shops:[
+      ['鹽埕鴨肉飯','🦆',0,'top',0],['港都木瓜奶','🥛',1,'bottom',1],['駁二現烤卷','🦑',2,'top',1],
+      ['六合海鮮粥','🍲',3,'bottom',0],['旗津黑輪攤','🍢',5,'top',0]
+    ],
+    customers:[
+      ['85大樓廣場','🏢',0,'bottom',1],['流行音樂館','🎵',1,'top',0],['大港旋轉橋','🌉',2,'bottom',0],
+      ['駁二藝術庫','🎨',3,'top',0],['愛河之心亭','💙',4,'top',1],['香蕉碼頭邊','🍌',4,'bottom',0],
+      ['西子灣哨所','⚓',5,'bottom',1],['港灣貨櫃站','🚛',3,'top',1]
+    ]
+  },
+  {
+    id:'kenting', idx:6, theme:'kenting', icon:'🌴', name:'7. 屏東・墾丁南國大道',
+    shortDesc:'台灣最南端・鵝鑾鼻燈塔與沙灘海浪・南國飆風',
+    mechTag:'🗼鵝鑾鼻燈塔光束・🌊沙灘跑車飆速',
+    goalOrders:5, dogBase:3, carBase:18, maxCops:2, speedMul:1.23, timeMul:0.83, speedRatio:0.29, energyRatio:0.42,
+    sky:'rgba(56,189,248,0.08)', lamp:false, ground:'#152836',
+    size:{w:1960,h:1360}, half:66, hRoads:[280,680,1080], vRoads:[160,720,1260,1800], seed:20261155,
+    hues:['#0f766e','#0284c7','#0369a1','#115e59','#1e40af'],
+    roadblocks:[], river:null, bridges:[], coast:{y:1146},
+    shops:[
+      ['南國芒果冰','🥭',0,'top',0],['墾丁海鮮屋','🦞',1,'bottom',1],['沙灘塔可車','🌮',2,'top',1],
+      ['椰林現打汁','🥥',3,'bottom',0],['恆春綠豆蒜','🥣',5,'bottom',1]
+    ],
+    customers:[
+      ['白沙渡假村','🏖️',0,'bottom',1],['海角衝浪店','🏄',1,'top',0],['船帆石民宿','🏡',2,'bottom',0],
+      ['南灣救生站','🛟',3,'top',0],['海生展示館','🐠',4,'top',1],['鵝鑾鼻燈塔','🗼',4,'bottom',0],
+      ['珊瑚潛水坊','🤿',5,'top',0],['星空露營車','🚐',3,'top',1]
+    ]
+  },
+  {
+    id:'taitung', idx:7, theme:'taitung', icon:'🎈', name:'8. 台東・鹿野熱氣球縱谷',
+    shortDesc:'東岸北上・花東翠綠山脈與升空熱氣球・慶典封街',
+    mechTag:'🎈彩色升空熱氣球・🌾花東縱谷大道',
+    goalOrders:6, dogBase:4, carBase:20, maxCops:2, speedMul:1.28, timeMul:0.80, speedRatio:0.32, energyRatio:0.42,
+    sky:'rgba(16,185,129,0.09)', lamp:false, ground:'#132016',
+    size:{w:2000,h:1460}, half:62, hRoads:[270,640,1010,1330], vRoads:[170,710,1290,1830], seed:20261192,
+    hues:['#166534','#15803d','#0f766e','#854d0e','#365314'],
+    roadblocks:[
+      {x:960,y:578,w:84,h:124,label:'🎈 熱氣球節'},
+      {x:1228,y:790,w:124,h:80,label:'🌾 縱谷慶典'}
+    ],
+    river:null, bridges:[], coast:null,
+    shops:[
+      ['池上木盒飯','🍱',0,'top',0],['鹿野紅烏龍','🍵',1,'bottom',1],['卑南大豬血','🍲',2,'top',1],
+      ['東河肉包子','🥟',4,'bottom',0],['初鹿鮮乳茶','🥛',7,'top',0]
+    ],
+    customers:[
+      ['鹿野高台站','🎈',0,'bottom',1],['伯朗樹大道','🌾',3,'top',0],['知本溫泉館','♨️',5,'bottom',1],
+      ['鐵花村市集','🏮',4,'top',0],['三仙台海角','🌊',6,'top',1],['加路蘭海岸','🪨',8,'bottom',0],
+      ['關山自行車','🚲',2,'bottom',1],['豐年祭廣場','🥁',7,'bottom',1]
+    ]
+  },
+  {
+    id:'taroko', idx:8, theme:'taroko', icon:'⛰️', name:'9. 花蓮・太魯閣山海峽谷',
+    shortDesc:'東部斷崖・大理石峽谷飛瀑與蘇花海景・落石繞道',
+    mechTag:'⛰️大理石峭壁瀑布・🪨落石施工繞道',
+    goalOrders:6, dogBase:4, carBase:21, maxCops:3, speedMul:1.33, timeMul:0.78, speedRatio:0.35, energyRatio:0.42,
+    sky:'rgba(14,116,144,0.11)', lamp:false, ground:'#161b20',
+    size:{w:2020,h:1460}, half:56, hRoads:[270,640,1010,1330], vRoads:[170,710,1310,1850], seed:20261193,
+    hues:['#475569','#334155','#1e3a5f','#0f766e','#3f3f46'],
+    roadblocks:[
+      {x:654,y:790,w:112,h:80,label:'🪨 峽谷落石'},
+      {x:1490,y:584,w:80,h:112,label:'🚧 隧道養護'}
+    ],
+    river:null, bridges:[], coast:null,
+    shops:[
+      ['花蓮扁食湯','🥟',0,'top',0],['公正街小籠','🥡',1,'bottom',1],['麻糬專賣店','🍡',2,'top',1],
+      ['炸彈蔥油餅','🍳',4,'bottom',0],['新城檸檬汁','🍋',7,'top',0]
+    ],
+    customers:[
+      ['太魯閣牌樓','⛩️',0,'bottom',1],['長春祠飛瀑','💧',3,'top',0],['七星潭海灣','🌊',5,'bottom',1],
+      ['清水斷崖台','⛰️',4,'top',0],['燕子口步道','🦅',6,'top',1],['東大門夜市','🍢',8,'bottom',0],
+      ['松園別館前','🌲',2,'bottom',1],['花蓮漁港站','⚓',7,'bottom',1]
+    ]
+  },
+  {
+    id:'nightmarket', idx:9, theme:'jiufen', icon:'🏮', name:'10. 新北・九份燈籠山城',
+    shortDesc:'回到東北角・基隆山夜色與最窄紅燈籠山城・高壓閃黃急送',
+    mechTag:'🏮阿妹茶樓燈籠・🚧最窄山城急巷',
+    goalOrders:6, dogBase:5, carBase:22, maxCops:3, speedMul:1.38, timeMul:0.75, speedRatio:0.38, energyRatio:0.44,
+    sky:'rgba(234,88,12,0.20)', lamp:true, ground:'#140d14',
+    size:{w:1800,h:1400}, half:52, hRoads:[250,600,950,1270], vRoads:[150,650,1150,1650], seed:20261122,
+    hues:['#4a2518','#5c2b1e','#3f222c','#4c2f1b','#38253d'],
+    roadblocks:[
+      {x:860,y:548,w:80,h:104,label:'🚧 山城階修'},
+      {x:598,y:735,w:104,h:80,label:'🏮 攤販封街'},
+      {x:1360,y:898,w:80,h:104,label:'🚧 巷道施工'}
+    ],
+    river:null, bridges:[], coast:null,
+    shops:[
+      ['阿柑芋圓舖','🍧',0,'top',0],['阿蘭草仔粿','🍡',1,'top',1],['紅糟肉圓攤','🥟',2,'top',0],
+      ['金瓜炭烤屋','🍢',3,'bottom',1],['山城蜂蜜茶','🍯',5,'top',1]
+    ],
+    customers:[
+      ['豎崎觀景台','🏮',0,'bottom',1],['紅燈籠茶樓','🍵',3,'top',0],['昇平老戲院','🎬',4,'bottom',1],
+      ['山海民宿','🏠',6,'top',0],['黃金礦業館','⛏️',7,'top',1],['九份郵局前','📮',8,'bottom',0],
+      ['基山文創坊','🎪',2,'bottom',1],['輕便路客棧','🏨',6,'bottom',1]
+    ]
+  },
+  {
+    id:'techpark', idx:10, theme:'xinyi', icon:'🏙️', name:'11. 台北・信義跨夜摩天城',
+    shortDesc:'終點回北・台北101竹節高塔與跨年煙火・全島終極決戰',
+    mechTag:'🏙️台北101地標・🎆跨年煙火飆速',
+    goalOrders:7, dogBase:5, carBase:24, maxCops:3, speedMul:1.45, timeMul:0.72, speedRatio:0.44, energyRatio:0.48,
     sky:'rgba(30,27,75,0.34)', lamp:true, ground:'#090e1c',
-    size:{w:2100,h:1360}, half:72, hRoads:[180,680,1180], vRoads:[180,820,1460,1920], seed:20261133,
+    size:{w:2100,h:1480}, half:72, hRoads:[300,800,1300], vRoads:[180,820,1460,1920], seed:20261133,
     hues:['#1e3a5f','#312e81','#334155','#0f766e','#1e293b'],
     roadblocks:[], river:null, bridges:[], coast:null,
     shops:[
@@ -774,7 +875,7 @@ const MAPS=[
       ['美式漢堡店','🍔',3,'bottom',1],['宵夜鹽酥雞','🍗',5,'top',0]
     ],
     customers:[
-      ['竹節觀景塔','🗼',1,'top',0],['信義金融樓','🏢',0,'bottom',1],['新創總部館','🚀',2,'top',1],
+      ['101觀景塔','🏙️',1,'top',0],['信義金融樓','🏢',0,'bottom',1],['新創總部館','🚀',2,'top',1],
       ['國際會展城','🏛️',3,'top',0],['星光百貨館','🛍️',4,'top',0],['都會大飯店','🏨',4,'bottom',1],
       ['雲端資料中心','🖥️',5,'bottom',1],['跨年主廣場','🎆',2,'top',0]
     ]
@@ -823,9 +924,10 @@ function buildMap(idx){
   blocks=[]; windmills=[]; lanternPts=[]; cornerTrees=[];
   for(const [y0,y1] of gaps(HROADS,MAP.h)) for(const [x0,x1] of gaps(VROADS,MAP.w)){
     const w=x1-x0, h=y1-y0;
+    const isSky=(y0===0);
     const hitRiver=river && y1>river.y && y0<river.y+river.h;
     const hitCoast=coast && y1>coast.y;
-    const b={x:x0,y:y0,w,h,big:(!hitRiver && !hitCoast && w>200 && h>160),win:[],trees:[],pools:[]};
+    const b={x:x0,y:y0,w,h,skyStrip:isSky,big:(!isSky && !hitRiver && !hitCoast && w>200 && h>160),win:[],trees:[],pools:[]};
     if(b.big){
       b.hue=curMap.hues[(srand()*curMap.hues.length)|0];
       b.hasShed=srand()<0.5;
@@ -836,14 +938,14 @@ function buildMap(idx){
           lanternPts.push([lx,b.y-5],[lx,b.y+b.h+5]);
         }
       }
-      if(curMap.theme==='kenting'||curMap.theme==='alishan'||curMap.theme==='anping'||curMap.theme==='tamsui'){
+      if(curMap.theme==='kenting'||curMap.theme==='alishan'||curMap.theme==='anping'||curMap.theme==='tamsui'||curMap.theme==='taitung'||curMap.theme==='taroko'||curMap.theme==='kaohsiung'){
         const rBase=curMap.theme==='alishan'?16:15;
         cornerTrees.push([b.x-3,b.y-3,rBase],[b.x+b.w+3,b.y-3,rBase],[b.x-3,b.y+b.h+3,rBase],[b.x+b.w+3,b.y+b.h+3,rBase]);
       }
       if(curMap.theme==='gaomei'){
         b.pools.push({x:b.x+b.w*0.22,y:b.y+b.h*0.5,rx:36,ry:16},{x:b.x+b.w*0.78,y:b.y+b.h*0.5,rx:34,ry:15});
       }
-    }else{
+    }else if(!isSky){
       const n=Math.floor(b.w*b.h/2600);
       for(let i=0;i<n;i++){
         const tx=b.x+10+srand()*(b.w-20), ty=b.y+10+srand()*(b.h-20);
@@ -957,6 +1059,7 @@ let P,cars,dogs,shots,items,pops,order,stats,level,strikes,combo,countdown,shake
 let trafficLights=[]; // 紅綠燈號誌
 let peds=[];          // 行人
 let redCooldown=0;    // 闖紅燈判定冷卻
+let lastStars=0, lastWasVip=false;
 let tutDogShown=false;
 const cam={x:0,y:0};
 const joy={id:null,ox:0,oy:0,x:0,y:0};
@@ -964,21 +1067,29 @@ const keys={};
 const CAR_TYPES=['taxi','truck','sedan','speed'];
 const CAR_COLORS=['#38bdf8','#f87171','#a78bfa','#34d399','#fbbf24','#f472b6','#e5e7eb'];
 
-const TL_CYCLE=9.0;
+// 號誌週期：橫綠 3.3s -> 橫黃 1.1s -> 全紅清空 0.7s -> 縱綠 3.3s -> 縱黃 1.1s -> 全紅清空 0.7s
+const TL_CYCLE=10.2;
 function tlStates(tl){
+  if(tl.blink) return {h:'blink', v:'blink', hRem:0, vRem:0};
   const t=tl.timer;
-  if(t<3.5) return {h:'green', v:'red', hRem:Math.ceil(3.5-t), vRem:Math.ceil(4.5-t)};
-  if(t<4.5) return {h:'yellow', v:'red', hRem:Math.ceil(4.5-t), vRem:Math.ceil(4.5-t)};
-  if(t<8.0) return {h:'red', v:'green', hRem:Math.ceil(9.0-t), vRem:Math.ceil(8.0-t)};
-  return {h:'red', v:'yellow', hRem:Math.ceil(9.0-t), vRem:Math.ceil(9.0-t)};
+  if(t<3.3) return {h:'green', v:'red', hRem:Math.ceil(3.3-t), vRem:Math.ceil(5.1-t)};
+  if(t<4.4) return {h:'yellow', v:'red', hRem:Math.ceil(4.4-t), vRem:Math.ceil(5.1-t)};
+  if(t<5.1) return {h:'red', v:'red', hRem:Math.ceil(10.2-t), vRem:Math.ceil(5.1-t)};
+  if(t<8.4) return {h:'red', v:'green', hRem:Math.ceil(10.2-t), vRem:Math.ceil(8.4-t)};
+  if(t<9.5) return {h:'red', v:'yellow', hRem:Math.ceil(10.2-t), vRem:Math.ceil(9.5-t)};
+  return {h:'red', v:'red', hRem:Math.ceil(10.2-t), vRem:Math.ceil(10.2-t)};
 }
 
 function initTrafficSystem(){
   trafficLights=[];
-  for(const hy of HROADS) for(const vx of VROADS){
+  const isNight=curMap.lamp || (gameMode==='endless' && level>=4);
+  for(let ri=0;ri<HROADS.length;ri++) for(let ci=0;ci<VROADS.length;ci++){
+    const hy=HROADS[ri], vx=VROADS[ci];
     if(!onRoad(vx,hy,14)) continue;
+    const isBlink = isNight && ((ri + ci) % 2 === 1);
     const tl={
-      x:vx, y:hy,
+      x:vx, y:hy, ri, ci,
+      blink: isBlink,
       timer:rand(0,TL_CYCLE),
       hState:'green', vState:'red', hRem:4, vRem:5,
       pState:null
@@ -1035,7 +1146,7 @@ function resetGame(){
   const spawnY = places[0].door.y;
   P={x:spawnX,y:spawnY,r:14,angle:0,fx:1,fy:0,hp:100,ammo:4,inv:3.5,moving:false,boost:0,stopT:0}; // 開場給予 3.5 秒倒數無敵防禦與 4 支雞腿
   cars=[];dogs=[];shots=[];items=[];pops=[];
-  level=1;strikes=0;combo=0;redCooldown=0;tutDogShown=false;
+  level=1;strikes=0;combo=0;lastStars=0;lastWasVip=false;redCooldown=0;tutDogShown=false;
   stats={score:0,delivered:0,maxCombo:0,near:0,dogs:0,time:0};
   order=null;orderDelay=0.2;countdown=3.2;shake=0;itemTimer=4;banner=null;lastTick=-1;path=[];pathTimer=0;hintT=(gameMode==='story'&&curMapIdx===0)?16:7;
   initTrafficSystem();
@@ -1047,14 +1158,14 @@ function resetGame(){
 function updateTrafficAndPeds(dt){
   if(redCooldown>0) redCooldown-=dt;
 
-  // 更新號誌（橫向與縱向交替綠紅燈，週期 9 秒）
+  // 更新號誌（橫綠 3.3s → 橫黃 1.1s → 全紅清空 0.7s → 縱綠 3.3s → 縱黃 1.1s → 全紅清空 0.7s；夜間指定路口閃黃燈）
   for(const tl of trafficLights){
     tl.timer=(tl.timer+dt)%TL_CYCLE;
     const st=tlStates(tl);
     tl.hState=st.h; tl.vState=st.v;
     tl.hRem=st.hRem; tl.vRem=st.vRem;
 
-    // 闖紅燈判定（改以方形路口區＋實際行進軸向判定，貼邊行駛不漏判、綠／黃燈合法進入後轉彎不誤判）
+    // 闖紅燈判定（閃黃燈路口不罰闖紅燈；其餘以方形路口區＋實際行進軸向判定）
     if(G.state==='play'&&countdown<=0){
       const dx=P.x-tl.x, dy=P.y-tl.y;
       const inBox = Math.abs(dx) < HALF + 12 && Math.abs(dy) < HALF + 12;
@@ -1067,7 +1178,7 @@ function updateTrafficAndPeds(dt){
           : (Math.abs(dx) >= Math.abs(dy) ? 'h' : 'v');
         const enterState = moveAxis==='h' ? tl.hState : tl.vState;
         if(tl.pState===null && inCore){
-          if(enterState==='green' || enterState==='yellow'){
+          if(tl.blink || enterState==='blink' || enterState==='green' || enterState==='yellow'){
             tl.pState='ok';
           } else if(enterState==='red' && P.moving && redCooldown<=0){
             tl.pState='violated';
@@ -1114,6 +1225,7 @@ function updateTrafficAndPeds(dt){
       if(ped.x<=30){ped.x=30;ped.dir=1;}
       else if(ped.x>=MAP.w-30){ped.x=MAP.w-30;ped.dir=-1;}
       for(const tl of ped.rowTls){
+        if(tl.blink) continue;
         const curb=tl.x - ped.dir*(HALF+16);
         if((ped.dir>0 && prevX<=curb && ped.x>=curb) || (ped.dir<0 && prevX>=curb && ped.x<=curb)){
           ped.x=curb; ped.waitTl=tl; ped.state='wait'; break;
@@ -1121,7 +1233,9 @@ function updateTrafficAndPeds(dt){
       }
     } else if(ped.state==='wait'){
       ped.isCrossing=false;
-      if(ped.waitTl && ped.waitTl.vState==='red' && ped.waitTl.vRem>=2){
+      if(ped.waitTl && ped.waitTl.blink){
+        ped.waitTl=null; ped.state='stroll';
+      } else if(ped.waitTl && ped.waitTl.vState==='red' && ped.waitTl.vRem>=2){
         ped.state='cross'; ped.isCrossing=true;
       }
     } else if(ped.state==='cross'){
@@ -1182,7 +1296,7 @@ function makeCarWithType(forcedType){
     else if(copCount<maxCop && Math.random()<(maxCop>=2?0.22:0.14)) cType='police'; // 巡邏警車（限制同場最多 1～2 輛）
     else if(ambCount<1 && Math.random()<0.08) cType='ambulance';   // 119救護車（同場最多 1 輛，避免鳴笛過於頻繁）
     else if(Math.random()<0.34) cType='taxi';        // 台灣小黃
-    else if(Math.random()<0.32) cType='truck';       // 藍色三噸半
+    else if(Math.random()<(curMap.theme==='kaohsiung'?0.52:0.32)) cType='truck'; // 港區三噸半貨卡比例提高
   }
 
   let cColor=pick(CAR_COLORS);
@@ -1209,6 +1323,9 @@ function makeCarWithType(forcedType){
     braking:false,
     redChoiceTl:null,
     willRunRed:false,
+    turnTl:null,
+    turnSide:null,
+    turnCool:0,
     hornCooldown:0,
     type:cType,
     color:cColor,
@@ -1237,11 +1354,12 @@ function carRect(c){
   return c.axis==='h'?{x:c.pos-w/2,y:c.lane-h/2,w,h}:{x:c.lane-h/2,y:c.pos-w/2,w:h,h:w};
 }
 function randomRoadPoint(minDist){
-  for(let i=0;i<50;i++){
+  const minY=(HROADS[0]||200)-HALF+10;
+  for(let i=0;i<60;i++){
     let p;
     if(Math.random()<3/7) p={x:rand(40,MAP.w-40),y:pick(HROADS)+rand(-HALF+18,HALF-18)};
-    else p={x:pick(VROADS)+rand(-HALF+18,HALF-18),y:rand(40,MAP.h-40)};
-    if(onRoad(p.x,p.y,14)&&(!P||dist(p,P)>=minDist)) return p;
+    else p={x:pick(VROADS)+rand(-HALF+18,HALF-18),y:rand(minY,MAP.h-40)};
+    if(p.y>=minY && onRoad(p.x,p.y,14)&&(!P||dist(p,P)>=minDist)) return p;
   }
   return {x:places[0].door.x,y:places[0].door.y};
 }
@@ -1250,8 +1368,8 @@ function syncHazards(){
   const isNight=curMap.lamp || (gameMode==='endless'&&level>=5);
   const deliv=stats?stats.delivered:0;
   const carN=gameMode==='story'
-    ? Math.min(28, curMap.carBase + deliv*2)
-    : Math.min(30, curMap.carBase + (level-1)*3);
+    ? Math.min(32, curMap.carBase + deliv*2)
+    : Math.min(34, curMap.carBase + (level-1)*3);
   if(cars.length===0){
     cars.push(makeCarWithType('police'));
     cars.push(makeCarWithType('ambulance'));
@@ -1264,7 +1382,7 @@ function syncHazards(){
     c.speed=Math.min(320,Math.max(c.speed,sp));
   });
   const dogN=gameMode==='story'
-    ? curMap.dogBase + (deliv>=1?1:0)
+    ? Math.min(8, curMap.dogBase + (deliv>=2?1:0))
     : Math.min(8, curMap.dogBase + Math.max(0,level-1));
   while(dogs.length<dogN){const p=randomRoadPoint(460);dogs.push({x:p.x,y:p.y,dx:1,dy:0,wt:rand(1,3),stun:0,eat:0,chase:false,chaseDur:0,calm:0});}
 }
@@ -1283,50 +1401,68 @@ function getStorySteps(){
   const charName=isF?'妮野可（粉紅勁駒）':'阿豪大叔（藍勁速車）';
   if(curMapIdx===0){
     return [
-      {ava:'📱', speaker:'外送平台・1. 台北大稻埕', text:'「叮咚！」週五尖峰大爆單！從紅磚古香的大稻埕老街出發吧——累積 3 個差評就會被停權！'},
-      {ava:charAva, speaker:charName, text:isF?'安全帽扣好、馬尾甩起來！大稻埕的騎樓燈籠好漂亮，這波獎金我全收下了！':'哼，跑完這 3 單去霞海城隍廟拜一下，今天肯定一路順風！'},
+      {ava:'📱', speaker:'外送平台・1. 台北大稻埕', text:'「叮咚！」環台外送大爆單開跑！從北起點紅磚古香的大稻埕老街出發吧——累積 3 個差評就會被停權！'},
+      {ava:charAva, speaker:charName, text:isF?'安全帽扣好、馬尾甩起來！上方城隍廟跟夕陽河景超美，這波獎金我全收下了！':'哼，跑完這 3 單去霞海城隍廟拜一下，準備一路環台往南衝囉！'},
       {ava:'🍗', speaker:'街頭小提醒', text:'「汪汪！」巷口野狗聞到香味會追上來…車廂備了 4 支 🍗 雞腿，丟出去讓牠們吃飽就走，出發！'}
     ];
   }
   if(curMapIdx===1){
     return [
-      {ava:'🏮', speaker:'區域廣播・2. 新北九份山城', text:'歡迎來到整排紅燈籠的九份山城！巷道偏窄，還有「🚧 山城整修／🏮 攤販封街」，多看地上導航繞道！'},
-      {ava:charAva, speaker:charName, text:'滿街芋圓和草仔粿的香氣…連野狗都饞起來了，目標 4 單穩穩送達！'}
+      {ava:'🌅', speaker:'區域廣播・2. 新北淡水河岸', text:'來到台北西北出海口淡水！前方有金色夕陽淡水河與紅色跨河拱橋，記得走橋樑才能順利過河送餐！'},
+      {ava:charAva, speaker:charName, text:'阿給、鐵蛋加現炸魚酥！抬頭還能看見關渡紅橋，穩穩送達這 4 單！'}
     ];
   }
   if(curMapIdx===2){
     return [
-      {ava:'🌴', speaker:'區域廣播・3. 屏東墾丁海岸', text:'南國海風吹來！道路下方就是沙灘與太平洋，度假跑車車速飛快，路上也多了很多 ⚡ 能量飲料！'},
-      {ava:charAva, speaker:charName, text:'椰子樹配海浪太Chill了吧～不過跑車常闖紅燈，過路口還是得瞄一下號誌！'}
+      {ava:'🌾', speaker:'區域廣播・3. 台中高美濕地', text:'一路南下台中西岸！金色暮色下巨大白色風車正轉動著，本區進入暮色，部分路口開始啟用「⚡ 閃黃燈」！'},
+      {ava:charAva, speaker:charName, text:'夕陽配大風車美翻了！閃黃路口不用停等紅燈，但還是要注意對向與左轉來車喔！'}
     ];
   }
   if(curMapIdx===3){
     return [
-      {ava:'⛩️', speaker:'區域廣播・4. 台南安平古堡', text:'府城古都到處是紅磚城垛與廟口牌樓！遇到「⛩️ 廟會繞境」與古蹟修繕路障，記得切換路線避開！'},
-      {ava:charAva, speaker:charName, text:'蝦捲、牛肉湯、豆花全都要趁熱送！這單送完我自己也要來一碗！'}
+      {ava:'🚂', speaker:'區域廣播・4. 嘉義阿里山櫻花鐵道', text:'登上中南山區阿里山！北方山巒雲海間有冒煙駛過的紅色森林小火車，伴隨漫天粉櫻花瓣飄落！'},
+      {ava:charAva, speaker:charName, text:'奮起湖便當加高山茶香爆了！小心平交道與山道施工路障，全速上山吧！'}
     ];
   }
   if(curMapIdx===4){
     return [
-      {ava:'🌅', speaker:'區域廣播・5. 新北淡水河岸', text:'夕陽把淡水河染成金橘色！兩岸只能靠兩座 🌉 紅色跨河大橋通行，河岸警車巡邏密度也提高了！'},
-      {ava:charAva, speaker:charName, text:'渡船頭與紅毛城的客人都在等阿給和鐵蛋，看準紅橋位置再過河！'}
+      {ava:'⛩️', speaker:'區域廣播・5. 台南安平古堡古都', text:'府城古都紅白安平古堡與古城牆就在眼前！遇到「⛩️ 廟會繞境」與古蹟修繕路障，記得看導航切換路線！'},
+      {ava:charAva, speaker:charName, text:'蝦捲、牛肉湯、豆花全都要趁熱送！這單送完我自己也要來一碗！'}
     ];
   }
   if(curMapIdx===5){
     return [
-      {ava:'🌾', speaker:'區域廣播・6. 台中高美濕地', text:'金色暮色下的巨大發電風車陣列正在轉動！濕地木棧區有部分封閉護欄，善用衝刺閃避車流！'},
-      {ava:charAva, speaker:charName, text:'夕陽配大風車美翻了！加速送完這 5 單去木棧道打卡！'}
+      {ava:'🚢', speaker:'區域廣播・6. 高雄愛河 85 港灣夜色', text:'抵達南台灣最大海港！北方天際矗立高雄 85 大樓與流行音樂海灣，愛河運河貫穿街區，港區貨卡車流特別密集！'},
+      {ava:charAva, speaker:charName, text:'夜間港灣配霓虹水波超有氣勢！找準大港雙橋過河避開三噸半貨卡吧！'}
     ];
   }
   if(curMapIdx===6){
     return [
-      {ava:'🌸', speaker:'區域廣播・7. 嘉義阿里山櫻花道', text:'漫天粉櫻花瓣飄落！山林鐵道沿線偶有平交道整修封路，野狗與車速也進入高階考驗！'},
-      {ava:charAva, speaker:charName, text:'櫻花雨中騎車好浪漫～但奮起湖便當不能冷掉，全速衝刺吧！'}
+      {ava:'🌴', speaker:'區域廣播・7. 屏東墾丁南國大道', text:'台灣最南端折返點！白色鵝鑾鼻燈塔光束掃過海面，道路下方就是沙灘與太平洋，度假跑車飛快出沒！'},
+      {ava:charAva, speaker:charName, text:'椰子樹配海浪太 Chill 了吧～但要小心邊界來車預警跟闖紅燈跑車喔！'}
+    ];
+  }
+  if(curMapIdx===7){
+    return [
+      {ava:'🎈', speaker:'區域廣播・8. 台東鹿野熱氣球縱谷', text:'轉向東岸沿花東縱谷北上！翠綠山脈上空正飄起彩色繽紛熱氣球，長直道路快車頻出、慶典封街也需要繞道！'},
+      {ava:charAva, speaker:charName, text:'邊看熱氣球邊送池上飯包與初鹿鮮奶，這才是台灣最美外送路線！'}
+    ];
+  }
+  if(curMapIdx===8){
+    return [
+      {ava:'⛰️', speaker:'區域廣播・9. 花蓮太魯閣山海峽谷', text:'東岸極限山海挑戰！大理石高聳峭壁與長春祠飛瀑就在北側，路段偶有「🪨 峽谷落石」與隧道養護封道！'},
+      {ava:charAva, speaker:charName, text:'太魯閣壯觀到起雞皮疙瘩！抓準落石繞道節奏，衝完這 6 單回北台灣！'}
+    ];
+  }
+  if(curMapIdx===9){
+    return [
+      {ava:'🏮', speaker:'區域廣播・10. 新北九份燈籠山城', text:'回到東北角山城前哨戰！阿妹茶樓層層紅燈籠閃耀夜色，這裡是全島最窄的山城巷弄與夜間閃黃急送大考驗！'},
+      {ava:charAva, speaker:charName, text:'芋圓、草仔粿熱騰騰上肩！窄巷閃車小心路人，過了九份就直奔最終站 101！'}
     ];
   }
   return [
-    {ava:'🏙️', speaker:'區域廣播・8. 台北信義跨夜摩天城', text:'最終站！竹節地標高塔與夜空煙火閃耀信義區！寬闊高速大道充滿超速跑車與警車，挑戰 6 單全島制霸！'},
-    {ava:charAva, speaker:charName, text:'這就是傳說中的台灣外送車神最終戰！催到底啦——！'}
+    {ava:'🏙️', speaker:'區域廣播・11. 台北信義跨夜摩天城', text:'環台一圈凱旋回北！台北 101 竹節高塔與跨年煙火照亮夜空！寬闊高速大道充滿超速跑車與巡邏警車，挑戰 7 單制霸！'},
+    {ava:charAva, speaker:charName, text:'傳說中的台灣環台外送車神最終戰！催到底衝向台北 101——！'}
   ];
 }
 function renderStory(){
@@ -1463,7 +1599,7 @@ function winStage(){
     }
     msg='🔓 已解鎖新地圖：【'+MAPS[curMapIdx+1].name+'】！';
   } else {
-    msg='👑 恭喜制霸全台灣四大外送區域！無限模式已全面解鎖！';
+    msg='👑 恭喜完成環台 11 大著名景點制霸！外送車神達成！';
   }
   showEndCard(true, msg);
 }
@@ -1474,32 +1610,35 @@ function updateAmmo(){
   $('throwBtn').classList.toggle('empty',!P||P.ammo<=0);
 }
 
-function calcOrderTime(distPx){
+function calcOrderTime(distPx, isVip=false){
   const cfg=STAGE_CONFIG[Math.min(STAGE_CONFIG.length-1,level-1)];
-  // 依玩家正常騎乘速度 (210 px/s) 與轉彎緩衝估算，並預留路口等紅燈秒數
-  const rideSec=(distPx/210)*1.35;
+  // 依玩家正常騎乘速度 (210 px/s) 與轉彎緩衝估算，保留各關卡難度的顯著時間差距
+  const rideSec=(distPx/210)*1.32;
   const estLights=Math.max(1, Math.round(distPx/480));
-  const lightBuffer=estLights*3.8;
-  const mapScale=curMap.timeMul;
-  const storyScale=mapScale * Math.max(0.84, 1 - stats.delivered*0.04);
-  const stageScale=(gameMode==='story')?(0.82+0.18*storyScale):(0.78+0.22*Math.min(mapScale,cfg.timeMul));
-  return Math.max(14, Math.ceil((rideSec+lightBuffer+4.5)*stageScale));
+  const lightBuffer=estLights*2.9;
+  const storyScale=curMap.timeMul * Math.max(0.86, 1 - stats.delivered*0.03);
+  const stageScale=(gameMode==='story') ? storyScale : Math.min(curMap.timeMul, cfg.timeMul);
+  const vipMul=isVip ? 0.78 : 1.0;
+  return Math.max(isVip?10:12, Math.ceil((rideSec+lightBuffer+3.6)*stageScale*vipMul));
 }
 
 function newOrder(){
-  const shop=pick(shops); let cust=pick(customers);
-  for(let i=0;i<30;i++){cust=pick(customers);if(pathLen(shop.door,cust.door)>=600)break;}
+  // 嚴格觸發【金牌特急單】：需 連擊>=3 ＋ 上單滿分3星 ＋ 無差評 ＋ 不連續出現
+  const isVip = (combo >= 3 && lastStars >= 3 && strikes === 0 && !lastWasVip);
+  const minDist = isVip ? 900 : 600;
+  let shop=pick(shops), cust=pick(customers);
+  for(let i=0;i<40;i++){
+    const s=pick(shops), c=pick(customers);
+    if(pathLen(s.door,c.door)>=minDist){shop=s;cust=c;break;}
+  }
   // 先計算「當前位置 -> 取餐店家」的合理時限，取餐後再重新計算送達顧客的時限
-  const t=calcOrderTime(pathLen(P,shop.door));
-
-  // 100% 靠技巧累積：達成連續準時送達 3 單 (Combo >= 3)，必定解鎖「金牌特急單」！
-  const isVip = (combo >= 3);
+  const t=calcOrderTime(pathLen(P,shop.door), isVip);
 
   order={shop,cust,stage:'pickup',time:t,total:t,isVip};
   lastTick=-1; pathTimer=0;
   sfx('order');
   if(isVip){
-    pop(P.x,P.y-30,'⭐ 實力達成！【金牌特急單】雙倍工資！','#fbbf24',21);
+    pop(P.x,P.y-30,'⭐ 完美連勝！【金牌特急單】限時超趕 ×2.5倍獎金！','#fbbf24',21);
   } else {
     pop(P.x,P.y-30,'📲 新訂單！限時 '+t+' 秒取餐','#6ee7b7',18);
   }
@@ -1509,21 +1648,22 @@ function deliver(){
   const remainRatio=tl/order.total;
 
   // 三星外送評價判定
-  let stars='⭐', starBonus=0, starMsg='壓線送達';
+  let stars='⭐', starNum=1, starBonus=0, starMsg='壓線送達';
   if(remainRatio>=0.40){
-    stars='⭐⭐⭐'; starBonus=80; starMsg='完美神速！';
+    stars='⭐⭐⭐'; starNum=3; starBonus=80; starMsg='完美神速！';
     P.hp=Math.min(100, P.hp+15); // 3星回血 15
   } else if(remainRatio>=0.15){
-    stars='⭐⭐'; starBonus=30; starMsg='準時抵達！';
+    stars='⭐⭐'; starNum=2; starBonus=30; starMsg='準時抵達！';
     P.hp=Math.min(100, P.hp+8);
   } else {
     P.hp=Math.min(100, P.hp+3);
   }
 
   const mult=1+0.2*Math.min(combo,10);
-  const vipMult=order.isVip?2.0:1.0;
+  const vipMult=order.isVip?2.5:1.0;
   const pts=Math.round((100 + Math.ceil(tl)*12 + starBonus) * mult * vipMult);
 
+  lastStars=starNum; lastWasVip=!!order.isVip;
   stats.score+=pts; combo++; stats.maxCombo=Math.max(stats.maxCombo,combo); stats.delivered++;
   pop(P.x,P.y-36,'+'+pts+' '+stars,'#fde68a',24);
   pop(P.x,P.y-60,starMsg,'#6ee7b7',16);
@@ -1546,14 +1686,23 @@ function deliver(){
   }
 }
 function levelUp(){
-  level++; syncHazards(); sfx('level');
+  level++;
+  const isNight=curMap.lamp || (gameMode==='endless' && level>=4);
+  if(isNight){
+    for(const tl of trafficLights){
+      tl.blink=((tl.ri + tl.ci) % 2 === 1);
+      const st=tlStates(tl);
+      tl.hState=st.h; tl.vState=st.v; tl.hRem=st.hRem; tl.vRem=st.vRem;
+    }
+  }
+  syncHazards(); sfx('level');
   P.hp=Math.min(100, P.hp+25); // 通關補血 25
   const cfg=STAGE_CONFIG[Math.min(STAGE_CONFIG.length-1,level-1)];
   showBanner('STAGE '+level+'・'+cfg.name, cfg.desc, '#6ee7b7');
   if(level>bestStage){ bestStage=level; store.set('dug_best_stage',bestStage); }
 }
 function orderFail(){
-  strikes++; combo=0; sfx('fail'); shake=0.25;
+  strikes++; combo=0; lastStars=0; lastWasVip=false; sfx('fail'); shake=0.25;
   order=null; orderDelay=1.4; path=[];
   showBanner('⏰ 訂單逾時！','差評 +1（'+strikes+'/3）','#fca5a5');
   if(strikes>=3) gameOver('😭 累積 3 個差評，被平台停權了');
@@ -1576,11 +1725,13 @@ function throwFood(){
 /* ===================== 移動（含轉角輔助，讓手機轉彎更順） ===================== */
 function moveEnt(e,dx,dy,r,assist){
   const steps=Math.max(1,Math.ceil(Math.max(Math.abs(dx),Math.abs(dy))/5));
+  const minY=(HROADS[0]||200)-HALF-8;
   dx/=steps; dy/=steps;
   for(let i=0;i<steps;i++){
     if(dx){ if(onRoad(e.x+dx,e.y,r)) e.x+=dx; else if(assist&&Math.abs(dx)>=Math.abs(dy)) nudge(e,'x',dx,r); }
-    if(dy){ if(onRoad(e.x,e.y+dy,r)) e.y+=dy; else if(assist&&Math.abs(dy)>=Math.abs(dx)) nudge(e,'y',dy,r); }
+    if(dy){ if(e.y+dy>=minY && onRoad(e.x,e.y+dy,r)) e.y+=dy; else if(assist&&Math.abs(dy)>=Math.abs(dx)) nudge(e,'y',dy,r); }
   }
+  if(e.y<minY) e.y=minY;
 }
 function nudge(e,axis,d,r){
   const m=Math.abs(d)+1;
@@ -1607,18 +1758,35 @@ function inputVec(){
 /* ===================== 主更新 ===================== */
 function updateCars(dt){
   const activePlay = (G.state === 'play' && countdown <= 0);
+  const turnTarget = (c, tl, side) => {
+    const off = c.laneOff || 30;
+    const newAxis = c.axis==='h' ? 'v' : 'h';
+    const newDir = side==='R' ? (c.axis==='h' ? c.dir : -c.dir) : (c.axis==='h' ? -c.dir : c.dir);
+    const newCenter = newAxis==='v' ? tl.x : tl.y;
+    const newLane = newCenter + (newAxis==='h' ? 1 : -1) * newDir * off;
+    return {newAxis, newDir, newCenter, newLane, pivotPos: newLane};
+  };
   for(const c of cars){
-    // 移動（一般車停紅燈、排隊不重疊、不追撞等紅燈的外送員；遇到施工路障或河岸則平順掉頭）
+    // 移動（一般車停紅黃燈、綠燈清空交叉車流、左轉禮讓對向來車、排隊不重疊、不追撞等紅燈的外送員）
     const prevPos=c.pos;
     if(c.hornCooldown>0) c.hornCooldown-=dt;
+    if(c.turnCool>0) c.turnCool-=dt;
 
     const isEmergency = (c.type==='ambulance') || (c.type==='police' && c.chasing);
+    const canTurnCar = !isEmergency && !c.speeder && c.type !== 'police';
     let maxStep = c.speed * dt;
+    let brakeLimitSpeed = c.speed;
     let mustYieldStop = false;
+    const applyYield = (dStop) => {
+      const safeD = Math.max(0, dStop);
+      mustYieldStop = true;
+      maxStep = Math.min(maxStep, safeD);
+      brakeLimitSpeed = Math.min(brakeLimitSpeed, Math.sqrt(2 * 340 * safeD));
+    };
     const front = c.pos + c.dir * ((c.w || 48) / 2);
 
     if(!isEmergency){
-      // A. 十字路口紅黃燈檢查（停在斑馬線前留出充足緩衝空間）
+      // A. 十字路口號誌、清空檢查與轉彎禮讓
       for(const tl of trafficLights){
         if(c.axis==='h' ? (tl.y!==c.roadCenter) : (tl.x!==c.roadCenter)) continue;
         const tlPos = c.axis==='h' ? tl.x : tl.y;
@@ -1626,18 +1794,79 @@ function updateCars(dt){
         const stopEdge = tlPos - c.dir * (HALF + 28);
         const dToLine = (stopEdge - front) * c.dir;
 
+        // 接近路口時規劃是否左／右轉
+        if(canTurnCar && c.turnCool <= 0 && c.turnTl !== tl && dToLine >= -4 && dToLine < 165){
+          c.turnTl = tl;
+          const rTurn = Math.random();
+          const cand = rTurn < 0.24 ? 'L' : (rTurn < 0.46 ? 'R' : 'S');
+          if(cand !== 'S'){
+            const tgt = turnTarget(c, tl, cand);
+            const chkX = tgt.newAxis==='v' ? tgt.newLane : tl.x + tgt.newDir*54;
+            const chkY = tgt.newAxis==='h' ? tgt.newLane : tl.y + tgt.newDir*54;
+            c.turnSide = onRoad(chkX, chkY, 12) ? cand : 'S';
+          } else {
+            c.turnSide = 'S';
+          }
+        }
+
         if(dToLine >= -6 && dToLine < 150){
           if(c.speeder && c.redChoiceTl !== tl){
             c.redChoiceTl = tl;
             c.willRunRed = Math.random() < 0.72; // 超速跑車高機率搶黃／闖紅燈
           }
           const ignoreRed = c.speeder && c.willRunRed;
-          if(!ignoreRed && (sig==='red' || (sig==='yellow' && dToLine > 18))){
-            mustYieldStop = true;
-            maxStep = Math.min(maxStep, Math.max(0, dToLine));
+          // 1) 紅燈停等；黃燈提前煞車（距離停止線 > 4px 皆煞車停下）
+          if(!ignoreRed && (sig==='red' || (sig==='yellow' && dToLine > 4))){
+            applyYield(dToLine);
+          } else if(!ignoreRed && sig==='green' && dToLine >= -4 && dToLine < 65){
+            // 2) 剛轉綠燈時確認交叉方向路口內無殘留車輛才起步
+            let crossInBox = false;
+            for(const o of cars){
+              if(o===c || o.axis===c.axis) continue;
+              const ocp = carPos(o);
+              if(Math.abs(ocp.x - tl.x) < HALF + 16 && Math.abs(ocp.y - tl.y) < HALF + 16){
+                crossInBox = true; break;
+              }
+            }
+            if(crossInBox) applyYield(dToLine);
           }
         } else if(c.redChoiceTl === tl && dToLine < -HALF){
           c.redChoiceTl = null;
+        }
+
+        // 3) 綠燈／閃黃燈欲左轉時，若對向直行車或外送員交會則踩煞車禮讓
+        if(c.turnTl === tl && c.turnSide === 'L' && (sig==='green' || sig==='blink')){
+          const tgt = turnTarget(c, tl, 'L');
+          const dToPivot = (tgt.pivotPos - c.pos) * c.dir;
+          if(dToPivot > -4 && dToPivot < 120){
+            let hasOncoming = false;
+            for(const o of cars){
+              if(o===c || o.axis!==c.axis || o.roadCenter!==c.roadCenter || o.dir!==-c.dir) continue;
+              const oFront = o.pos + o.dir * ((o.w || 48) / 2);
+              const oToExit = (tlPos + o.dir * (HALF + 14) - o.pos) * o.dir;
+              const oToEntry = (tlPos - o.dir * (HALF + 14) - oFront) * o.dir;
+              if(oToExit > -6 && oToEntry < 135 && (!o.braking || o.curSpeed > 50)){
+                hasOncoming = true; break;
+              }
+            }
+            if(!hasOncoming && activePlay && P){
+              const dPRad = Math.hypot(P.x - tl.x, P.y - tl.y);
+              const inOppOrBox = c.axis==='h'
+                ? ((P.x - tl.x)*c.dir > -HALF - 6 && Math.abs(P.y - tl.y) < HALF + 12)
+                : ((P.y - tl.y)*c.dir > -HALF - 6 && Math.abs(P.x - tl.x) < HALF + 12);
+              if(dPRad < HALF + 135 && inOppOrBox && (P.moving || dPRad < HALF + 28)){
+                hasOncoming = true;
+              }
+            }
+            if(hasOncoming){
+              const yieldWait = tlPos - c.dir * 8;
+              applyYield((yieldWait - c.pos) * c.dir);
+            }
+          }
+        }
+
+        if(c.turnTl === tl && dToLine < -HALF - 44){
+          c.turnTl = null; c.turnSide = null;
         }
       }
 
@@ -1648,8 +1877,7 @@ function updateCars(dt){
           if(Math.abs(ped.x - c.lane) < 28){
             const dPed = (ped.y - front) * c.dir;
             if(dPed >= -4 && dPed < 64){
-              mustYieldStop = true;
-              maxStep = Math.min(maxStep, Math.max(0, dPed - 16));
+              applyYield(dPed - 16);
             }
           }
         }
@@ -1663,8 +1891,11 @@ function updateCars(dt){
         const gap = (oRear - front) * c.dir;
         if(gap > -6 && gap < 135){
           const safeGap = 24;
-          if(gap <= safeGap + 22) mustYieldStop = true;
-          maxStep = Math.min(maxStep, Math.max(0, gap - safeGap));
+          const dQueue = Math.max(0, gap - safeGap);
+          maxStep = Math.min(maxStep, dQueue);
+          if(gap <= safeGap + 42){
+            applyYield(dQueue);
+          }
         }
       }
 
@@ -1676,8 +1907,7 @@ function updateCars(dt){
           const dToRiderRear = ((c.axis==='h' ? P.x : P.y) - front) * c.dir - P.r;
           const riderSafeGap = 34;
           if(dToRiderRear >= -6 && dToRiderRear < 150 && (!c.speeder || !P.moving)){
-            mustYieldStop = true;
-            maxStep = Math.min(maxStep, Math.max(0, dToRiderRear - riderSafeGap));
+            applyYield(dToRiderRear - riderSafeGap);
             if(activePlay && dToRiderRear < riderSafeGap + 20 && !P.moving && c.hornCooldown <= 0 && !c.speeder){
               let atRed = false;
               for(const tl of trafficLights){
@@ -1695,15 +1925,56 @@ function updateCars(dt){
       }
     }
 
-    const targetSpeed = (dt > 0) ? Math.min(c.speed, maxStep / dt) : c.speed;
+    // 邊界剛進場緩速平順切入，避免突衝畫面邊緣
+    const skyEdge=(HROADS[0]||200)-HALF;
+    const enteringEdge = (c.dir > 0 && c.pos < (c.axis==='v' ? skyEdge + 18 : 28)) || (c.dir < 0 && c.pos > c.len - 28);
+    if(enteringEdge) brakeLimitSpeed = Math.min(brakeLimitSpeed, c.speed * 0.62);
+
+    const targetSpeed = (dt > 0) ? Math.min(brakeLimitSpeed, maxStep / dt) : brakeLimitSpeed;
     if(typeof c.curSpeed !== 'number') c.curSpeed = c.speed;
-    const accelRate = targetSpeed < c.curSpeed ? 11 : 5;
+    const accelRate = targetSpeed < c.curSpeed ? 17 : 5;
     c.curSpeed += (targetSpeed - c.curSpeed) * Math.min(1, dt * accelRate);
     const actualStep = Math.min(maxStep, c.curSpeed * dt);
     c.braking = mustYieldStop || (c.curSpeed < c.speed * 0.65);
 
     c.pos += c.dir * actualStep;
-    if(c.pos>c.len+60) c.pos=-60; else if(c.pos<-60) c.pos=c.len+60;
+    // 執行轉彎切換車道（到達新車道中心軸線時無縫轉向）
+    if(c.turnTl && (c.turnSide==='L' || c.turnSide==='R')){
+      const tl = c.turnTl;
+      const tgt = turnTarget(c, tl, c.turnSide);
+      const crossed = (c.dir > 0) ? (prevPos <= tgt.pivotPos && c.pos >= tgt.pivotPos) : (prevPos >= tgt.pivotPos && c.pos <= tgt.pivotPos);
+      if(crossed || Math.abs(c.pos - tgt.pivotPos) < 4){
+        const oldLane = c.lane;
+        const cornerBusy = cars.some(o => o!==c && o.axis===tgt.newAxis && o.roadCenter===tgt.newCenter && o.dir===tgt.newDir && Math.abs(o.pos - oldLane) < 50);
+        if(!cornerBusy){
+          c.axis = tgt.newAxis;
+          c.roadCenter = tgt.newCenter;
+          c.dir = tgt.newDir;
+          c.lane = tgt.newLane;
+          c.pos = oldLane;
+          c.len = c.axis==='h' ? MAP.w : MAP.h;
+          c.turnTl = null;
+          c.turnSide = null;
+          c.turnCool = 1.2;
+        } else {
+          c.pos = prevPos;
+          c.braking = true;
+          c.curSpeed = Math.min(c.curSpeed, 20);
+        }
+      }
+    }
+    if(c.pos>c.len+170 || c.pos<-170){
+      let newPos = c.dir > 0 ? -170 : c.len + 170;
+      const entryX = c.axis==='h' ? (c.dir>0?25:c.len-25) : c.lane;
+      const entryY = c.axis==='h' ? c.lane : (c.dir>0?skyEdge:c.len-25);
+      const busyNearEntry = (G.state==='play' && P && Math.hypot(P.x-entryX, P.y-entryY) < 180)
+        || cars.some(o => o!==c && o.axis===c.axis && o.roadCenter===c.roadCenter && o.dir===c.dir && ((c.dir>0 && o.pos<120) || (c.dir<0 && o.pos>c.len-120)));
+      if(busyNearEntry) newPos = c.dir > 0 ? -270 : c.len + 270;
+      c.pos = newPos;
+      c.curSpeed = c.speed * 0.52;
+      c.turnTl = null;
+      c.turnSide = null;
+    }
 
     let cp = carPos(c);
     let blocked=false;
@@ -2031,7 +2302,7 @@ function update(dt){
     if(dist(P,tgt.door)<46){
       if(order.stage==='pickup'){
         order.stage='deliver'; sfx('pickup'); pathTimer=0; lastTick=-1;
-        const deliverTime=calcOrderTime(pathLen(P,order.cust.door));
+        const deliverTime=calcOrderTime(pathLen(P,order.cust.door), order.isVip);
         order.time=deliverTime; order.total=deliverTime;
         pop(P.x,P.y-30,'📦 取餐成功！限時 '+deliverTime+' 秒送達','#fde68a',18);
         if(gameMode==='story'&&curMapIdx===0&&stats.delivered===0){
@@ -2064,17 +2335,344 @@ function rr(x,y,w,h,r){
 function inView(x,y,w,h){const vw=W/ZOOM,vh=H/ZOOM;return x+w>cam.x-20&&y+h>cam.y-20&&x<cam.x+vw+20&&y<cam.y+vh+20;}
 const SCENE_PALETTES={
   dadaocheng:{curb:'#d97706', walk:'#92400e', road:'#261c18', stone:'rgba(253,230,138,0.16)', trim:'#b45309'},
-  jiufen:    {curb:'#dc2626', walk:'#475569', road:'#1a2230', stone:'rgba(251,146,60,0.18)', trim:'#7f1d1d'},
-  kenting:   {curb:'#fde047', walk:'#d6c48a', road:'#1a3547', stone:'rgba(255,255,255,0.22)', trim:'#eab308'},
-  anping:    {curb:'#ef4444', walk:'#9a3412', road:'#251a18', stone:'rgba(254,202,202,0.18)', trim:'#b91c1c'},
   tamsui:    {curb:'#f97316', walk:'#78350f', road:'#1b1a2a', stone:'rgba(253,186,116,0.18)', trim:'#9a3412'},
   gaomei:    {curb:'#c084fc', walk:'#6d4c3d', road:'#172234', stone:'rgba(216,180,254,0.18)', trim:'#7c4a2d'},
   alishan:   {curb:'#f472b6', walk:'#6b4c35', road:'#1d191a', stone:'rgba(249,168,212,0.20)', trim:'#5c3d2e'},
+  anping:    {curb:'#ef4444', walk:'#9a3412', road:'#251a18', stone:'rgba(254,202,202,0.18)', trim:'#b91c1c'},
+  kaohsiung: {curb:'#06b6d4', walk:'#1e293b', road:'#0f172a', stone:'rgba(56,189,248,0.22)', trim:'#0284c7'},
+  kenting:   {curb:'#fde047', walk:'#d6c48a', road:'#1a3547', stone:'rgba(255,255,255,0.22)', trim:'#eab308'},
+  taitung:   {curb:'#84cc16', walk:'#3f6212', road:'#1b261d', stone:'rgba(190,242,100,0.18)', trim:'#4d7c0f'},
+  taroko:    {curb:'#cbd5e1', walk:'#475569', road:'#1e252b', stone:'rgba(226,232,240,0.22)', trim:'#64748b'},
+  jiufen:    {curb:'#dc2626', walk:'#475569', road:'#1a2230', stone:'rgba(251,146,60,0.18)', trim:'#7f1d1d'},
   xinyi:     {curb:'#22d3ee', walk:'#1e293b', road:'#0b1326', stone:'rgba(56,189,248,0.22)', trim:'#0ea5e9'}
 };
+function drawTopSkyline(now, skyH, th){
+  if(cam.y > skyH + 35) return;
+  const par=cam.x*0.14;
+  ctx.save();
+  ctx.beginPath(); ctx.rect(0,0,MAP.w,skyH); ctx.clip();
+
+  // 1. 天空漸層背景（依 11 大景點晝／暮／夜色調切換）
+  const sg=ctx.createLinearGradient(0,0,0,skyH);
+  if(th==='dadaocheng'){sg.addColorStop(0,'#451a03');sg.addColorStop(0.6,'#9a3412');sg.addColorStop(1,'#f59e0b');}
+  else if(th==='tamsui'){sg.addColorStop(0,'#1e1b4b');sg.addColorStop(0.55,'#9a3412');sg.addColorStop(1,'#fb923c');}
+  else if(th==='gaomei'){sg.addColorStop(0,'#2e1065');sg.addColorStop(0.55,'#7e22ce');sg.addColorStop(1,'#fb923c');}
+  else if(th==='alishan'){sg.addColorStop(0,'#0f172a');sg.addColorStop(0.55,'#1e3a5f');sg.addColorStop(1,'#64748b');}
+  else if(th==='anping'){sg.addColorStop(0,'#0369a1');sg.addColorStop(0.65,'#38bdf8');sg.addColorStop(1,'#fef3c7');}
+  else if(th==='kaohsiung'){sg.addColorStop(0,'#020617');sg.addColorStop(0.6,'#0f172a');sg.addColorStop(1,'#0369a1');}
+  else if(th==='kenting'){sg.addColorStop(0,'#0284c7');sg.addColorStop(0.65,'#38bdf8');sg.addColorStop(1,'#bae6fd');}
+  else if(th==='taitung'){sg.addColorStop(0,'#0ea5e9');sg.addColorStop(0.65,'#7dd3fc');sg.addColorStop(1,'#d9f99d');}
+  else if(th==='taroko'){sg.addColorStop(0,'#0c4a6e');sg.addColorStop(0.6,'#0284c7');sg.addColorStop(1,'#bae6fd');}
+  else if(th==='jiufen'){sg.addColorStop(0,'#090d16');sg.addColorStop(0.6,'#1e1b4b');sg.addColorStop(1,'#431407');}
+  else {sg.addColorStop(0,'#020617');sg.addColorStop(0.55,'#1e1b4b');sg.addColorStop(1,'#312e81');}
+  ctx.fillStyle=sg; ctx.fillRect(0,0,MAP.w,skyH);
+
+  // 夜間星點
+  if(th==='alishan'||th==='kaohsiung'||th==='jiufen'||th==='xinyi'||th==='gaomei'){
+    ctx.fillStyle='#f8fafc';
+    for(let i=0;i<42;i++){
+      const sx=((i*173+par*0.3)%MAP.w), sy=12+((i*53)%(skyH*0.52));
+      ctx.globalAlpha=0.35+0.55*Math.abs(Math.sin(now/700+i));
+      ctx.fillRect(sx,sy,2,2);
+    }
+    ctx.globalAlpha=1;
+  }
+
+  // 2. 遠山／海平線視差剪影
+  const drawHills=(baseY, amp, freq, col, phase)=>{
+    ctx.fillStyle=col;
+    ctx.beginPath(); ctx.moveTo(0,skyH);
+    for(let x=0;x<=MAP.w+40;x+=40){
+      const y=baseY - Math.abs(Math.sin((x-par*0.35)*freq+phase))*amp - Math.sin((x-par*0.2)*freq*2.1)*amp*0.35;
+      ctx.lineTo(x,y);
+    }
+    ctx.lineTo(MAP.w,skyH); ctx.closePath(); ctx.fill();
+  };
+
+  // 3. 11 大著名台灣地標全景（含山脈、火車、台北101、85大樓、熱氣球、太魯閣飛瀑等）
+  if(th==='dadaocheng'){
+    drawHills(skyH-30, 56, 0.0042, 'rgba(69,26,3,0.75)', 0.4);
+    ctx.fillStyle='rgba(253,224,71,0.78)'; ctx.beginPath(); ctx.arc(MAP.w*0.76, skyH*0.42, 34, 0, Math.PI*2); ctx.fill();
+    // 霞海城隍廟雙飛簷＋巴洛克老街屋脊（重複分布於主要街景上方）
+    for(const cx of [380, 1280]){
+      ctx.fillStyle='#7f1d1d'; ctx.fillRect(cx-64, skyH-68, 128, 60);
+      ctx.fillStyle='#b45309';
+      ctx.beginPath(); ctx.moveTo(cx-78,skyH-66); ctx.quadraticCurveTo(cx,skyH-102,cx+78,skyH-66); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle='#fde68a'; ctx.lineWidth=2.5; ctx.stroke();
+      ctx.fillStyle='#dc2626'; ctx.fillRect(cx-34, skyH-46, 68, 38);
+      ctx.fillStyle='#facc15'; ctx.fillRect(cx-12, skyH-36, 24, 28);
+    }
+    for(let bx=120;bx<MAP.w-80;bx+=210){
+      if(Math.abs(bx-380)<110||Math.abs(bx-1280)<110) continue;
+      ctx.fillStyle='#78350f'; ctx.fillRect(bx-44, skyH-56, 88, 48);
+      ctx.fillStyle='#92400e'; ctx.beginPath(); ctx.arc(bx, skyH-56, 22, Math.PI, 0); ctx.fill();
+      ctx.strokeStyle='#fde68a'; ctx.lineWidth=1.5; ctx.stroke();
+    }
+    for(let i=0;i<7;i++){
+      const lx=(220+i*240+((now*0.015+i*20)%90))%MAP.w, ly=skyH-40-((now*0.025+i*28)%(skyH-35));
+      ctx.fillStyle='rgba(251,146,60,0.9)'; ctx.fillRect(lx-5,ly-7,10,12);
+      ctx.fillStyle='#fef08a'; ctx.fillRect(lx-2,ly+2,4,3);
+    }
+  } else if(th==='tamsui'){
+    drawHills(skyH-36, 62, 0.004, 'rgba(30,27,75,0.78)', 1.2);
+    ctx.fillStyle='#fb923c'; ctx.beginPath(); ctx.arc(MAP.w*0.28, skyH*0.50, 36, 0, Math.PI*2); ctx.fill();
+    // 紅色跨海大拱橋（關渡／情人橋）
+    for(const bx of [520, 1380]){
+      ctx.strokeStyle='#dc2626'; ctx.lineWidth=5;
+      ctx.beginPath(); ctx.moveTo(bx-180,skyH-24); ctx.quadraticCurveTo(bx,skyH-128,bx+180,skyH-24); ctx.stroke();
+      ctx.lineWidth=2;
+      for(let sx=bx-130;sx<=bx+130;sx+=26){
+        const t=(sx-bx)/180, ay=skyH-24-(1-t*t)*52;
+        ctx.beginPath(); ctx.moveTo(sx,skyH-24); ctx.lineTo(sx,ay); ctx.stroke();
+      }
+      ctx.fillStyle='#991b1b'; ctx.fillRect(bx-190, skyH-26, 380, 10);
+    }
+    // 紅毛城方塔與金色海波
+    ctx.fillStyle='#b91c1c'; ctx.fillRect(210, skyH-82, 56, 70);
+    ctx.fillStyle='#f8fafc'; ctx.fillRect(216, skyH-90, 44, 10);
+    ctx.fillStyle='rgba(245,158,11,0.35)'; ctx.fillRect(0, skyH-18, MAP.w, 18);
+  } else if(th==='gaomei'){
+    drawHills(skyH-24, 34, 0.005, 'rgba(49,46,129,0.6)', 0.7);
+    const sgSun=ctx.createRadialGradient(MAP.w*0.5,skyH*0.52,10,MAP.w*0.5,skyH*0.52,85);
+    sgSun.addColorStop(0,'#fef08a'); sgSun.addColorStop(0.45,'#f97316'); sgSun.addColorStop(1,'rgba(249,115,22,0)');
+    ctx.fillStyle=sgSun; ctx.beginPath(); ctx.arc(MAP.w*0.5,skyH*0.52,85,0,Math.PI*2); ctx.fill();
+    // 一排旋轉白色巨型發電風車
+    for(let i=0;i<6;i++){
+      const wx=210+i*300, wy=skyH-98, baseH=88;
+      ctx.fillStyle='#e2e8f0'; ctx.fillRect(wx-3.5, wy, 7, baseH);
+      ctx.save(); ctx.translate(wx, wy); ctx.rotate(now*0.0018+i*0.9);
+      ctx.fillStyle='#f8fafc';
+      for(let k=0;k<3;k++){
+        ctx.rotate(Math.PI*2/3);
+        ctx.beginPath(); ctx.moveTo(-2,0); ctx.lineTo(-4,-32); ctx.lineTo(0,-52); ctx.lineTo(4,-32); ctx.closePath(); ctx.fill();
+      }
+      ctx.fillStyle='#ef4444'; ctx.beginPath(); ctx.arc(0,0,4,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+    }
+    // 濕地鏡面水帶與木棧道剪影
+    ctx.fillStyle='rgba(251,146,60,0.28)'; ctx.fillRect(0,skyH-20,MAP.w,20);
+  } else if(th==='alishan'){
+    // 嘉義阿里山：層層玉山山巒 + 翻湧雲海 + 高架木橋 + 冒煙行駛紅色森林小火車 + 神木粉櫻
+    drawHills(skyH-42, 74, 0.0036, '#0f293a', 0.2);
+    drawHills(skyH-28, 56, 0.0048, '#164e63', 1.8);
+    // 雲海波浪
+    const clOff=(now*0.018)%180;
+    ctx.fillStyle='rgba(241,245,249,0.26)';
+    for(let x=-180;x<MAP.w+180;x+=95){
+      ctx.beginPath(); ctx.ellipse(x+clOff, skyH-54, 72, 16, 0, 0, Math.PI*2); ctx.fill();
+    }
+    // 高架木棧鐵橋
+    const railY=skyH-34;
+    ctx.fillStyle='#78350f'; ctx.fillRect(0,railY,MAP.w,6);
+    for(let px=30;px<MAP.w;px+=55) ctx.fillRect(px-3,railY+6,6,28);
+    ctx.fillStyle='#cbd5e1'; ctx.fillRect(0,railY-2,MAP.w,2);
+    // 動態行駛紅色阿里山森林小火車（左右往復穿梭＋冒白煙）
+    const trainSpan=MAP.w+340;
+    const trainX=((now*0.095)%trainSpan)-200;
+    // 兩節紅色客車廂 + 紅色機關車頭
+    for(let cIdx=0;cIdx<2;cIdx++){
+      const cx=trainX-108+cIdx*52;
+      ctx.fillStyle='#dc2626'; rrc(ctx, cx, railY-24, 46, 20, 3); ctx.fill();
+      ctx.fillStyle='#f8fafc'; ctx.fillRect(cx, railY-13, 46, 3);
+      ctx.fillStyle='#fef08a';
+      for(let wx=cx+6;wx<cx+40;wx+=11) ctx.fillRect(wx, railY-20, 7, 5);
+      ctx.fillStyle='#111827'; ctx.fillRect(cx+6, railY-4, 8, 4); ctx.fillRect(cx+32, railY-4, 8, 4);
+    }
+    // 機關車頭（紅色車身＋黑煙囪＋頭燈光束）
+    const hx=trainX;
+    ctx.fillStyle='#b91c1c'; rrc(ctx, hx, railY-28, 54, 24, 4); ctx.fill();
+    ctx.fillStyle='#facc15'; ctx.fillRect(hx+4, railY-14, 46, 3);
+    ctx.fillStyle='#0f172a'; ctx.fillRect(hx+36, railY-38, 9, 12);
+    ctx.fillStyle='#fef08a'; ctx.fillRect(hx+51, railY-18, 5, 6);
+    ctx.fillStyle='rgba(254,240,138,0.28)';
+    ctx.beginPath(); ctx.moveTo(hx+56,railY-16); ctx.lineTo(hx+118,railY-30); ctx.lineTo(hx+118,railY-2); ctx.closePath(); ctx.fill();
+    // 飄升蒸汽白煙
+    for(let p=0;p<6;p++){
+      const age=((now*0.0022+p*0.18)%1);
+      ctx.fillStyle='rgba(255,255,255,'+(0.68*(1-age))+')';
+      ctx.beginPath(); ctx.arc(hx+40-age*48, railY-42-age*42, 4+age*11, 0, Math.PI*2); ctx.fill();
+    }
+    // 前景粉櫻與神木剪影
+    for(let tx=90;tx<MAP.w;tx+=280){
+      ctx.fillStyle='#451a03'; ctx.fillRect(tx-6, skyH-46, 12, 40);
+      ctx.fillStyle='#db2777'; ctx.beginPath(); ctx.arc(tx, skyH-50, 22, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle='#f9a8d4'; ctx.beginPath(); ctx.arc(tx-8, skyH-56, 14, 0, Math.PI*2); ctx.fill();
+    }
+  } else if(th==='anping'){
+    drawHills(skyH-24, 28, 0.004, 'rgba(180,83,9,0.35)', 0.5);
+    // 紅磚古城牆垛口
+    ctx.fillStyle='#991b1b'; ctx.fillRect(0, skyH-38, MAP.w, 34);
+    for(let cx=10;cx<MAP.w;cx+=36){
+      ctx.fillStyle='#b91c1c'; ctx.fillRect(cx, skyH-50, 20, 14);
+      ctx.fillStyle='#fef2f2'; ctx.fillRect(cx+4, skyH-46, 12, 4);
+    }
+    // 高聳紅白「安平古堡瞭望白塔」
+    for(const tx of [MAP.w*0.32, MAP.w*0.72]){
+      ctx.fillStyle='#7f1d1d'; ctx.fillRect(tx-32, skyH-76, 64, 42);
+      ctx.fillStyle='#f8fafc'; ctx.fillRect(tx-18, skyH-138, 36, 64);
+      ctx.fillStyle='#dc2626'; ctx.fillRect(tx-22, skyH-146, 44, 12);
+      ctx.beginPath(); ctx.moveTo(tx-20,skyH-146); ctx.lineTo(tx,skyH-172); ctx.lineTo(tx+20,skyH-146); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='#facc15'; ctx.fillRect(tx-2, skyH-182, 4, 12);
+    }
+  } else if(th==='kaohsiung'){
+    drawHills(skyH-28, 38, 0.0045, '#0f172a', 0.9);
+    // 高雄 85 大樓（經典雙腳匯合尖塔造型）
+    for(const kx of [MAP.w*0.36, MAP.w*0.76]){
+      ctx.fillStyle='#1e3a8a';
+      ctx.fillRect(kx-42, skyH-102, 24, 92);
+      ctx.fillRect(kx+18, skyH-102, 24, 92);
+      ctx.fillRect(kx-26, skyH-152, 52, 58);
+      ctx.beginPath(); ctx.moveTo(kx-22,skyH-152); ctx.lineTo(kx,skyH-176); ctx.lineTo(kx+22,skyH-152); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='#38bdf8'; ctx.fillRect(kx-1.5, skyH-194, 3, 20);
+      if(Math.floor(now/450)%2===0){ctx.fillStyle='#ef4444'; ctx.beginPath(); ctx.arc(kx,skyH-195,3.5,0,Math.PI*2); ctx.fill();}
+      // 玻璃樓層發光條
+      ctx.fillStyle='rgba(56,189,248,0.55)';
+      for(let fy=skyH-144;fy<skyH-20;fy+=12) ctx.fillRect(kx-20, fy, 40, 3);
+    }
+    // 高流海洋蜂巢波浪建築＋港灣緩行貨輪
+    ctx.fillStyle='#0284c7';
+    [320, 410, 1080].forEach(hx=>{
+      ctx.beginPath(); ctx.moveTo(hx-42,skyH-16); ctx.lineTo(hx-20,skyH-66); ctx.lineTo(hx+20,skyH-66); ctx.lineTo(hx+42,skyH-16); ctx.closePath(); ctx.fill();
+    });
+    const shipX=((now*0.035)%(MAP.w+200))-100;
+    ctx.fillStyle='#0f172a'; ctx.fillRect(shipX, skyH-24, 74, 14);
+    ctx.fillStyle='#dc2626'; ctx.fillRect(shipX+12, skyH-34, 18, 10);
+    ctx.fillStyle='#facc15'; ctx.fillRect(shipX+34, skyH-32, 16, 8);
+    ctx.fillStyle='rgba(14,165,233,0.35)'; ctx.fillRect(0, skyH-14, MAP.w, 14);
+  } else if(th==='kenting'){
+    drawHills(skyH-34, 68, 0.0055, '#15803d', 2.1); // 大尖山尖峰
+    // 海平線
+    ctx.fillStyle='#0284c7'; ctx.fillRect(0, skyH-32, MAP.w, 32);
+    // 白色高聳「鵝鑾鼻燈塔」與旋轉光束
+    for(const lx of [460, MAP.w*0.74]){
+      ctx.fillStyle='#f8fafc'; ctx.fillRect(lx-14, skyH-130, 28, 100);
+      ctx.fillStyle='#0f172a'; ctx.fillRect(lx-17, skyH-134, 34, 6);
+      ctx.fillStyle='#ef4444'; ctx.beginPath(); ctx.arc(lx, skyH-140, 10, Math.PI, 0); ctx.fill();
+      const ang=Math.sin(now/900)*0.45;
+      ctx.save(); ctx.translate(lx, skyH-140); ctx.rotate(ang);
+      ctx.fillStyle='rgba(254,240,138,0.28)';
+      ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(150,-28); ctx.lineTo(150,28); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(-150,-28); ctx.lineTo(-150,28); ctx.closePath(); ctx.fill();
+      ctx.restore();
+    }
+  } else if(th==='taitung'){
+    drawHills(skyH-26, 62, 0.004, '#166534', 0.8);
+    drawHills(skyH-16, 44, 0.006, '#15803d', 2.2);
+    // 6 顆彩色鹿野熱氣球上下緩浮＋偶發噴火光點
+    const bCols=[['#ef4444','#fde047'],['#3b82f6','#f472b6'],['#10b981','#fef08a'],['#f97316','#ffffff'],['#a855f7','#38bdf8'],['#ec4899','#fde68a']];
+    for(let i=0;i<bCols.length;i++){
+      const bx=180+i*305+Math.sin(now/1600+i)*24;
+      const by=48+(i%2)*28+Math.sin(now/1100+i*1.7)*14;
+      const r=22+(i%3)*5;
+      ctx.fillStyle=bCols[i][0]; ctx.beginPath(); ctx.arc(bx,by,r,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle=bCols[i][1]; ctx.beginPath(); ctx.ellipse(bx,by,r*0.42,r,0,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='#78350f'; ctx.lineWidth=1.2;
+      ctx.beginPath(); ctx.moveTo(bx-6,by+r-2); ctx.lineTo(bx-4,by+r+10); ctx.moveTo(bx+6,by+r-2); ctx.lineTo(bx+4,by+r+10); ctx.stroke();
+      ctx.fillStyle='#92400e'; ctx.fillRect(bx-5,by+r+10,10,7);
+      if(Math.sin(now/320+i*2.1)>0.65){ctx.fillStyle='#f97316'; ctx.beginPath(); ctx.arc(bx,by+r+6,3.5,0,Math.PI*2); ctx.fill();}
+    }
+  } else if(th==='taroko'){
+    // 花蓮太魯閣大理石峽谷峭壁 + 長春祠飛瀑 + 右側藍色太平洋
+    ctx.fillStyle='#0284c7'; ctx.fillRect(MAP.w*0.68, skyH-48, MAP.w*0.32, 48);
+    drawHills(skyH-24, 92, 0.0046, '#64748b', 0.3);
+    // 大理石懸崖塊與斜線紋理
+    for(const mx of [260, 740, 1220]){
+      ctx.fillStyle='#94a3b8';
+      ctx.beginPath(); ctx.moveTo(mx-130,skyH); ctx.lineTo(mx-75,26); ctx.lineTo(mx+55,34); ctx.lineTo(mx+120,skyH); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,0.35)'; ctx.lineWidth=2.2;
+      for(let s=0;s<4;s++){ctx.beginPath();ctx.moveTo(mx-60+s*34,42);ctx.lineTo(mx-90+s*38,skyH-18);ctx.stroke();}
+    }
+    // 長春祠紅亭與動態飛瀑
+    for(const wx of [510, 1020]){
+      ctx.fillStyle='#dc2626'; ctx.fillRect(wx-22, 64, 44, 22);
+      ctx.fillStyle='#f59e0b'; ctx.beginPath(); ctx.moveTo(wx-30,64); ctx.lineTo(wx,46); ctx.lineTo(wx+30,64); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='#e0f2fe'; ctx.fillRect(wx-9, 86, 18, skyH-90);
+      const drop=(now*0.08)%28;
+      ctx.fillStyle='#ffffff';
+      for(let fy=86+drop;fy<skyH-10;fy+=28) ctx.fillRect(wx-5, fy, 10, 12);
+    }
+  } else if(th==='jiufen'){
+    drawHills(skyH-34, 72, 0.0045, '#0f172a', 1.4);
+    // 層層山坡聚落＋紅燈籠阿妹茶樓
+    for(const jx of [360, 960, 1480]){
+      ctx.fillStyle='#451a03'; ctx.fillRect(jx-70, skyH-88, 140, 80);
+      ctx.fillStyle='#78350f'; ctx.fillRect(jx-52, skyH-122, 104, 38);
+      ctx.fillStyle='#1e293b';
+      ctx.beginPath(); ctx.moveTo(jx-82,skyH-88); ctx.lineTo(jx,skyH-106); ctx.lineTo(jx+82,skyH-88); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(jx-62,skyH-122); ctx.lineTo(jx,skyH-146); ctx.lineTo(jx+62,skyH-122); ctx.closePath(); ctx.fill();
+      // 暖光茶樓窗與一排閃亮紅燈籠
+      ctx.fillStyle='#fde68a';
+      for(let wx=jx-42;wx<=jx+28;wx+=24) ctx.fillRect(wx, skyH-110, 14, 16);
+      for(let lx=jx-64;lx<=jx+64;lx+=18){
+        const sw=Math.sin(now/420+lx)*1.8;
+        ctx.fillStyle='#ef4444'; ctx.beginPath(); ctx.arc(lx+sw, skyH-76, 5.5, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle='#facc15'; ctx.fillRect(lx+sw-2, skyH-82, 4, 2);
+      }
+    }
+  } else if(th==='xinyi'){
+    // 都會霓虹摩天樓天際線 + 正宗「台北 101」（8 節倒梯形竹節高塔＋避雷針紅燈＋跨年煙火）
+    for(let bx=70;bx<MAP.w-60;bx+=145){
+      const bh=55+((bx*37)%65);
+      ctx.fillStyle='#0f172a'; ctx.fillRect(bx-32, skyH-bh, 64, bh);
+      ctx.strokeStyle='rgba(56,189,248,0.45)'; ctx.lineWidth=1.5; ctx.strokeRect(bx-32, skyH-bh, 64, bh);
+      ctx.fillStyle='rgba(125,211,252,0.55)';
+      for(let wy=skyH-bh+10;wy<skyH-14;wy+=12) for(let wx=bx-22;wx<=bx+14;wx+=16) ctx.fillRect(wx,wy,8,5);
+    }
+    const cols101=['#38bdf8','#f472b6','#fbbf24','#34d399','#a855f7'];
+    const c101=cols101[Math.floor(now/850)%cols101.length];
+    for(const tx of [MAP.w*0.33, MAP.w*0.69]){
+      // 基座裙樓
+      ctx.fillStyle='#1e293b'; ctx.fillRect(tx-34, skyH-46, 68, 42);
+      // 8 層倒梯形竹節高塔
+      for(let tier=0;tier<8;tier++){
+        const yBot=skyH-46-tier*16, yTop=yBot-15;
+        ctx.fillStyle=tier%2===0?'#1e3a8a':'#172554';
+        ctx.beginPath();
+        ctx.moveTo(tx-18,yBot); ctx.lineTo(tx+18,yBot);
+        ctx.lineTo(tx+24,yTop); ctx.lineTo(tx-24,yTop);
+        ctx.closePath(); ctx.fill();
+        ctx.strokeStyle=c101; ctx.lineWidth=1.6; ctx.stroke();
+      }
+      // 頂尖塔針與閃爍紅警示燈
+      const topY=skyH-46-8*16;
+      ctx.fillStyle='#e2e8f0'; ctx.fillRect(tx-8, topY-12, 16, 12);
+      ctx.fillRect(tx-2, topY-36, 4, 24);
+      if(Math.floor(now/400)%2===0){ctx.fillStyle='#ef4444'; ctx.beginPath(); ctx.arc(tx,topY-37,4,0,Math.PI*2); ctx.fill();}
+      // 台北 101 周邊綻放的跨年高空煙火
+      for(let fi=0;fi<3;fi++){
+        const fx=tx+(fi-1)*92, fy=42+(fi%2)*24;
+        const cyc=((now*0.001+fi*0.9)%2.8);
+        if(cyc<1.25){
+          const p=cyc/1.25, rad=8+p*36;
+          ctx.fillStyle=cols101[(fi+Math.floor(now/1200))%cols101.length];
+          ctx.globalAlpha=(1-p)*0.9;
+          for(let k=0;k<12;k++){
+            const a=k*Math.PI/6;
+            ctx.beginPath(); ctx.arc(fx+Math.cos(a)*rad, fy+Math.sin(a)*rad+p*8, 2.2, 0, Math.PI*2); ctx.fill();
+          }
+          ctx.globalAlpha=1;
+        }
+      }
+    }
+  }
+
+  // 4. 天際線南緣石砌護欄 ＋ 各垂直聯絡道拱門隧道口
+  ctx.fillStyle='#334155'; ctx.fillRect(0, skyH-10, MAP.w, 10);
+  ctx.fillStyle='#94a3b8'; ctx.fillRect(0, skyH-11, MAP.w, 3);
+  for(const vx of VROADS){
+    ctx.fillStyle='#020617';
+    ctx.beginPath(); ctx.arc(vx, skyH, HALF-4, Math.PI, 0); ctx.fill();
+    ctx.strokeStyle='#f59e0b'; ctx.lineWidth=3.5;
+    ctx.beginPath(); ctx.arc(vx, skyH, HALF-4, Math.PI, 0); ctx.stroke();
+    ctx.fillStyle='#facc15'; ctx.font='900 10px system-ui,sans-serif'; ctx.textAlign='center';
+    ctx.fillText('🚇 北向隧道', vx, skyH-HALF+14);
+  }
+  ctx.restore();
+}
 function drawWorld(now){
   const th=curMap.theme||'dadaocheng';
   const pal=SCENE_PALETTES[th]||SCENE_PALETTES.dadaocheng;
+  const skyH=Math.max(150,(HROADS[0]||260)-HALF-18);
   const drawScenicTree=(tx,ty,tr)=>{
     if(th==='kenting'){
       const sway=Math.sin(now/600+tx)*0.08;
@@ -2117,9 +2715,10 @@ function drawWorld(now){
     ctx.stroke();
   }
 
-  // 2. 街區建築物與公園（依 8 大台灣著名景點切換專屬外觀）
+  // 2. 街區建築物與公園（依 11 大台灣著名景點切換專屬外觀；最上方 skyStrip 保留給全景地標帶）
   for(let bi=0;bi<blocks.length;bi++){
     const b=blocks[bi];
+    if(b.skyStrip) continue;
     if(!inView(b.x-30,b.y-30,b.w+60,b.h+60)) continue;
     if(b.big){
       // 建築地面深色投影
@@ -2188,6 +2787,20 @@ function drawWorld(now){
           ctx.fillStyle='rgba(251,146,60,0.34)';
           ctx.beginPath(); ctx.ellipse(pl.x,pl.y,pl.rx,pl.ry,0,0,Math.PI*2); ctx.fill();
         }
+      } else if(th==='kaohsiung'){
+        // 高雄港灣：霓虹港區倉儲貨櫃格紋與藍青色燈邊
+        ctx.strokeStyle='rgba(14,165,233,0.45)'; ctx.lineWidth=2; ctx.strokeRect(b.x+3,b.y+3,b.w-6,b.h-6);
+        ctx.fillStyle='#0284c7'; ctx.fillRect(b.x+16, b.y+18, 42, 18);
+        ctx.fillStyle='#f97316'; ctx.fillRect(b.x+64, b.y+18, 42, 18);
+      } else if(th==='taitung'){
+        // 台東鹿野：木構縱谷莊園屋脊＋稻田金綠條紋
+        ctx.fillStyle='rgba(250,204,21,0.18)';
+        for(let lx=b.x+14;lx<b.x+b.w-14;lx+=18) ctx.fillRect(lx,b.y+8,3,b.h-16);
+        ctx.fillStyle='#fde047'; ctx.fillRect(b.x+12,b.y+b.h*0.5-2,b.w-24,4);
+      } else if(th==='taroko'){
+        // 花蓮太魯閣：大理石紋路花崗岩屋頂
+        ctx.strokeStyle='rgba(226,232,240,0.28)'; ctx.lineWidth=2;
+        for(let d=0;d<b.w;d+=34){ctx.beginPath();ctx.moveTo(b.x+d,b.y+6);ctx.lineTo(b.x+Math.min(b.w-6,d+28),b.y+b.h-6);ctx.stroke();}
       } else if(th==='xinyi'){
         // 信義摩天城：霓虹青邊框＋藍紫玻璃帷幕網格＋直升機停機坪
         ctx.strokeStyle='rgba(56,189,248,0.28)'; ctx.lineWidth=1.2;
@@ -2295,16 +2908,17 @@ function drawWorld(now){
     });
   }
 
-  // 2.5 淡水夕陽金色大河（先畫河流與岸壁、泊船，再畫跨河大橋）
+  // 2.5 淡水夕陽大河 / 高雄愛河霓虹港灣（先畫河流與岸壁、泊船，再畫跨河大橋）
   if(river){
-    ctx.fillStyle='#334155';
+    const isKH=(th==='kaohsiung');
+    ctx.fillStyle=isKH?'#0f172a':'#334155';
     ctx.fillRect(0,river.y-8,MAP.w,river.h+16);
     const rg=ctx.createLinearGradient(0,river.y,0,river.y+river.h);
-    rg.addColorStop(0,'#1e3a5f'); rg.addColorStop(0.5,'#c2410c'); rg.addColorStop(1,'#1e3a5f');
+    if(isKH){rg.addColorStop(0,'#0c4a6e');rg.addColorStop(0.5,'#0284c7');rg.addColorStop(1,'#0f172a');}
+    else {rg.addColorStop(0,'#1e3a5f');rg.addColorStop(0.5,'#c2410c');rg.addColorStop(1,'#1e3a5f');}
     ctx.fillStyle=rg;
     ctx.fillRect(0,river.y,MAP.w,river.h);
-    // 金色夕陽波光動畫與河面小漁船
-    ctx.strokeStyle='rgba(253,224,71,0.48)'; ctx.lineWidth=2;
+    ctx.strokeStyle=isKH?'rgba(56,189,248,0.55)':'rgba(253,224,71,0.48)'; ctx.lineWidth=2;
     const waveOff=(now*0.04)%60;
     for(let wy=river.y+20;wy<river.y+river.h-10;wy+=26){
       for(let wx=-60+waveOff+(wy%52);wx<MAP.w;wx+=90){
@@ -2313,14 +2927,17 @@ function drawWorld(now){
     }
     [420,940,1480].forEach((bx,i)=>{
       const by=river.y+river.h*0.5+Math.sin(now/600+i)*4;
-      ctx.fillStyle='#f8fafc';
-      ctx.beginPath(); ctx.ellipse(bx,by,18,7,0,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle='#dc2626'; ctx.fillRect(bx-5,by-3,10,6);
+      ctx.fillStyle=isKH?'#38bdf8':'#f8fafc';
+      ctx.beginPath(); ctx.ellipse(bx,by,isKH?24:18,8,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle=isKH?'#f43f5e':'#dc2626'; ctx.fillRect(bx-6,by-3,12,6);
     });
   }
 
-  // 2.8 連續人行道（依景點切換磚瓦/木棧/沙色/霓虹緣石與鋪面）
-  const vSegSidewalk = !river ? [[0,MAP.h]] : [[0,river.y-8],[river.y+river.h+8,MAP.h]];
+  // 2.6 上方台灣著名地標全景天際線
+  drawTopSkyline(now, skyH, th);
+
+  // 2.8 連續人行道（依景點切換磚瓦/木棧/沙色/霓虹緣石與鋪面，從 skyH 隧道線往下延展）
+  const vSegSidewalk = !river ? [[skyH,MAP.h]] : [[skyH,river.y-8],[river.y+river.h+8,MAP.h]];
   ctx.fillStyle=pal.curb;
   for(const c of HROADS) ctx.fillRect(0,c-HALF-15,MAP.w,HALF*2+30);
   for(const c of VROADS) for(const [y0,y1] of vSegSidewalk) ctx.fillRect(c-HALF-15,y0,HALF*2+30,y1-y0);
@@ -2356,8 +2973,8 @@ function drawWorld(now){
 
   // 3. 景點專屬路面（古街石板／山城青石／海岸柏油／都會藍夜柏油）
   const vSegs=c=>{
-    if(!river || bridges.includes(c)) return [[0,MAP.h]];
-    return [[0,river.y-8],[river.y+river.h+8,MAP.h]];
+    if(!river || bridges.includes(c)) return [[skyH,MAP.h]];
+    return [[skyH,river.y-8],[river.y+river.h+8,MAP.h]];
   };
   ctx.fillStyle=pal.road;
   for(const c of HROADS) ctx.fillRect(0,c-HALF,MAP.w,HALF*2);
@@ -2640,9 +3257,40 @@ function drawWorld(now){
     ctx.fillStyle=isEnergy?'#bae6fd':(isLeg?'#fef08a':'#bbf7d0');
     ctx.fillText(isEnergy?'+衝刺':(isLeg?'+雞腿':'+體力'), it.x, it.y-22+bounce);
   }
+  // 7.8 邊界／北向隧道口即將駛入車輛預警（提前投射遠光燈光束與警示箭頭，讓邊界來車不突兀）
+  const edgePulse=0.55+0.45*Math.sin(now/110);
+  for(const c of cars){
+    const enterPos=c.axis==='v' ? skyH+28 : 30;
+    const isEntering=(c.dir>0 && c.pos>=-170 && c.pos<enterPos) || (c.dir<0 && c.pos<=c.len+170 && c.pos>c.len-30);
+    if(!isEntering) continue;
+    const wx=c.axis==='h' ? (c.dir>0?6:MAP.w-6) : c.lane;
+    const wy=c.axis==='h' ? c.lane : (c.dir>0?skyH+6:MAP.h-6);
+    if(!inView(wx-80,wy-80,160,160)) continue;
+    ctx.save();
+    ctx.globalAlpha=edgePulse*0.68;
+    ctx.fillStyle=c.speeder?'rgba(244,63,94,0.42)':'rgba(254,240,138,0.34)';
+    ctx.beginPath();
+    if(c.axis==='h'){
+      ctx.moveTo(wx,wy-8); ctx.lineTo(wx+c.dir*72,wy-24); ctx.lineTo(wx+c.dir*72,wy+24); ctx.lineTo(wx,wy+8);
+    } else {
+      ctx.moveTo(wx-8,wy); ctx.lineTo(wx-24,wy+c.dir*72); ctx.lineTo(wx+24,wy+c.dir*72); ctx.lineTo(wx+8,wy);
+    }
+    ctx.closePath(); ctx.fill();
+    ctx.globalAlpha=edgePulse;
+    const badgeX=c.axis==='h' ? wx+c.dir*24 : wx;
+    const badgeY=c.axis==='h' ? wy : wy+c.dir*24;
+    ctx.fillStyle='rgba(153,27,27,0.9)'; rrc(ctx,badgeX-22,badgeY-9,44,18,9); ctx.fill();
+    ctx.strokeStyle='#fbbf24'; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.fillStyle='#fde68a'; ctx.font='900 10px system-ui,sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('⚠️來車',badgeX,badgeY+0.5);
+    ctx.restore();
+  }
+
   // 8. 車輛（精緻車款：小黃計程車、藍色發財貨車、流線轎車、超速跑車）
   for(const c of cars){
-    const r=carRect(c); if(!inView(r.x-20,r.y-20,r.w+40,r.h+40)) continue;
+    const r=carRect(c);
+    if(c.axis==='v' && r.y+r.h<skyH+2) continue; // 尚在北向隧道內不露頭
+    if(!inView(r.x-20,r.y-20,r.w+40,r.h+40)) continue;
     const isHoriz=c.axis==='h';
 
     // 車輛地面陰影
@@ -2776,22 +3424,37 @@ function drawWorld(now){
       ctx.fillText('🚑 119救護', r.x+r.w/2, r.y-8);
     }
 
-    // 車前大燈與紅色尾燈（減速／停紅燈時煞車尾燈亮紅加粗）
+    // 車前大燈、紅色尾燈（減速／停紅燈時煞車尾燈亮紅加粗）與方向燈閃爍
     ctx.fillStyle='#fef08a'; // 前燈亮黃
     const tailCol=c.braking?'#ff1e42':'#ef4444';
     const tailLen=c.braking?4.5:3;
+    const showBlink=(c.turnTl && (c.turnSide==='L'||c.turnSide==='R') && Math.floor(now/180)%2===0);
     if(isHoriz){
       const fx=c.dir>0?r.x+r.w-3:r.x;
       const rx=c.dir>0?r.x:r.x+r.w-tailLen;
       ctx.fillRect(fx, r.y+3, 3, 5); ctx.fillRect(fx, r.y+r.h-8, 3, 5);
       ctx.fillStyle=tailCol;
       ctx.fillRect(rx, r.y+2.5, tailLen, 6); ctx.fillRect(rx, r.y+r.h-8.5, tailLen, 6);
+      if(showBlink){
+        const useMinY=(c.turnSide==='L')?(c.dir>0):(c.dir<0);
+        const by=useMinY?r.y-1:r.y+r.h-3;
+        ctx.fillStyle='#fbbf24';
+        ctx.fillRect(fx, by, 4, 4);
+        ctx.fillRect(c.dir>0?r.x:r.x+r.w-4, by, 4, 4);
+      }
     } else {
       const fy=c.dir>0?r.y+r.h-3:r.y;
       const ry=c.dir>0?r.y:r.y+r.h-tailLen;
       ctx.fillRect(r.x+3, fy, 5, 3); ctx.fillRect(r.x+r.w-8, fy, 5, 3);
       ctx.fillStyle=tailCol;
       ctx.fillRect(r.x+2.5, ry, 6, tailLen); ctx.fillRect(r.x+r.w-8.5, ry, 6, tailLen);
+      if(showBlink){
+        const useMaxX=(c.turnSide==='L')?(c.dir>0):(c.dir<0);
+        const bx=useMaxX?r.x+r.w-3:r.x-1;
+        ctx.fillStyle='#fbbf24';
+        ctx.fillRect(bx, fy, 4, 4);
+        ctx.fillRect(bx, c.dir>0?r.y:r.y+r.h-4, 4, 4);
+      }
     }
   }
   // 野狗（追擊時增加強烈警戒紅光圈、暴走驚嘆號、連線警戒預警）
@@ -2910,9 +3573,11 @@ function drawWorld(now){
   }
   // 9.5 高空紅綠燈號誌層（繪於店家招牌、車輛、外送員之上，確保燈號與秒數永遠不被遮住）
   const stCol=s=>s==='green'?'#22c55e':(s==='yellow'?'#f59e0b':'#ef4444');
+  const flashOn=Math.floor(now/450)%2===0;
   for(const tl of trafficLights){
     if(!inView(tl.x-HALF-90,tl.y-HALF-90,HALF*2+180,HALF*2+180)) continue;
-    const hCol=stCol(tl.hState), vCol=stCol(tl.vState);
+    const hCol=tl.blink?(flashOn?'#f59e0b':'#451a03'):stCol(tl.hState);
+    const vCol=tl.blink?(flashOn?'#f59e0b':'#451a03'):stCol(tl.vState);
     const lx = tl.x + HALF + 10, ly = tl.y - HALF - 10;
 
     // 號誌立柱與雙向緊湊燈箱（左↔橫向、右↕縱向）
@@ -2934,6 +3599,23 @@ function drawWorld(now){
       ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.fillText(sym, cx, ly+4);
     });
+
+    if(tl.blink){
+      const bTxt='⚡ 閃黃';
+      const drawBlinkTag=(tx,ty)=>{
+        const bW=62, x0=tx-bW/2;
+        ctx.fillStyle='rgba(2,6,23,0.94)';
+        rrc(ctx,x0,ty-9,bW,18,9); ctx.fill();
+        ctx.strokeStyle=flashOn?'#f59e0b':'#92400e'; ctx.lineWidth=1.5; ctx.stroke();
+        ctx.fillStyle=flashOn?'#fbbf24':'#d97706';
+        ctx.font='900 11px system-ui,sans-serif';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(bTxt, tx, ty+0.5);
+      };
+      drawBlinkTag(lx, ly - 30);
+      drawBlinkTag(tl.x - HALF - 16, tl.y + HALF + 16);
+      continue;
+    }
 
     // 右上＆左下雙角懸浮雙向倒數牌（同時顯示 橫↔ 與 縱↕ 燈號及剩餘秒數）
     const hTxt = '↔' + tl.hRem + 's', vTxt = '↕' + tl.vRem + 's';
@@ -3351,6 +4033,34 @@ function drawHUD(now){
       ctx.restore();
       ctx.fillStyle=isPick?'#fde68a':'#a7f3d0'; ctx.font='900 12px system-ui,sans-serif'; ctx.textAlign='center';
       ctx.fillText((isPick?'取餐 ':'送達 ')+Math.round(dist(P,tgt.door)/10)*10+'m',ex-Math.cos(ang)*32,ey-Math.sin(ang)*32);
+    }
+  }
+
+  // 畫面邊界高速／即將衝入視野之來車預警（減少視覺盲區突襲）
+  if(G.state==='play' && countdown<=0 && P){
+    let warnShown=0;
+    const warnPulse=0.6+0.4*Math.sin(now/100);
+    for(const c of cars){
+      if(warnShown>=3) break;
+      const cp=carPos(c);
+      const sx=(cp.x-cam.x)*ZOOM, sy=(cp.y-cam.y)*ZOOM;
+      if(sx>=-8 && sx<=W+8 && sy>=-8 && sy<=H+8) continue; // 已在畫面內不重複提示
+      const outX=sx<0?-sx:(sx>W?sx-W:0);
+      const outY=sy<0?-sy:(sy>H?sy-H:0);
+      const outDist=Math.hypot(outX,outY)/ZOOM;
+      if(outDist>260 || dist(cp,P)>540) continue;
+      const vx=c.axis==='h'?c.dir:0, vy=c.axis==='v'?c.dir:0;
+      if((P.x-cp.x)*vx + (P.y-cp.y)*vy <= 0) continue; // 只提示正朝玩家接近方向的車輛
+      const ex=clamp(sx, safe.l+26, W-safe.r-26), ey=clamp(sy, T+64, H-safe.b-26);
+      ctx.save();
+      ctx.globalAlpha=warnPulse;
+      ctx.fillStyle=c.speeder?'rgba(225,29,72,0.94)':'rgba(180,83,9,0.92)';
+      rrc(ctx,ex-24,ey-10,48,20,10); ctx.fill();
+      ctx.strokeStyle='#fde047'; ctx.lineWidth=1.5; ctx.stroke();
+      ctx.fillStyle='#ffffff'; ctx.font='900 10px system-ui,sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(c.speeder?'⚠️快車':'⚠️來車', ex, ey+0.5);
+      ctx.restore();
+      warnShown++;
     }
   }
 
