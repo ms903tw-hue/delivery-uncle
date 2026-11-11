@@ -311,7 +311,9 @@ function tone(f,dur,o={}){
   g.gain.setValueAtTime(0.0001,t0);
   g.gain.linearRampToValueAtTime(vol,t0+0.012);
   g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
-  osc.connect(g); g.connect(o.dest||Snd.sfx);
+  let node=osc;
+  if(o.lp){const flt=c.createBiquadFilter();flt.type='lowpass';flt.frequency.setValueAtTime(o.lp,t0);osc.connect(flt);node=flt;}
+  node.connect(g); g.connect(o.dest||Snd.sfx);
   osc.start(t0); osc.stop(t0+dur+0.04);
 }
 
@@ -400,27 +402,117 @@ function sfx(name, volMul=1){
   }
 }
 
-// 舒緩 Lo-Fi City Pop 風格：溫暖七和弦 + 輕快有條理的律動感 (不吵雜、耐聽、有限時節奏)
+// 8 大台灣著名景點專屬背景音樂曲風庫（全離線 Web Audio 即時合成，依關卡切換風格與節奏）
 const midi=n=>440*Math.pow(2,(n-69)/12);
 
-// 溫暖耐聽的爵士/City-Pop 和弦進行：Cmaj7 - Am7 - Dm7 - G7
-const CHORDS_LOFI=[
-  [48, 55, 59, 64], // Cmaj7 (C-G-B-E)
-  [45, 52, 57, 60], // Am7   (A-E-G-C)
-  [50, 57, 60, 65], // Dm7   (D-A-C-F)
-  [43, 50, 55, 59]  // G7    (G-D-G-B)
-];
+const BGM_THEMES={
+  // 1. 台北大稻埕老街：懷舊茶行 Swing（D6 - Bm7 - Em7 - A7）
+  dadaocheng:{
+    bpm:96, bassType:'sine', chordType:'triangle', chordSteps:[1,4,7], chordDur:0.22, chordVol:0.042,
+    perc:'swing', melType:'triangle', melDur:0.17, melVol:0.075,
+    chords:[[50,57,59,66],[47,54,57,62],[52,59,62,67],[45,52,55,61]],
+    melody:[
+      74,null,71,null, 69,null,66,69,
+      71,null,69,null, 66,null,64,null,
+      67,null,69,null, 71,null,74,null,
+      73,null,71,null, 69,null,null,null
+    ]
+  },
+  // 2. 新北九份燈籠山城：東方 A 小調五聲夜雨民謠
+  jiufen:{
+    bpm:92, bassType:'sine', chordType:'triangle', chordSteps:[0,3,6], chordDur:0.30, chordVol:0.040,
+    perc:'folk', melType:'triangle', melDur:0.22, melVol:0.080,
+    chords:[[45,52,57,64],[41,48,57,60],[43,50,57,59],[40,47,52,55]],
+    melody:[
+      76,null,79,76, 74,null,72,null,
+      69,72,74,null, 72,null,69,null,
+      74,null,76,74, 71,null,67,null,
+      69,null,72,76, 81,null,null,null
+    ]
+  },
+  // 3. 屏東墾丁南國大道：陽光雷鬼 Skank + Marimba（F - C - Dm - Bb）
+  kenting:{
+    bpm:106, bassType:'sine', chordType:'triangle', chordSteps:[2,6], chordDur:0.15, chordVol:0.052,
+    perc:'reggae', melType:'sine', melDur:0.14, melVol:0.085, melHarm:12,
+    chords:[[53,57,60,65],[48,55,60,64],[50,57,62,65],[46,53,58,62]],
+    melody:[
+      72,null,74,77, null,74,72,null,
+      76,null,74,72, null,69,67,null,
+      69,null,72,74, null,72,69,null,
+      70,null,69,67, 65,null,null,null
+    ]
+  },
+  // 4. 台南安平古堡古都：府城廟口歡快五聲（C6 - Am7 - F6 - G6）
+  anping:{
+    bpm:100, bassType:'triangle', chordType:'triangle', chordSteps:[0,4], chordDur:0.24, chordVol:0.042,
+    perc:'temple', melType:'triangle', melDur:0.15, melVol:0.082,
+    chords:[[48,55,57,64],[45,52,57,60],[41,48,53,57],[43,50,55,59]],
+    melody:[
+      72,74,76,null, 79,null,76,74,
+      72,null,69,72, 67,null,null,null,
+      69,72,74,null, 76,null,74,72,
+      74,null,71,69, 67,null,null,null
+    ]
+  },
+  // 5. 新北淡水金色河岸：夕陽河畔 Chill Bossa / City-Pop（Cmaj7 - Am7 - Dm7 - G7）
+  tamsui:{
+    bpm:98, bassType:'sine', chordType:'triangle', chordSteps:[1,4], chordDur:0.28, chordVol:0.045,
+    perc:'bossa', melType:'sine', melDur:0.16, melVol:0.080,
+    chords:[[48,55,59,64],[45,52,57,60],[50,57,60,65],[43,50,55,59]],
+    melody:[
+      71,null,72,null, null,67,null,null,
+      69,null,67,null, 64,null,null,null,
+      65,null,67,null, 69,null,72,null,
+      71,null,67,null, 62,null,null,null
+    ]
+  },
+  // 6. 台中高美風車濕地：暮色空靈 Ambient 風車旋轉琶音（Gmaj7 - Em9 - Cmaj7 - D6）
+  gaomei:{
+    bpm:90, bassType:'sine', chordType:'sine', chordSteps:[0], chordDur:0.65, chordVol:0.036,
+    perc:'wind', melType:'sine', melDur:0.24, melVol:0.072, melHarm:12,
+    chords:[[43,50,55,59,66],[40,47,55,59,66],[48,55,59,64,67],[50,57,62,66,69]],
+    melody:[
+      74,null,78,null, 83,null,78,null,
+      74,null,79,null, 83,null,79,null,
+      72,null,76,null, 79,null,76,null,
+      74,null,78,null, 81,null,78,null
+    ]
+  },
+  // 7. 嘉義阿里山櫻花鐵道：森林鐵道八音盒圓舞風（Fmaj7 - Dm7 - Gm7 - C7）
+  alishan:{
+    bpm:94, bassType:'sine', chordType:'triangle', chordSteps:[0,3], chordDur:0.28, chordVol:0.038,
+    perc:'train', melType:'sine', melDur:0.22, melVol:0.078, melHarm:12,
+    chords:[[41,48,53,57],[50,57,60,65],[43,50,55,58],[48,55,58,64]],
+    melody:[
+      77,null,76,null, 77,null,72,null,
+      74,null,72,null, 69,null,null,null,
+      70,null,72,null, 74,null,77,null,
+      76,null,74,null, 72,null,null,null
+    ]
+  },
+  // 8. 台北信義跨夜摩天城：跨夜霓虹 Synthwave 電音衝刺（Em - C - D - Bm7）
+  xinyi:{
+    bpm:118, bassType:'sawtooth', bassLp:760, chordType:'sawtooth', chordLp:1400, chordSteps:[0,4], chordDur:0.20, chordVol:0.026,
+    perc:'synth', melType:'triangle', melDur:0.13, melVol:0.078,
+    chords:[[40,47,52,55],[48,55,60,64],[50,57,62,66],[47,54,57,62]],
+    melody:[
+      76,null,79,76, 83,null,79,76,
+      72,null,76,79, 84,null,79,76,
+      74,null,78,81, 86,null,81,78,
+      74,null,71,74, 78,null,83,null
+    ]
+  }
+};
 
-// 清新放鬆、不密集搶戲的點綴旋律（木琴/電鋼琴音色）
-const CHILL_MELODY=[
-  71, null, 72, null,  null, 67, null, null,
-  69, null, 67, null,  64, null, null, null,
-  65, null, 67, null,  69, null, 72, null,
-  71, null, 67, null,  62, null, null, null
-];
+function getBgmTheme(){
+  const key=(G.state==='title' && !$('mapSel').classList.contains('show')) ? 'tamsui' : (curMap.theme||'dadaocheng');
+  return BGM_THEMES[key] || BGM_THEMES.tamsui;
+}
 
-// 步進速度：輕鬆中帶有穩定推進感
-function bpm(){ return G.state==='play'?Math.min(124, 102+(level-1)*2.5):98; }
+function bpm(){
+  const base=getBgmTheme().bpm;
+  return G.state==='play'?Math.min(138, base+(level-1)*2.5):base-2;
+}
 
 function startMusic(){
   if(!Snd.ctx||Snd.seq) return;
@@ -445,39 +537,57 @@ function scheduleMusic(){
 
 function playStep(i,t){
   if(muted) return;
-  const d=Snd.music;
-  const bar=(i>>3)%4;
-  const s=i%8;
+  const d=Snd.music, th=getBgmTheme();
+  const bar=(i>>3)%4, s=i%8;
+  const chord=th.chords[bar];
 
-  // 1. 溫潤柔和低音 (純 Sine/Triangle 波，低通濾波，完全不刮耳)
-  if(s===0||s===3||s===6){
-    const root=CHORDS_LOFI[bar][0];
-    const oct=s===6?root+12:root;
-    tone(midi(oct-12), 0.22, {type:'sine', vol:0.18, t, dest:d});
+  // 1. 低音線（依景點風格切換 Walking / Bossa / Synth 滾動 / 五聲根音）
+  if(th.perc==='synth'){
+    if(s%2===0){
+      const n=s===6?chord[0]+12:chord[0];
+      tone(midi(n-12), 0.14, {type:th.bassType, lp:th.bassLp, vol:0.13, t, dest:d});
+    }
+  } else if(th.perc==='swing'){
+    if(s===0||s===2||s===4||s===6){
+      const walk=[chord[0], chord[1], chord[2]||chord[0]+7, chord[0]+12][s>>1];
+      tone(midi(walk-12), 0.19, {type:th.bassType, vol:0.17, t, dest:d});
+    }
+  } else if(s===0||s===3||s===6){
+    const n=s===6?chord[0]+12:chord[0];
+    tone(midi(n-12), 0.22, {type:th.bassType, vol:0.17, t, dest:d});
   }
 
-  // 2. 溫暖 Lo-Fi 電鋼琴和弦（柔和淡入淡出，不吵雜）
-  if(s===1||s===4){
-    const chord=CHORDS_LOFI[bar];
+  // 2. 伴奏和弦（依景點呈現 Swing / Skank 反拍 / 長音 Pad / 電音）
+  if(th.chordSteps.includes(s)){
     chord.forEach((note,idx)=>{
-      tone(midi(note), 0.28, {type:'triangle', vol:0.045, t:t+idx*0.015, dest:d});
+      tone(midi(note), th.chordDur, {type:th.chordType, lp:th.chordLp, vol:th.chordVol, t:t+idx*0.012, dest:d});
     });
   }
 
-  // 3. 規律但輕巧的「限時推進」輕打擊樂（低音暖鼓 + 柔和沙鈴，沒有尖銳噪聲）
-  if(s===0||s===4){
-    // 圓潤的心跳感低音鼓（有穩定倒數推進節奏）
-    tone(75, 0.09, {type:'sine', vol:0.16, slide:38, t, dest:d});
-  }
-  if(s===2||s===6){
-    // 輕柔的敲響/沙鈴聲
-    noise(0.04, {vol:0.035, hp:5000, lp:9000, t, dest:d});
+  // 3. 特色打擊樂（沙鈴 / 廟鼓木魚 / 森林小火車 / 風鈴 / 電音鼓組）
+  if(th.perc==='train'){
+    if(s===0||s===4) tone(82, 0.08, {type:'sine', vol:0.14, slide:44, t, dest:d});
+    if(s===2||s===3||s===6||s===7) tone(s%2===0?520:430, 0.035, {type:'triangle', vol:0.055, t, dest:d});
+  } else if(th.perc==='temple'){
+    if(s===0||s===4) tone(92, 0.11, {type:'sine', vol:0.17, slide:46, t, dest:d});
+    if(s===2||s===5||s===6) tone(s===5?880:680, 0.04, {type:'triangle', vol:0.06, t, dest:d});
+  } else if(th.perc==='wind'){
+    if(s===0) tone(68, 0.14, {type:'sine', vol:0.12, slide:40, t, dest:d});
+    if(s===4) noise(0.18, {vol:0.022, hp:1200, lp:3400, t, dest:d});
+  } else if(th.perc==='synth'){
+    if(s===0||s===4) tone(95, 0.09, {type:'sine', vol:0.20, slide:36, t, dest:d});
+    if(s===2||s===6) noise(0.045, {vol:0.050, hp:3800, lp:9500, t, dest:d});
+  } else {
+    if(s===0||s===4) tone(75, 0.09, {type:'sine', vol:0.15, slide:38, t, dest:d});
+    if(th.perc==='folk' && s===6) tone(760, 0.04, {type:'sine', vol:0.045, t, dest:d});
+    else if(s===2||s===6) noise(0.04, {vol:th.perc==='reggae'?0.045:0.032, hp:5000, lp:9000, t, dest:d});
   }
 
-  // 4. 休閒優雅的清脆點綴旋律（如夏夜微風）
-  const note=CHILL_MELODY[i];
+  // 4. 景點專屬主旋律（部分關卡疊加高八度泛音呈現八音盒 / 鋼鼓質感）
+  const note=th.melody[i];
   if(note!==null){
-    tone(midi(note), 0.16, {type:'sine', vol:0.08, t, dest:d});
+    tone(midi(note), th.melDur, {type:th.melType, vol:th.melVol, t, dest:d});
+    if(th.melHarm) tone(midi(note+th.melHarm), th.melDur*0.75, {type:'sine', vol:th.melVol*0.35, t, dest:d});
   }
 }
 function setMuted(m){
@@ -663,7 +773,7 @@ let curMapIdx=0, curMap=MAPS[0];
 let MAP={w:1800,h:1200}, HALF=65, HROADS=[], VROADS=[];
 let roadblocks=[], river=null, bridges=[], coast=null;
 let blocks=[], big=[], shops=[], customers=[], places=[];
-let windmills=[], sakuraPetals=[], lanternPts=[];
+let windmills=[], sakuraPetals=[], lanternPts=[], cornerTrees=[];
 const CELL=20;
 let GW=90, GH=60, walk=new Uint8Array(90*60), prevArr=new Int32Array(90*60);
 
@@ -692,12 +802,13 @@ function mkPlace(name,icon,type,bi,side,off){
 function buildMap(idx){
   curMapIdx=clamp(idx,0,MAPS.length-1);
   curMap=MAPS[curMapIdx];
+  Snd.step=0;
   MAP=curMap.size; HALF=curMap.half;
   HROADS=curMap.hRoads; VROADS=curMap.vRoads;
   roadblocks=curMap.roadblocks||[]; river=curMap.river||null; bridges=curMap.bridges||[]; coast=curMap.coast||null;
 
   const srand=mulberry(curMap.seed);
-  blocks=[]; windmills=[]; lanternPts=[];
+  blocks=[]; windmills=[]; lanternPts=[]; cornerTrees=[];
   for(const [y0,y1] of gaps(HROADS,MAP.h)) for(const [x0,x1] of gaps(VROADS,MAP.w)){
     const w=x1-x0, h=y1-y0;
     const hitRiver=river && y1>river.y && y0<river.y+river.h;
@@ -709,9 +820,16 @@ function buildMap(idx){
       b.shedCol=srand()<0.5?'#1d4ed8':'#15803d';
       for(let wx=b.x+16;wx<b.x+b.w-16;wx+=28) for(let wy=b.y+20;wy<b.y+b.h-20;wy+=26) if(srand()<0.33) b.win.push([wx,wy]);
       if(curMap.theme==='jiufen'||curMap.theme==='dadaocheng'){
-        for(let lx=b.x+18;lx<b.x+b.w-14;lx+=34){
-          lanternPts.push([lx,b.y+3],[lx,b.y+b.h-3]);
+        for(let lx=b.x+16;lx<b.x+b.w-12;lx+=26){
+          lanternPts.push([lx,b.y-5],[lx,b.y+b.h+5]);
         }
+      }
+      if(curMap.theme==='kenting'||curMap.theme==='alishan'||curMap.theme==='anping'||curMap.theme==='tamsui'){
+        const rBase=curMap.theme==='alishan'?16:15;
+        cornerTrees.push([b.x-3,b.y-3,rBase],[b.x+b.w+3,b.y-3,rBase],[b.x-3,b.y+b.h+3,rBase],[b.x+b.w+3,b.y+b.h+3,rBase]);
+      }
+      if(curMap.theme==='gaomei'){
+        b.pools.push({x:b.x+b.w*0.22,y:b.y+b.h*0.5,rx:36,ry:16},{x:b.x+b.w*0.78,y:b.y+b.h*0.5,rx:34,ry:15});
       }
     }else{
       const n=Math.floor(b.w*b.h/2600);
@@ -721,7 +839,7 @@ function buildMap(idx){
         if(!river || ty<river.y-14 || ty>river.y+river.h+14) b.trees.push([tx,ty,8+srand()*8]);
       }
       if(curMap.theme==='gaomei' && w>100 && h>65){
-        windmills.push({x:b.x+w*0.5,y:b.y+h*0.5,phase:srand()*Math.PI*2,r:Math.min(34,Math.min(w,h)*0.42)});
+        windmills.push({x:b.x+w*0.5,y:b.y+h*0.5,phase:srand()*Math.PI*2,r:Math.min(40,Math.min(w,h)*0.48)});
         b.pools.push({x:b.x+w*0.25,y:b.y+h*0.3,rx:w*0.22,ry:h*0.22});
       }
     }
@@ -729,12 +847,12 @@ function buildMap(idx){
   }
   big=blocks.filter(b=>b.big);
   if(curMap.theme==='gaomei'){
-    // 額外在主要街角與邊緣配置大型高美濕地發電風車
-    big.forEach((b,bi)=>{ if(bi%2===1) windmills.push({x:b.x+b.w*0.5,y:b.y+b.h*0.5,phase:bi*1.1,r:44}); });
+    // 高美濕地每個大區塊中庭配置大型旋轉白風車，從各條路都能明顯看見
+    big.forEach((b,bi)=>{ windmills.push({x:b.x+b.w*0.5,y:b.y+b.h*0.5,phase:bi*0.95,r:52}); });
   }
   sakuraPetals=[];
   if(curMap.theme==='alishan'){
-    for(let i=0;i<42;i++) sakuraPetals.push({x:srand()*MAP.w,y:srand()*MAP.h,sp:22+srand()*20,sw:srand()*Math.PI*2,sz:3+srand()*2.5});
+    for(let i=0;i<80;i++) sakuraPetals.push({x:srand()*MAP.w,y:srand()*MAP.h,sp:22+srand()*22,sw:srand()*Math.PI*2,sz:3.5+srand()*2.8});
   }
   shops=curMap.shops.map(s=>mkPlace(s[0],s[1],'shop',s[2],s[3],s[4]));
   customers=curMap.customers.map(c=>mkPlace(c[0],c[1],'cust',c[2],c[3],c[4]));
@@ -1442,15 +1560,15 @@ function updateCars(dt){
     const front = c.pos + c.dir * ((c.w || 48) / 2);
 
     if(!isEmergency){
-      // A. 十字路口紅黃燈檢查（橫向 hState / 縱向 vState）
+      // A. 十字路口紅黃燈檢查（停在斑馬線前留出充足緩衝空間）
       for(const tl of trafficLights){
         if(c.axis==='h' ? (tl.y!==c.roadCenter) : (tl.x!==c.roadCenter)) continue;
         const tlPos = c.axis==='h' ? tl.x : tl.y;
         const sig = c.axis==='h' ? tl.hState : tl.vState;
-        const stopEdge = tlPos - c.dir * (HALF + 24);
+        const stopEdge = tlPos - c.dir * (HALF + 28);
         const dToLine = (stopEdge - front) * c.dir;
 
-        if(dToLine >= -6 && dToLine < 135){
+        if(dToLine >= -6 && dToLine < 150){
           if(c.speeder && c.redChoiceTl !== tl){
             c.redChoiceTl = tl;
             c.willRunRed = Math.random() < 0.72; // 超速跑車高機率搶黃／闖紅燈
@@ -1471,41 +1589,42 @@ function updateCars(dt){
           if(!ped.isCrossing) continue;
           if(Math.abs(ped.x - c.lane) < 28){
             const dPed = (ped.y - front) * c.dir;
-            if(dPed >= -4 && dPed < 52){
+            if(dPed >= -4 && dPed < 64){
               mustYieldStop = true;
-              maxStep = Math.min(maxStep, Math.max(0, dPed - 10));
+              maxStep = Math.min(maxStep, Math.max(0, dPed - 16));
             }
           }
         }
       }
 
-      // C. 同車道前車偵測（排隊保持安全車距，不重疊）
+      // C. 同車道前車偵測（排隊保持明顯安全車距，不貼尾不重疊）
       for(const o of cars){
         if(o===c || o.axis!==c.axis || o.roadCenter!==c.roadCenter || o.dir!==c.dir) continue;
         if(Math.abs(o.lane - c.lane) > 12) continue;
         const oRear = o.pos - c.dir * ((o.w || 48) / 2);
         const gap = (oRear - front) * c.dir;
-        if(gap > -6 && gap < 110){
-          const safeGap = 14;
-          if(gap <= safeGap + 18) mustYieldStop = true;
+        if(gap > -6 && gap < 135){
+          const safeGap = 24;
+          if(gap <= safeGap + 22) mustYieldStop = true;
           maxStep = Math.min(maxStep, Math.max(0, gap - safeGap));
         }
       }
 
-      // D. 保護同車道前方之外送員（停紅燈或一般車距內煞停，不從背後直接追撞）
-      if(activePlay && P){
+      // D. 保護同車道前方之外送員（停紅燈或低速減速保持 34px 安全淨空，絕不貼身撞上）
+      if(G.state === 'play' && P){
         const lateral = c.axis==='h' ? Math.abs(P.y - c.lane) : Math.abs(P.x - c.lane);
-        const laneHitW = ((c.h || 26) / 2) + P.r + 3;
+        const laneHitW = ((c.h || 26) / 2) + P.r + 8;
         if(lateral < laneHitW){
           const dToRiderRear = ((c.axis==='h' ? P.x : P.y) - front) * c.dir - P.r;
-          if(dToRiderRear >= -4 && dToRiderRear < 115 && (!c.speeder || !P.moving)){
+          const riderSafeGap = 34;
+          if(dToRiderRear >= -6 && dToRiderRear < 150 && (!c.speeder || !P.moving)){
             mustYieldStop = true;
-            maxStep = Math.min(maxStep, Math.max(0, dToRiderRear - 14));
-            if(dToRiderRear < 34 && !P.moving && c.hornCooldown <= 0 && !c.speeder){
+            maxStep = Math.min(maxStep, Math.max(0, dToRiderRear - riderSafeGap));
+            if(activePlay && dToRiderRear < riderSafeGap + 20 && !P.moving && c.hornCooldown <= 0 && !c.speeder){
               let atRed = false;
               for(const tl of trafficLights){
                 const sig = c.axis==='h' ? tl.hState : tl.vState;
-                if(Math.hypot(P.x - tl.x, P.y - tl.y) < HALF + 65 && sig !== 'green'){ atRed = true; break; }
+                if(Math.hypot(P.x - tl.x, P.y - tl.y) < HALF + 70 && sig !== 'green'){ atRed = true; break; }
               }
               if(!atRed){
                 c.hornCooldown = 4.5;
@@ -1885,8 +2004,41 @@ function rr(x,y,w,h,r){
   ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
 }
 function inView(x,y,w,h){const vw=W/ZOOM,vh=H/ZOOM;return x+w>cam.x-20&&y+h>cam.y-20&&x<cam.x+vw+20&&y<cam.y+vh+20;}
+const SCENE_PALETTES={
+  dadaocheng:{curb:'#d97706', walk:'#92400e', road:'#261c18', stone:'rgba(253,230,138,0.16)', trim:'#b45309'},
+  jiufen:    {curb:'#dc2626', walk:'#475569', road:'#1a2230', stone:'rgba(251,146,60,0.18)', trim:'#7f1d1d'},
+  kenting:   {curb:'#fde047', walk:'#d6c48a', road:'#1a3547', stone:'rgba(255,255,255,0.22)', trim:'#eab308'},
+  anping:    {curb:'#ef4444', walk:'#9a3412', road:'#251a18', stone:'rgba(254,202,202,0.18)', trim:'#b91c1c'},
+  tamsui:    {curb:'#f97316', walk:'#78350f', road:'#1b1a2a', stone:'rgba(253,186,116,0.18)', trim:'#9a3412'},
+  gaomei:    {curb:'#c084fc', walk:'#6d4c3d', road:'#172234', stone:'rgba(216,180,254,0.18)', trim:'#7c4a2d'},
+  alishan:   {curb:'#f472b6', walk:'#6b4c35', road:'#1d191a', stone:'rgba(249,168,212,0.20)', trim:'#5c3d2e'},
+  xinyi:     {curb:'#22d3ee', walk:'#1e293b', road:'#0b1326', stone:'rgba(56,189,248,0.22)', trim:'#0ea5e9'}
+};
 function drawWorld(now){
   const th=curMap.theme||'dadaocheng';
+  const pal=SCENE_PALETTES[th]||SCENE_PALETTES.dadaocheng;
+  const drawScenicTree=(tx,ty,tr)=>{
+    if(th==='kenting'){
+      const sway=Math.sin(now/600+tx)*0.08;
+      ctx.fillStyle='rgba(0,0,0,0.3)';
+      ctx.beginPath(); ctx.arc(tx+4,ty+4,tr*0.9,0,Math.PI*2); ctx.fill();
+      ctx.save(); ctx.translate(tx,ty); ctx.rotate(sway);
+      ctx.fillStyle='#16a34a';
+      for(let a=0;a<5;a++){
+        ctx.rotate(Math.PI*2/5);
+        ctx.beginPath(); ctx.ellipse(tr*0.72,0,tr*0.78,tr*0.28,0,0,Math.PI*2); ctx.fill();
+      }
+      ctx.fillStyle='#78350f'; ctx.beginPath(); ctx.arc(0,0,3.5,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+    } else {
+      ctx.fillStyle='rgba(0,0,0,0.3)';
+      ctx.beginPath(); ctx.arc(tx+3,ty+4,tr,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle=th==='alishan'?'#db2777':'#15803d';
+      ctx.beginPath(); ctx.arc(tx,ty,tr,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle=th==='alishan'?'#f9a8d4':'#22c55e';
+      ctx.beginPath(); ctx.arc(tx-2,ty-2,tr*0.65,0,Math.PI*2); ctx.fill();
+    }
+  };
 
   // 1. 底層世界基底（含墾丁海岸沙灘、阿里山森林鐵道背景）
   ctx.fillStyle=curMap.ground||'#0f131a'; ctx.fillRect(0,0,MAP.w,MAP.h);
@@ -1916,10 +2068,10 @@ function drawWorld(now){
       ctx.fillStyle='rgba(0,0,0,0.55)';
       ctx.fillRect(b.x+8,b.y+10,b.w,b.h);
 
-      // 人行道基座
-      ctx.fillStyle=th==='kenting'?'#cbd5e1':'#3b4252';
+      // 景點專屬人行道基座
+      ctx.fillStyle=pal.trim;
       ctx.fillRect(b.x-10,b.y-10,b.w+20,b.h+20);
-      ctx.fillStyle=th==='kenting'?'#e2e8f0':'#4c566a';
+      ctx.fillStyle=pal.walk;
       ctx.fillRect(b.x-8,b.y-8,b.w+16,b.h+16);
 
       // 建築主體
@@ -1928,43 +2080,67 @@ function drawWorld(now){
 
       // 景點專屬建築屋頂與立面風格
       if(th==='dadaocheng'){
-        // 大稻埕：巴洛克弧形山牆＋紅磚橫紋
-        ctx.fillStyle='rgba(255,255,255,0.10)';
-        for(let ry=b.y+14;ry<b.y+b.h-14;ry+=18) ctx.fillRect(b.x+6,ry,b.w-12,2);
-        ctx.fillStyle='#b45309';
-        ctx.beginPath(); ctx.arc(b.x+b.w/2,b.y+18,22,Math.PI,0); ctx.fill();
-        ctx.strokeStyle='#fde68a'; ctx.lineWidth=2; ctx.stroke();
+        // 大稻埕：紅磚瓦紋＋木質騎樓雨遮＋巴洛克金色雙拱山牆
+        ctx.fillStyle='rgba(254,215,170,0.12)';
+        for(let ry=b.y+14;ry<b.y+b.h-14;ry+=16) ctx.fillRect(b.x+6,ry,b.w-12,2);
+        ctx.fillStyle='#78350f';
+        ctx.fillRect(b.x,b.y-4,b.w,7);
+        ctx.fillRect(b.x,b.y+b.h-3,b.w,7);
+        [b.y+18, b.y+b.h-14].forEach((py,pi)=>{
+          ctx.fillStyle='#b45309';
+          ctx.beginPath(); ctx.arc(b.x+b.w/2,py,24,pi===0?Math.PI:0,pi===0?0:Math.PI); ctx.fill();
+          ctx.strokeStyle='#fde68a'; ctx.lineWidth=2.2; ctx.stroke();
+        });
       } else if(th==='jiufen'){
-        // 九份山城：深黑瓦片斜屋頂紋理
-        ctx.fillStyle='rgba(0,0,0,0.28)';
-        for(let ry=b.y+12;ry<b.y+b.h-12;ry+=14) ctx.fillRect(b.x+4,ry,b.w-8,3);
+        // 九份山城：層疊黑瓦斜屋頂＋暖黃茶屋窗格邊框
+        ctx.fillStyle='rgba(0,0,0,0.34)';
+        for(let ry=b.y+10;ry<b.y+b.h-10;ry+=12) ctx.fillRect(b.x+4,ry,b.w-8,3);
+        ctx.strokeStyle='rgba(251,146,60,0.45)'; ctx.lineWidth=2;
+        ctx.strokeRect(b.x+3,b.y+3,b.w-6,b.h-6);
       } else if(th==='kenting'){
-        // 墾丁南國：白牆度假小屋＋屋頂衝浪板
-        ctx.strokeStyle='#ffffff'; ctx.lineWidth=4; ctx.strokeRect(b.x+4,b.y+4,b.w-8,b.h-8);
+        // 墾丁南國：南洋白牆度假小屋＋屋頂衝浪板與彩條陽傘
+        ctx.strokeStyle='#ffffff'; ctx.lineWidth=5; ctx.strokeRect(b.x+4,b.y+4,b.w-8,b.h-8);
         ctx.fillStyle='#f43f5e';
-        ctx.beginPath(); ctx.ellipse(b.x+b.w*0.28,b.y+b.h*0.5,18,6,-0.3,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(b.x+b.w*0.28,b.y+b.h*0.5,22,7,-0.3,0,Math.PI*2); ctx.fill();
         ctx.fillStyle='#facc15';
-        ctx.beginPath(); ctx.ellipse(b.x+b.w*0.28+14,b.y+b.h*0.5+6,16,5,-0.25,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(b.x+b.w*0.28+16,b.y+b.h*0.5+7,18,6,-0.25,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#38bdf8';
+        ctx.beginPath(); ctx.arc(b.x+b.w*0.72,b.y+b.h*0.5,14,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#ffffff';
+        ctx.beginPath(); ctx.arc(b.x+b.w*0.72,b.y+b.h*0.5,7,0,Math.PI*2); ctx.fill();
       } else if(th==='anping'){
-        // 台南安平：紅磚古堡城垛（鋸齒女牆）＋廟宇燕尾脊
-        ctx.fillStyle='#dc2626';
-        for(let cx=b.x+10;cx<b.x+b.w-18;cx+=24) ctx.fillRect(cx,b.y-3,12,8);
+        // 台南安平：繞城紅白古堡城垛＋中央金黃飛簷廟宇屋脊
+        for(let cx=b.x+10;cx<b.x+b.w-18;cx+=24){
+          ctx.fillStyle='#dc2626'; ctx.fillRect(cx,b.y-5,13,9); ctx.fillRect(cx,b.y+b.h-4,13,9);
+          ctx.fillStyle='#fef2f2'; ctx.fillRect(cx+2,b.y-3,9,3); ctx.fillRect(cx+2,b.y+b.h-1,9,3);
+        }
         ctx.fillStyle='#f59e0b';
-        ctx.beginPath(); ctx.moveTo(b.x+b.w*0.3,b.y+b.h*0.52); ctx.quadraticCurveTo(b.x+b.w*0.5,b.y+b.h*0.36,b.x+b.w*0.7,b.y+b.h*0.52);
-        ctx.lineTo(b.x+b.w*0.66,b.y+b.h*0.6); ctx.lineTo(b.x+b.w*0.34,b.y+b.h*0.6); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(b.x+b.w*0.25,b.y+b.h*0.54); ctx.quadraticCurveTo(b.x+b.w*0.5,b.y+b.h*0.33,b.x+b.w*0.75,b.y+b.h*0.54);
+        ctx.lineTo(b.x+b.w*0.69,b.y+b.h*0.64); ctx.lineTo(b.x+b.w*0.31,b.y+b.h*0.64); ctx.closePath(); ctx.fill();
+        ctx.strokeStyle='#fde68a'; ctx.lineWidth=2; ctx.stroke();
       } else if(th==='alishan'){
-        // 阿里山：檜木木屋斜頂與木紋條
-        ctx.fillStyle='rgba(254,243,199,0.12)';
-        for(let lx=b.x+14;lx<b.x+b.w-14;lx+=20) ctx.fillRect(lx,b.y+8,2,b.h-16);
+        // 阿里山：檜木木屋屋脊線與原木條紋
+        ctx.fillStyle='rgba(254,243,199,0.16)';
+        for(let lx=b.x+14;lx<b.x+b.w-14;lx+=18) ctx.fillRect(lx,b.y+8,2.5,b.h-16);
+        ctx.fillStyle='#fde68a';
+        ctx.fillRect(b.x+12,b.y+b.h*0.5-2,b.w-24,4);
+      } else if(th==='gaomei'){
+        // 高美濕地：屋頂夕陽濕地潮汐反光池
+        for(const pl of b.pools){
+          ctx.fillStyle='rgba(251,146,60,0.34)';
+          ctx.beginPath(); ctx.ellipse(pl.x,pl.y,pl.rx,pl.ry,0,0,Math.PI*2); ctx.fill();
+        }
       } else if(th==='xinyi'){
-        // 信義摩天城：藍紫玻璃帷幕網格＋直升機停機坪
-        ctx.strokeStyle='rgba(56,189,248,0.22)'; ctx.lineWidth=1;
+        // 信義摩天城：霓虹青邊框＋藍紫玻璃帷幕網格＋直升機停機坪
+        ctx.strokeStyle='rgba(56,189,248,0.28)'; ctx.lineWidth=1.2;
         for(let gx=b.x+24;gx<b.x+b.w-16;gx+=28){ctx.beginPath();ctx.moveTo(gx,b.y+8);ctx.lineTo(gx,b.y+b.h-8);ctx.stroke();}
         for(let gy=b.y+24;gy<b.y+b.h-16;gy+=24){ctx.beginPath();ctx.moveTo(b.x+8,gy);ctx.lineTo(b.x+b.w-8,gy);ctx.stroke();}
+        ctx.strokeStyle='rgba(34,211,238,0.45)'; ctx.lineWidth=2;
+        ctx.strokeRect(b.x+2,b.y+2,b.w-4,b.h-4);
         if(b!==big[1]){
           ctx.strokeStyle='rgba(250,204,21,0.55)'; ctx.lineWidth=2;
           ctx.beginPath(); ctx.arc(b.x+b.w*0.5,b.y+b.h*0.5,18,0,Math.PI*2); ctx.stroke();
-          ctx.fillStyle='rgba(250,204,21,0.7)'; ctx.font='900 14px system-ui,sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+          ctx.fillStyle='rgba(250,204,21,0.75)'; ctx.font='900 14px system-ui,sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
           ctx.fillText('H',b.x+b.w*0.5,b.y+b.h*0.5);
         }
       }
@@ -1977,12 +2153,12 @@ function drawWorld(now){
       ctx.fillRect(b.x,b.y+b.h-10,b.w,10);
       ctx.fillRect(b.x+b.w-8,b.y,8,b.h);
 
-      // 頂樓加蓋鐵皮屋（保留於都會／山城／老街等生活街景）
-      if(b.hasShed && th!=='xinyi' && th!=='kenting'){
+      // 頂樓加蓋鐵皮屋（僅都會/山城街景保留，古蹟與海灘景點改呈現原有地標特徵）
+      if(b.hasShed && (th==='jiufen'||th==='tamsui'||th==='gaomei')){
         const sx=b.x+b.w*0.55, sy=b.y+22, sw=b.w*0.35, sh=b.h*0.32;
         ctx.fillStyle='rgba(0,0,0,0.3)';
         ctx.fillRect(sx+4,sy+4,sw,sh);
-        ctx.fillStyle=th==='alishan'?'#78350f':b.shedCol;
+        ctx.fillStyle=b.shedCol;
         ctx.fillRect(sx,sy,sw,sh);
         ctx.fillStyle='rgba(255,255,255,0.2)';
         for(let lx=sx+6;lx<sx+sw-4;lx+=8) ctx.fillRect(lx,sy,2,sh);
@@ -1990,15 +2166,15 @@ function drawWorld(now){
 
       // 發光窗戶
       for(const w of b.win){
-        ctx.fillStyle=th==='xinyi'?'rgba(125,211,252,0.85)':'rgba(254,240,138,0.88)';
+        ctx.fillStyle=th==='xinyi'?'rgba(125,211,252,0.88)':'rgba(254,240,138,0.9)';
         ctx.fillRect(w[0],w[1],12,9);
         ctx.fillStyle='#0f172a';
         ctx.fillRect(w[0]+5,w[1],2,9);
         ctx.fillRect(w[0],w[1]+4,12,2);
       }
 
-      // 屋頂白鐵水塔（除信義摩天城外保留台灣特色）
-      if(th!=='xinyi'){
+      // 屋頂白鐵水塔（僅現代/山城/淡水街區顯示）
+      if(th==='jiufen'||th==='tamsui'){
         ctx.fillStyle='rgba(0,0,0,0.35)';
         ctx.beginPath(); ctx.arc(b.x+26,b.y+26,10,0,Math.PI*2); ctx.fill();
         ctx.fillStyle='#94a3b8';
@@ -2014,24 +2190,26 @@ function drawWorld(now){
         const tx=b.x+b.w*0.5, ty=b.y+b.h*0.5;
         const hueCycle=['#38bdf8','#f472b6','#fbbf24','#34d399'][Math.floor(now/700)%4];
         for(let tier=0;tier<6;tier++){
-          const sz=46-tier*6;
+          const sz=48-tier*6;
           ctx.fillStyle=tier%2===0?'#1e3a8a':'#0f172a';
           ctx.fillRect(tx-sz,ty-sz*0.65,sz*2,sz*1.3);
-          ctx.strokeStyle=hueCycle; ctx.lineWidth=1.8;
+          ctx.strokeStyle=hueCycle; ctx.lineWidth=2;
           ctx.strokeRect(tx-sz,ty-sz*0.65,sz*2,sz*1.3);
         }
         ctx.fillStyle=hueCycle;
-        ctx.beginPath(); ctx.arc(tx,ty,7+Math.sin(now/160)*2,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(tx,ty,8+Math.sin(now/160)*2.5,0,Math.PI*2); ctx.fill();
         ctx.fillStyle='#ffffff';
-        ctx.beginPath(); ctx.arc(tx,ty,3.5,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(tx,ty,3.8,0,Math.PI*2); ctx.fill();
       }
 
-      // 冷氣室外機
-      const acX=b.x+b.w-36, acY=b.y+20;
-      ctx.fillStyle='#cbd5e1';
-      ctx.fillRect(acX,acY,16,11);
-      ctx.fillStyle='#475569';
-      ctx.fillRect(acX+2,acY+2,7,7);
+      // 冷氣室外機（僅山城/河岸街區顯示）
+      if(th==='jiufen'||th==='tamsui'){
+        const acX=b.x+b.w-36, acY=b.y+20;
+        ctx.fillStyle='#cbd5e1';
+        ctx.fillRect(acX,acY,16,11);
+        ctx.fillStyle='#475569';
+        ctx.fillRect(acX+2,acY+2,7,7);
+      }
     }else{
       // 綠化公園 / 海岸 / 濕地 / 櫻花林區
       if(coast && b.y+b.h>coast.y) continue; // 墾丁下方海岸已繪沙灘海浪
@@ -2044,40 +2222,19 @@ function drawWorld(now){
         ctx.fillStyle='rgba(251,146,60,0.28)';
         ctx.beginPath(); ctx.ellipse(pl.x,pl.y,pl.rx,pl.ry,0,0,Math.PI*2); ctx.fill();
       }
-      for(const t of b.trees){
-        if(th==='kenting'){
-          // 墾丁熱帶搖曳椰子樹
-          const sway=Math.sin(now/600+t[0])*0.08;
-          ctx.fillStyle='rgba(0,0,0,0.3)';
-          ctx.beginPath(); ctx.arc(t[0]+4,t[1]+4,t[2]*0.9,0,Math.PI*2); ctx.fill();
-          ctx.save(); ctx.translate(t[0],t[1]); ctx.rotate(sway);
-          ctx.fillStyle='#16a34a';
-          for(let a=0;a<5;a++){
-            ctx.rotate(Math.PI*2/5);
-            ctx.beginPath(); ctx.ellipse(t[2]*0.7,0,t[2]*0.75,t[2]*0.28,0,0,Math.PI*2); ctx.fill();
-          }
-          ctx.fillStyle='#78350f'; ctx.beginPath(); ctx.arc(0,0,3,0,Math.PI*2); ctx.fill();
-          ctx.restore();
-        } else {
-          ctx.fillStyle='rgba(0,0,0,0.3)';
-          ctx.beginPath(); ctx.arc(t[0]+3,t[1]+4,t[2],0,Math.PI*2); ctx.fill();
-          ctx.fillStyle=th==='alishan'?'#db2777':'#15803d';
-          ctx.beginPath(); ctx.arc(t[0],t[1],t[2],0,Math.PI*2); ctx.fill();
-          ctx.fillStyle=th==='alishan'?'#f9a8d4':'#22c55e';
-          ctx.beginPath(); ctx.arc(t[0]-2,t[1]-2,t[2]*0.65,0,Math.PI*2); ctx.fill();
-        }
-      }
+      for(const t of b.trees) drawScenicTree(t[0],t[1],t[2]);
     }
   }
 
-  // 阿里山森林小火車鐵道裝飾（沿街區邊緣貫穿東西向）
+  // 阿里山森林小火車鐵道裝飾（沿兩側林道邊緣貫穿東西向）
   if(th==='alishan'){
-    const ry=HROADS[1]-HALF-22;
-    ctx.fillStyle='#451a03';
-    for(let rx=0;rx<MAP.w;rx+=14) ctx.fillRect(rx,ry-5,6,10);
-    ctx.fillStyle='#cbd5e1';
-    ctx.fillRect(0,ry-3,MAP.w,1.8);
-    ctx.fillRect(0,ry+2,MAP.w,1.8);
+    [HROADS[1]-HALF-22, HROADS[2]+HALF+22].forEach(ry=>{
+      ctx.fillStyle='#451a03';
+      for(let rx=0;rx<MAP.w;rx+=14) ctx.fillRect(rx,ry-6,6,12);
+      ctx.fillStyle='#e2e8f0';
+      ctx.fillRect(0,ry-3.5,MAP.w,2);
+      ctx.fillRect(0,ry+2,MAP.w,2);
+    });
   }
 
   // 2.5 淡水夕陽金色大河（先畫河流與岸壁、泊船，再畫跨河大橋）
@@ -2104,23 +2261,23 @@ function drawWorld(now){
     });
   }
 
-  // 2.8 連續人行道（位於所有馬路兩側 14px，石磚鋪面＋淺灰緣石，與路口斑馬線銜接）
+  // 2.8 連續人行道（依景點切換磚瓦/木棧/沙色/霓虹緣石與鋪面）
   const vSegSidewalk = !river ? [[0,MAP.h]] : [[0,river.y-8],[river.y+river.h+8,MAP.h]];
-  ctx.fillStyle='#94a3b8';
+  ctx.fillStyle=pal.curb;
   for(const c of HROADS) ctx.fillRect(0,c-HALF-15,MAP.w,HALF*2+30);
   for(const c of VROADS) for(const [y0,y1] of vSegSidewalk) ctx.fillRect(c-HALF-15,y0,HALF*2+30,y1-y0);
-  ctx.fillStyle='#64748b';
+  ctx.fillStyle=pal.walk;
   for(const c of HROADS) ctx.fillRect(0,c-HALF-14,MAP.w,HALF*2+28);
   for(const c of VROADS) for(const [y0,y1] of vSegSidewalk) ctx.fillRect(c-HALF-14,y0,HALF*2+28,y1-y0);
-  // 石磚分隔線（僅在可視範圍內繪製，兼顧質感與效能）
-  ctx.fillStyle='rgba(15,23,42,0.28)';
+  // 石磚/木棧分隔線（僅在可視範圍內繪製，兼顧質感與效能）
+  ctx.fillStyle=pal.stone;
   const swX0=Math.max(0,Math.floor(cam.x/20)*20), swX1=Math.min(MAP.w,cam.x+W/ZOOM+20);
   const swY0=Math.max(0,Math.floor(cam.y/20)*20), swY1=Math.min(MAP.h,cam.y+H/ZOOM+20);
   for(const c of HROADS){
     if(c+HALF+16<cam.y || c-HALF-16>cam.y+H/ZOOM) continue;
     for(let x=swX0;x<=swX1;x+=20){
-      ctx.fillRect(x,c-HALF-14,1.5,11);
-      ctx.fillRect(x,c+HALF+3,1.5,11);
+      ctx.fillRect(x,c-HALF-14,1.8,11);
+      ctx.fillRect(x,c+HALF+3,1.8,11);
     }
   }
   for(const c of VROADS){
@@ -2128,20 +2285,38 @@ function drawWorld(now){
     for(const [y0,y1] of vSegSidewalk){
       const yy0=Math.max(y0,swY0), yy1=Math.min(y1,swY1);
       for(let y=yy0;y<=yy1;y+=20){
-        ctx.fillRect(c-HALF-14,y,11,1.5);
-        ctx.fillRect(c+HALF+3,y,11,1.5);
+        ctx.fillRect(c-HALF-14,y,11,1.8);
+        ctx.fillRect(c+HALF+3,y,11,1.8);
       }
     }
   }
 
-  // 3. 柏油馬路（濃黑純淨柏油色 #151922，與人行道及街區強烈對比）
+  // 街角風景樹木（墾丁椰林 / 阿里山粉櫻樹 / 安平老榕 / 淡水河岸樹）
+  for(const ct of cornerTrees){
+    if(inView(ct[0]-26,ct[1]-26,52,52)) drawScenicTree(ct[0],ct[1],ct[2]);
+  }
+
+  // 3. 景點專屬路面（古街石板／山城青石／海岸柏油／都會藍夜柏油）
   const vSegs=c=>{
     if(!river || bridges.includes(c)) return [[0,MAP.h]];
     return [[0,river.y-8],[river.y+river.h+8,MAP.h]];
   };
-  ctx.fillStyle='#151922';
+  ctx.fillStyle=pal.road;
   for(const c of HROADS) ctx.fillRect(0,c-HALF,MAP.w,HALF*2);
   for(const c of VROADS) for(const [y0,y1] of vSegs(c)) ctx.fillRect(c-HALF,y0,HALF*2,y1-y0);
+  if(th==='dadaocheng'||th==='jiufen'||th==='anping'){
+    ctx.fillStyle='rgba(255,255,255,0.035)';
+    for(const c of HROADS){
+      if(c+HALF<cam.y||c-HALF>cam.y+H/ZOOM) continue;
+      for(let x=swX0;x<=swX1;x+=40) ctx.fillRect(x,c-HALF+4,2,HALF*2-8);
+    }
+  } else if(th==='gaomei'){
+    ctx.fillStyle='rgba(251,146,60,0.12)';
+    for(const c of HROADS){
+      if(c+HALF<cam.y||c-HALF>cam.y+H/ZOOM) continue;
+      for(let x=swX0;x<=swX1;x+=120) ctx.fillRect(x+14,c-HALF+6,54,8);
+    }
+  }
 
   // 台灣街頭經典路緣標線：外側紅線（禁止停車）與內側路緣石
   for(const c of HROADS){
@@ -2604,17 +2779,17 @@ function drawWorld(now){
   // 9.3 台灣景點動態環境裝飾（九份/大稻埕紅燈籠、高美大風車、阿里山櫻花雪、信義夜空煙火）
   if(lanternPts.length){
     for(const [lx,ly] of lanternPts){
-      if(!inView(lx-16,ly-16,32,32)) continue;
-      const sw=Math.sin(now*0.0032+lx*0.05)*1.8;
-      ctx.fillStyle='rgba(251,146,60,0.22)';
-      ctx.beginPath(); ctx.arc(lx+sw,ly,11,0,Math.PI*2); ctx.fill();
+      if(!inView(lx-18,ly-18,36,36)) continue;
+      const sw=Math.sin(now*0.0032+lx*0.05)*2;
+      ctx.fillStyle='rgba(251,146,60,0.32)';
+      ctx.beginPath(); ctx.arc(lx+sw,ly,14,0,Math.PI*2); ctx.fill();
       ctx.fillStyle='#dc2626';
-      ctx.beginPath(); ctx.ellipse(lx+sw,ly,5.5,6.5,0,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle='#fb923c';
-      ctx.beginPath(); ctx.ellipse(lx+sw-1,ly-1,2.4,3.2,0,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(lx+sw,ly,6.5,7.8,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#fdba74';
+      ctx.beginPath(); ctx.ellipse(lx+sw-1,ly-1.2,2.8,3.6,0,0,Math.PI*2); ctx.fill();
       ctx.fillStyle='#facc15';
-      ctx.fillRect(lx+sw-2.5,ly-7.5,5,2);
-      ctx.fillRect(lx+sw-1.5,ly+5.8,3,3);
+      ctx.fillRect(lx+sw-3,ly-8.8,6,2.2);
+      ctx.fillRect(lx+sw-1.8,ly+7,3.6,3.5);
     }
   }
   if(windmills.length){
@@ -3168,23 +3343,21 @@ function draw(now){
   ctx.setTransform(s,0,0,s,(-cam.x*ZOOM+sx)*DPR,(-cam.y*ZOOM+sy)*DPR);
   drawWorld(now);
 
-  // 晝夜氛圍濾鏡（依地圖與無限關卡呈現晨光、夕陽、夜色或港灣夜景）
-  if(G.state!=='title'&&G.state!=='story'){
-    const cfg=STAGE_CONFIG[Math.min(STAGE_CONFIG.length-1,level-1)];
-    ctx.fillStyle=(gameMode==='endless'&&level>=4)?cfg.sky:curMap.sky;
-    ctx.fillRect(cam.x-20,cam.y-20,(W/ZOOM)+40,(H/ZOOM)+40);
+  // 晝夜氛圍濾鏡（含標題與劇情畫面即時呈現目前景點色調、晨光、夕陽或夜景）
+  const cfg=STAGE_CONFIG[Math.min(STAGE_CONFIG.length-1,(level||1)-1)];
+  ctx.fillStyle=(gameMode==='endless'&&(level||1)>=4)?cfg.sky:curMap.sky;
+  ctx.fillRect(cam.x-20,cam.y-20,(W/ZOOM)+40,(H/ZOOM)+40);
 
-    // 夜晚與黃昏時的溫暖街燈光暈
-    if(curMap.lamp || (gameMode==='endless'&&cfg.lamp)){
-      for(const hy of HROADS) for(const vx of VROADS){
-        if(!onRoad(vx,hy,14)) continue;
-        if(inView(vx-90,hy-90,180,180)){
-          const lg=ctx.createRadialGradient(vx,hy,15,vx,hy,85);
-          lg.addColorStop(0,'rgba(254,240,138,0.22)');
-          lg.addColorStop(1,'rgba(254,240,138,0)');
-          ctx.fillStyle=lg;
-          ctx.beginPath(); ctx.arc(vx,hy,85,0,Math.PI*2); ctx.fill();
-        }
+  // 夜晚與黃昏時的溫暖街燈光暈
+  if(curMap.lamp || (gameMode==='endless'&&cfg.lamp)){
+    for(const hy of HROADS) for(const vx of VROADS){
+      if(!onRoad(vx,hy,14)) continue;
+      if(inView(vx-90,hy-90,180,180)){
+        const lg=ctx.createRadialGradient(vx,hy,15,vx,hy,85);
+        lg.addColorStop(0,'rgba(254,240,138,0.22)');
+        lg.addColorStop(1,'rgba(254,240,138,0)');
+        ctx.fillStyle=lg;
+        ctx.beginPath(); ctx.arc(vx,hy,85,0,Math.PI*2); ctx.fill();
       }
     }
   }
