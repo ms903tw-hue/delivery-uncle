@@ -501,12 +501,24 @@ const BGM_THEMES={
       74,null,78,81, 86,null,81,78,
       74,null,71,74, 78,null,83,null
     ]
+  },
+  // 主畫面專屬主題曲：外送大叔出發進行曲（G 大調輕快明朗）
+  title:{
+    bpm:104, bassType:'triangle', chordType:'triangle', chordSteps:[0,3,6], chordDur:0.22, chordVol:0.044,
+    perc:'bossa', melType:'sine', melDur:0.17, melVol:0.085, melHarm:12,
+    chords:[[43,50,55,59],[42,50,54,57],[40,47,55,59],[48,55,59,64]],
+    melody:[
+      79,null,78,79, 83,null,79,null,
+      78,null,74,null, 76,null,79,null,
+      79,null,81,83, 86,null,83,null,
+      81,null,79,76, 74,null,null,null
+    ]
   }
 };
 
 function getBgmTheme(){
-  const key=(G.state==='title' && !$('mapSel').classList.contains('show')) ? 'tamsui' : (curMap.theme||'dadaocheng');
-  return BGM_THEMES[key] || BGM_THEMES.tamsui;
+  const key=(G.state==='title') ? 'title' : (curMap.theme||'dadaocheng');
+  return BGM_THEMES[key] || BGM_THEMES.title;
 }
 
 function bpm(){
@@ -890,6 +902,47 @@ function bfs(a,b){
   path.reverse(); return path;
 }
 const pathLen=(a,b)=>bfs(a,b).length*CELL;
+function buildNavDots(a,b){
+  const raw=bfs(a,b);
+  if(!raw.length) return [];
+  const pts=raw.map(c=>({x:(c%GW)*CELL+CELL/2, y:((c/GW)|0)*CELL+CELL/2}));
+  const laneOff=Math.min(30,Math.round(HALF*0.46));
+  const out=[];
+  for(let i=0;i<pts.length;i++){
+    const p=pts[i];
+    const p0=pts[Math.max(0,i-2)], p1=pts[Math.min(pts.length-1,i+2)];
+    const dx=p1.x-p0.x, dy=p1.y-p0.y;
+    let sx=p.x, sy=p.y;
+    if(Math.hypot(b.x-p.x,b.y-p.y)>56){
+      if(Math.abs(dx)>=Math.abs(dy)){
+        let nearH=null, best=1e9;
+        for(const hy of HROADS){const d=Math.abs(p.y-hy); if(d<best){best=d; nearH=hy;}}
+        if(nearH!==null && best<HALF){
+          const candY=nearH+(dx>=0?laneOff:-laneOff);
+          if(onRoad(p.x,candY,12)) sy=candY;
+        }
+      }else{
+        let nearV=null, best=1e9;
+        for(const vx of VROADS){const d=Math.abs(p.x-vx); if(d<best){best=d; nearV=vx;}}
+        if(nearV!==null && best<HALF){
+          const candX=nearV+(dy<0?laneOff:-laneOff);
+          if(onRoad(candX,p.y,12)) sx=candX;
+        }
+      }
+    }
+    if(out.length){
+      const prev=out[out.length-1];
+      const gap=Math.hypot(sx-prev.x,sy-prev.y);
+      if(gap<14) continue;
+      if(gap>34){
+        const steps=Math.min(4,Math.floor(gap/20));
+        for(let s=1;s<steps;s++) out.push({x:prev.x+(sx-prev.x)*s/steps, y:prev.y+(sy-prev.y)*s/steps});
+      }
+    }
+    out.push({x:sx,y:sy});
+  }
+  return out;
+}
 
 /* ===================== 遊戲狀態 ===================== */
 const G={state:'title'};
@@ -911,12 +964,13 @@ const keys={};
 const CAR_TYPES=['taxi','truck','sedan','speed'];
 const CAR_COLORS=['#38bdf8','#f87171','#a78bfa','#34d399','#fbbf24','#f472b6','#e5e7eb'];
 
+const TL_CYCLE=9.0;
 function tlStates(tl){
   const t=tl.timer;
-  if(t<5.5) return {h:'green', v:'red', hRem:Math.ceil(5.5-t), vRem:Math.ceil(7.0-t)};
-  if(t<7.0) return {h:'yellow', v:'red', hRem:Math.ceil(7.0-t), vRem:Math.ceil(7.0-t)};
-  if(t<12.5) return {h:'red', v:'green', hRem:Math.ceil(14.0-t), vRem:Math.ceil(12.5-t)};
-  return {h:'red', v:'yellow', hRem:Math.ceil(14.0-t), vRem:Math.ceil(14.0-t)};
+  if(t<3.5) return {h:'green', v:'red', hRem:Math.ceil(3.5-t), vRem:Math.ceil(4.5-t)};
+  if(t<4.5) return {h:'yellow', v:'red', hRem:Math.ceil(4.5-t), vRem:Math.ceil(4.5-t)};
+  if(t<8.0) return {h:'red', v:'green', hRem:Math.ceil(9.0-t), vRem:Math.ceil(8.0-t)};
+  return {h:'red', v:'yellow', hRem:Math.ceil(9.0-t), vRem:Math.ceil(9.0-t)};
 }
 
 function initTrafficSystem(){
@@ -925,8 +979,8 @@ function initTrafficSystem(){
     if(!onRoad(vx,hy,14)) continue;
     const tl={
       x:vx, y:hy,
-      timer:rand(0,14),
-      hState:'green', vState:'red', hRem:6, vRem:7,
+      timer:rand(0,TL_CYCLE),
+      hState:'green', vState:'red', hRem:4, vRem:5,
       pState:null
     };
     const st=tlStates(tl);
@@ -950,7 +1004,7 @@ function initTrafficSystem(){
           x:rand(x0,x1),
           y:hy-HALF-9,
           dir:Math.random()<0.5?1:-1,
-          speed:rand(32,46),
+          speed:rand(44,58),
           state:'stroll',
           waitTl:null,
           role:pick(PED_NAMES),
@@ -993,53 +1047,57 @@ function resetGame(){
 function updateTrafficAndPeds(dt){
   if(redCooldown>0) redCooldown-=dt;
 
-  // 更新號誌（橫向與縱向交替綠紅燈，週期 14 秒）
+  // 更新號誌（橫向與縱向交替綠紅燈，週期 9 秒）
   for(const tl of trafficLights){
-    tl.timer=(tl.timer+dt)%14;
+    tl.timer=(tl.timer+dt)%TL_CYCLE;
     const st=tlStates(tl);
     tl.hState=st.h; tl.vState=st.v;
     tl.hRem=st.hRem; tl.vRem=st.vRem;
 
-    // 闖紅燈判定（先判斷進入路口時當向是否放行；綠／黃燈合法進路口後轉彎不再誤判闖紅燈）
+    // 闖紅燈判定（改以方形路口區＋實際行進軸向判定，貼邊行駛不漏判、綠／黃燈合法進入後轉彎不誤判）
     if(G.state==='play'&&countdown<=0){
-      const dP=Math.hypot(P.x-tl.x, P.y-tl.y);
-      if(dP>=HALF+14){
+      const dx=P.x-tl.x, dy=P.y-tl.y;
+      const inBox = Math.abs(dx) < HALF + 12 && Math.abs(dy) < HALF + 12;
+      if(!inBox){
         tl.pState=null;
       }else{
-        const enterAxis = ((dP>HALF-4 ? Math.abs(P.x-tl.x)>=Math.abs(P.y-tl.y) : Math.abs(P.fx)>=Math.abs(P.fy))) ? 'h' : 'v';
-        const enterState = enterAxis==='h' ? tl.hState : tl.vState;
-        if(tl.pState===null && (enterState==='green' || enterState==='yellow')){
-          tl.pState='ok';
-        }
-        if(tl.pState===null && enterState==='red' && dP<HALF-8 && P.moving && redCooldown<=0){
-          tl.pState='violated';
-          // 檢查路口附近是否有巡邏警車（380 像素內）
-          let cop = null;
-          for(const c of cars){
-            if(c.type==='police' && dist(carPos(c), P) < 380){
-              cop = c; break;
+        const inCore = Math.abs(dx) < HALF - 2 && Math.abs(dy) < HALF - 2;
+        const moveAxis = (P.moving && (Math.abs(P.fx) > 0.2 || Math.abs(P.fy) > 0.2))
+          ? (Math.abs(P.fx) >= Math.abs(P.fy) ? 'h' : 'v')
+          : (Math.abs(dx) >= Math.abs(dy) ? 'h' : 'v');
+        const enterState = moveAxis==='h' ? tl.hState : tl.vState;
+        if(tl.pState===null && inCore){
+          if(enterState==='green' || enterState==='yellow'){
+            tl.pState='ok';
+          } else if(enterState==='red' && P.moving && redCooldown<=0){
+            tl.pState='violated';
+            redCooldown=0.6;
+            // 檢查路口附近是否有巡邏警車（380 像素內）
+            let cop = null;
+            for(const c of cars){
+              if(c.type==='police' && dist(carPos(c), P) < 380){
+                cop = c; break;
+              }
             }
-          }
 
-          if(cop){
-            // 附近有警車目擊闖紅燈！發動追捕！
-            cop.chasing = true;
-            cop.chaseTimer = 6.0; // 追捕 6 秒
-            cop.speed = 225;
-            cop.sirenTimer = 0;
-            cop.turnCooldown = 0;
-            redCooldown = 3.5;
-            sfx('siren', 1);
-            shake = 0.25;
-            showBanner('🚨 警車追捕中！','巡邏警車目擊闖紅燈！快利用轉彎與衝刺甩開！','#f43f5e');
-            pop(P.x, P.y-34, '🚔 警察：前面騎士停車！違規闖紅燈！', '#ef4444', 20);
-          } else {
-            // 一般罰單
-            redCooldown=3.5;
-            stats.score=Math.max(0, stats.score-30);
-            sfx('whistle');
-            shake=0.2;
-            pop(P.x, P.y-35, '🚨 闖紅燈！違規扣 30 分', '#ef4444', 20);
+            if(cop){
+              // 附近有警車目擊闖紅燈！發動追捕！
+              cop.chasing = true;
+              cop.chaseTimer = 6.0; // 追捕 6 秒
+              cop.speed = 225;
+              cop.sirenTimer = 0;
+              cop.turnCooldown = 0;
+              sfx('siren', 1);
+              shake = 0.25;
+              showBanner('🚨 警車追捕中！','巡邏警車目擊闖紅燈！快利用轉彎與衝刺甩開！','#f43f5e');
+              pop(P.x, P.y-34, '🚔 警察：前面騎士停車！違規闖紅燈！', '#ef4444', 20);
+            } else {
+              // 一般罰單
+              stats.score=Math.max(0, stats.score-30);
+              sfx('whistle');
+              shake=0.2;
+              pop(P.x, P.y-35, '🚨 闖紅燈！違規扣 30 分', '#ef4444', 20);
+            }
           }
         }
       }
@@ -1982,7 +2040,7 @@ function update(dt){
       }else deliver();
     }else if(order.time<=0) orderFail();
     if(order&&order.time<5){const s=Math.ceil(order.time);if(s!==lastTick){lastTick=s;sfx('tick');}}
-    if(order){pathTimer-=dt;if(pathTimer<=0){pathTimer=0.25;path=bfs(P,order.stage==='pickup'?order.shop.door:order.cust.door);}}
+    if(order){pathTimer-=dt;if(pathTimer<=0){pathTimer=0.25;path=buildNavDots(P,order.stage==='pickup'?order.shop.door:order.cust.door);}}
   }
   followCam(dt);
 }
@@ -2515,11 +2573,11 @@ function drawWorld(now){
     ctx.beginPath(); ctx.arc(p.door.x,p.door.y,20,0,Math.PI*2); ctx.stroke();
     ctx.setLineDash([]);
   }
-  // 導航光點
+  // 導航光點（沿台灣右行制順向車道排列引導）
   if(order&&path.length){
-    ctx.fillStyle=order.stage==='pickup'?'rgba(251,191,36,.8)':'rgba(52,211,153,.8)';
+    ctx.fillStyle=order.stage==='pickup'?'rgba(251,191,36,.85)':'rgba(52,211,153,.85)';
     const off=Math.floor(now/120)%3;
-    for(let i=2+off;i<path.length;i+=3){const c=path[i];ctx.beginPath();ctx.arc((c%GW)*CELL+CELL/2,((c/GW)|0)*CELL+CELL/2,4,0,Math.PI*2);ctx.fill();}
+    for(let i=2+off;i<path.length;i+=3){const pt=path[i];ctx.beginPath();ctx.arc(pt.x,pt.y,4,0,Math.PI*2);ctx.fill();}
   }
   // 目標光圈與超顯眼狀態標籤（取餐點 vs 送達這裡）
   if(tgt){
