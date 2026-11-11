@@ -53,6 +53,38 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
 
 #howto .card{text-align:left}
 #howto h2{text-align:center}
+#story .card{border-color:#fbbf24;background:linear-gradient(165deg,#17233d,#0c1324);padding:16px 20px;max-width:540px}
+.storyTop{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.storyTag{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#1e293b;border:1px solid #f59e0b;color:#fde68a;font-size:12px;font-weight:900}
+.storySkip{background:none;border:1px solid #475569;color:#94a3b8;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit}
+.storySkip:hover{color:#fff;border-color:#94a3b8}
+.storyBox{display:flex;align-items:center;gap:14px;background:#0b1222;border:1.5px solid #334155;border-radius:14px;padding:14px 16px;text-align:left;min-height:92px;cursor:pointer}
+.storyAva{font-size:42px;line-height:1;flex:0 0 auto;width:54px;height:54px;border-radius:14px;background:#16213a;border:1px solid #334155;display:flex;align-items:center;justify-content:center}
+.storyBody{flex:1;min-width:0}
+.storySpeaker{font-size:13px;font-weight:900;color:#6ee7b7;margin-bottom:4px}
+.storyText{font-size:15px;line-height:1.6;color:#f1f5f9;font-weight:700}
+.storyFoot{display:flex;align-items:center;justify-content:space-between;margin-top:12px;gap:10px}
+.storyDots{display:flex;gap:6px;align-items:center}
+.storyDots span{width:8px;height:8px;border-radius:50%;background:#334155;transition:all .2s}
+.storyDots span.on{width:20px;border-radius:999px;background:#fbbf24}
+
+.modes{display:inline-flex;gap:6px;background:#0b1222;border:1.5px solid #334155;border-radius:14px;padding:4px;margin:6px 0 2px}
+.modeBtn{border:none;background:transparent;color:#94a3b8;font-weight:900;font-size:13px;padding:6px 14px;border-radius:10px;cursor:pointer;font-family:inherit;transition:all .15s}
+.modeBtn.sel{background:linear-gradient(135deg,#f59e0b,#d97706);color:#1a1204;box-shadow:0 2px 8px rgba(245,158,11,.35)}
+#mapSel .card{max-width:650px;border-color:#38bdf8;background:linear-gradient(160deg,#132038,#0c1324)}
+.mapGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+@media (max-width:520px){.mapGrid{grid-template-columns:1fr}}
+.mapCard{position:relative;text-align:left;background:#0b1222;border:2px solid #334155;border-radius:14px;padding:10px 12px;color:#e2e8f0;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:10px;transition:transform .12s,border-color .12s,background .12s}
+.mapCard:hover:not(.locked){border-color:#38bdf8;transform:translateY(-2px)}
+.mapCard.sel{border-color:#fbbf24;background:#241e0e;box-shadow:0 0 0 2px rgba(251,191,36,.25)}
+.mapCard.locked{opacity:.55;cursor:not-allowed;filter:grayscale(.45)}
+.mapIc{font-size:32px;width:46px;height:46px;border-radius:12px;background:#16213a;border:1px solid #334155;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.mapInfo{flex:1;min-width:0}
+.mapName{font-size:15px;font-weight:900;color:#fde68a;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.mapDesc{font-size:12px;color:#94a3b8;margin-top:2px;line-height:1.35}
+.mapMeta{font-size:11px;font-weight:800;color:#6ee7b7;margin-top:4px}
+.mapCard.locked .mapMeta{color:#fca5a5}
+.reason.win{color:#6ee7b7}
 .howGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .howBox{background:#0b1222;border:1px solid #334155;border-radius:12px;padding:8px 10px;font-size:13px;line-height:1.55;color:#cbd5e1}
 .howBox b{color:#fbbf24}
@@ -80,14 +112,18 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
 <button class="hudBtn" id="pauseBtn" aria-label="暫停">⏸</button>
 <button class="hudBtn" id="muteBtn" aria-label="靜音">🔊</button>
 <button class="hudBtn" id="fullBtn" aria-label="全螢幕" title="全螢幕"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
-<button id="throwBtn" aria-label="丟珍奶"><span class="ic">🧋</span><span id="ammoTxt">×3</span></button>
+<button id="throwBtn" aria-label="丟雞腿"><span class="ic">🍗</span><span id="ammoTxt">×3</span></button>
 
 <!-- 開始畫面 -->
 <div class="overlay show" id="title"><div class="card">
   <div class="logo">🛵💨</div>
   <div class="gname">外送大叔：限時爆走</div>
   <div class="gsub">閃過車流・甩開野狗・準時送達！</div>
-  <div class="best">🏆 本機最高分：<span id="bestTitle">0</span></div>
+  <div class="best">🏆 最高紀錄：<span id="bestTitle">0</span>　｜　🗺️ 已解鎖：<span id="unlockTxt">1/4</span></div>
+  <div class="modes" role="group" aria-label="遊戲模式">
+    <button class="modeBtn sel" data-mode="story">🏆 闖關模式</button>
+    <button class="modeBtn" data-mode="endless">♾️ 無限模式</button>
+  </div>
   <div class="chars">
     <button class="char" data-char="M">
       <canvas id="prevM" width="136" height="76"></canvas>
@@ -103,8 +139,38 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
   <div>
     <button class="btn primary" id="startBtn">🚀 開始外送</button>
     <button class="btn" id="howBtn">📖 玩法說明</button>
+    <button class="btn" id="storyBtn" style="min-width:auto;padding:11px 14px">📜 故事</button>
   </div>
   <div class="small">單機遊戲・不需網路・建議橫向遊玩 <span style="display:inline-block;margin-left:6px;padding:2px 6px;border-radius:6px;background:#1e293b;border:1px solid #475569;color:#38bdf8;font-weight:bold;">v1.3.3</span></div>
+</div></div>
+
+<!-- 開頭派單故事 -->
+<div class="overlay" id="story"><div class="card">
+  <div class="storyTop">
+    <span class="storyTag">📱 外送系統派單中</span>
+    <button class="storySkip" id="storySkip">略過 ⏭</button>
+  </div>
+  <div class="storyBox" id="storyBox">
+    <div class="storyAva" id="storyAva">📱</div>
+    <div class="storyBody">
+      <div class="storySpeaker" id="storySpeaker">系統通知</div>
+      <div class="storyText" id="storyText"></div>
+    </div>
+  </div>
+  <div class="storyFoot">
+    <div class="storyDots" id="storyDots"></div>
+    <button class="btn primary" id="storyNext" style="margin:0;min-width:168px">下一句 ▶</button>
+  </div>
+</div></div>
+
+<!-- 選擇地圖 -->
+<div class="overlay" id="mapSel"><div class="card">
+  <h2 id="mapSelTitle">🗺️ 選擇配送區域</h2>
+  <p id="mapSelSub" style="margin:0 0 6px;color:#94a3b8;font-size:13px">完成關卡目標即可解鎖下一個街區！</p>
+  <div class="mapGrid" id="mapGrid"></div>
+  <div style="margin-top:4px">
+    <button class="btn" id="mapBack">⬅ 返回</button>
+  </div>
 </div></div>
 
 <!-- 玩法說明 -->
@@ -112,11 +178,11 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
   <h2>📖 玩法說明</h2>
   <div class="howGrid">
     <div class="howBox"><div class="t">🎯 目標</div>系統自動派單：先騎到<b>店家</b>取餐，再在<b>時限內</b>送到<b>顧客</b>手上。跟著地上的光點路線走，盡量拿高分！</div>
-    <div class="howBox"><div class="t">🕹️ 操作</div><b>手機</b>：按住畫面任一處拖曳＝搖桿移動；右下按鈕＝丟珍奶。<br><b>電腦</b>：WASD／方向鍵移動、空白鍵丟珍奶、P 暫停、M 靜音；滑鼠按住拖曳也能移動。</div>
+    <div class="howBox"><div class="t">🕹️ 操作</div><b>手機</b>：按住畫面任一處拖曳＝搖桿移動；右下按鈕＝丟雞腿。<br><b>電腦</b>：WASD／方向鍵移動、空白鍵丟雞腿、P 暫停、M 靜音；滑鼠按住拖曳也能移動。</div>
     <div class="howBox"><div class="t">💯 計分</div>送達 = 100 分 + 剩餘秒數 × 12，依星級給予額外獎勵與回血。<br>連續準時送達 <b>3 單 (Combo ≥ 3)</b> 必定解鎖<b>【⭐金牌特急單】</b>獲雙倍工資！驚險閃車 +10，禮讓行人 +15。</div>
     <div class="howBox"><div class="t">🚦 交通法規</div>路口<b>紅綠燈</b>：闖紅燈罰 <b>-30 分</b>；若<b>附近有巡邏警車</b>會引發<b>警車追捕</b>！利用轉彎與衝刺甩開 <b>+35 分</b>，被捕重罰 <b>-60 分</b>！<br>斑馬線<b>禮讓行人 +15 分</b>，撞人 <b>-50 分與 35 體力</b>。<br>遇到鳴笛救護車<b>靠邊禮讓 +25 分</b>，擋道阻礙救援重罰 <b>-50 分與 20 體力</b>！</div>
-    <div class="howBox"><div class="t">⚠️ 危險</div>撞車 −25 體力、被野狗咬 −15 體力。<br>拾取 🍱 回復體力、🧋 補充珍奶、⚡ 能量飲料衝刺加速 3.5 秒。</div>
-    <div class="howBox"><div class="t">📈 難度</div>每送 2 單升 1 級：第 2 級起<b>野狗會追人</b>，夜晚時段<b>車速飆升</b>且時限更緊。</div>
+    <div class="howBox"><div class="t">⚠️ 危險</div>撞車 −25 體力、被野狗咬 −15 體力。<br>拾取 🍱 回復體力、🍗 補充雞腿、⚡ 能量飲料衝刺加速 3.5 秒。</div>
+    <div class="howBox"><div class="t">📈 模式</div><b>🏆 闖關模式</b>：在每張地圖完成指定單數即可過關並<b>解鎖新地圖</b>（夜市施工繞道、科技高速大道、河濱跨河大橋）。<br><b>♾️ 無限模式</b>：在已解鎖的地圖無限跑單，難度隨單數飆升，挑戰最高分！</div>
     <div class="howBox"><div class="t">💀 結束</div><b>體力歸零</b>或累積 <b>3 個差評</b>（訂單逾時）就結束。連續準時送 5 單可消除 1 個差評。</div>
   </div>
   <div style="text-align:center;margin-top:8px"><button class="btn primary" id="howClose">我知道了</button></div>
@@ -133,20 +199,22 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
 
 <!-- 結束畫面 -->
 <div class="overlay" id="over"><div class="card">
-  <h2>🏁 今日收工</h2>
+  <h2 id="overTitle">🏁 今日收工</h2>
   <div class="reason" id="overReason">體力耗盡</div>
   <div class="bigScore" id="overScore">0</div>
   <span class="newRec" id="newRec">🎉 新紀錄！</span>
   <div class="stats">
     <div class="stat"><div class="v" id="stDel">0</div><div class="k">送達單數</div></div>
     <div class="stat"><div class="v" id="stCombo">0</div><div class="k">最高連擊</div></div>
-    <div class="stat"><div class="v" id="stLv">1</div><div class="k">到達關卡</div></div>
+    <div class="stat"><div class="v" id="stLv">1</div><div class="k" id="stLvLbl">到達關卡</div></div>
     <div class="stat"><div class="v" id="stNear">0</div><div class="k">驚險閃過</div></div>
     <div class="stat"><div class="v" id="stDog">0</div><div class="k">定住野狗</div></div>
     <div class="stat"><div class="v" id="stTime">0s</div><div class="k">跑單時間</div></div>
   </div>
   <p>🏆 歷史最高分：<b id="bestOver" style="color:#fbbf24">0</b>　(最高紀錄：Stage <b id="bestStageTxt" style="color:#6ee7b7">1</b>)</p>
+  <button class="btn green" id="nextStageBtn" style="display:none">➡ 挑戰下一關</button>
   <button class="btn primary" id="againBtn">🔄 再玩一次</button>
+  <button class="btn" id="mapBtn">🗺️ 換地圖</button>
   <button class="btn" id="homeBtn2">🏠 回主畫面</button><div style="font-size:11px;color:#64748b;margin-top:6px">外送大叔 v1.3.3</div>
 </div></div>
 
@@ -191,7 +259,7 @@ function resize(){
 }
 
 /* ===================== 音效與音樂（Web Audio 即時合成，無外部檔案） ===================== */
-const Snd={ctx:null,master:null,sfx:null,music:null,noiseBuf:null,seq:null,nextT:0,step:0};
+const Snd={ctx:null,master:null,sfx:null,music:null,noiseBuf:null,seq:null,nextT:0,step:0,lastSiren:0,lastAmb:0};
 let muted=store.get('dug_muted',false);
 
 function unlockAudio(){
@@ -259,7 +327,51 @@ function noise(dur,o={}){
   src.start(t0); src.stop(t0+dur+0.02);
 }
 
-function sfx(name){
+function playSirenBurst(kind, volMul=1){
+  const c=Snd.ctx; if(!c||muted) return;
+  const t=c.currentTime;
+  if(kind==='siren'){
+    if(t - Snd.lastSiren < 0.65) return;
+    Snd.lastSiren=t;
+    const osc=c.createOscillator(), flt=c.createBiquadFilter(), g=c.createGain();
+    osc.type='sawtooth';
+    flt.type='lowpass'; flt.frequency.setValueAtTime(2100,t);
+    osc.frequency.setValueAtTime(620,t);
+    osc.frequency.exponentialRampToValueAtTime(1260,t+0.22);
+    osc.frequency.exponentialRampToValueAtTime(620,t+0.44);
+    osc.frequency.exponentialRampToValueAtTime(1260,t+0.66);
+    osc.frequency.exponentialRampToValueAtTime(620,t+0.88);
+    const v=0.22*clamp(volMul,0.2,1.2);
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.linearRampToValueAtTime(v,t+0.025);
+    g.gain.setValueAtTime(v,t+0.82);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+0.89);
+    osc.connect(flt); flt.connect(g); g.connect(Snd.sfx);
+    osc.start(t); osc.stop(t+0.91);
+  } else {
+    if(t - Snd.lastAmb < 0.85) return;
+    Snd.lastAmb=t;
+    const osc=c.createOscillator(), flt=c.createBiquadFilter(), g=c.createGain();
+    osc.type='sawtooth';
+    flt.type='lowpass'; flt.frequency.setValueAtTime(1750,t);
+    osc.frequency.setValueAtTime(820,t);
+    osc.frequency.setValueAtTime(820,t+0.25);
+    osc.frequency.linearRampToValueAtTime(615,t+0.27);
+    osc.frequency.setValueAtTime(615,t+0.52);
+    osc.frequency.linearRampToValueAtTime(820,t+0.54);
+    osc.frequency.setValueAtTime(820,t+0.79);
+    osc.frequency.linearRampToValueAtTime(615,t+0.81);
+    const v=0.24*clamp(volMul,0.2,1.2);
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.linearRampToValueAtTime(v,t+0.025);
+    g.gain.setValueAtTime(v,t+1.00);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+1.07);
+    osc.connect(flt); flt.connect(g); g.connect(Snd.sfx);
+    osc.start(t); osc.stop(t+1.09);
+  }
+}
+
+function sfx(name, volMul=1){
   if(!Snd.ctx||muted) return;
   const t=Snd.ctx.currentTime;
   switch(name){
@@ -279,8 +391,8 @@ function sfx(name){
     case 'tick': tone(1250,0.035,{type:'square',vol:0.08}); break;
     case 'empty': tone(160,0.1,{type:'square',vol:0.12}); break;
     case 'whistle': tone(1800,0.12,{type:'sine',vol:0.25}); tone(1650,0.22,{type:'sine',vol:0.22,t:t+0.12}); break;
-    case 'siren': [760, 960, 760, 960].forEach((f,i)=>tone(f,0.11,{type:'sawtooth',vol:0.18,t:t+i*0.12})); break;
-    case 'amb': tone(520,0.22,{type:'sine',vol:0.22}); tone(420,0.26,{type:'sine',vol:0.22,t:t+0.23}); break;
+    case 'siren': playSirenBurst('siren', volMul); break;
+    case 'amb': playSirenBurst('amb', volMul); break;
     case 'praise': tone(587,0.1,{type:'triangle',vol:0.18}); tone(880,0.2,{type:'triangle',vol:0.2,t:t+0.1}); break;
     case 'count': tone(660,0.12,{type:'square',vol:0.12}); break;
     case 'go': tone(1046,0.3,{type:'square',vol:0.15}); break;
@@ -374,72 +486,158 @@ function setMuted(m){
   if(Snd.master) Snd.master.gain.value=m?0:0.9;
 }
 
-/* ===================== 地圖（道路網格，房子不能穿越） ===================== */
-const MAP={w:1800,h:1200};
-const HALF=65;
-const HROADS=[150,600,1050], VROADS=[150,650,1150,1650];
+/* ===================== 多地圖系統（道路網格、施工障礙、跨河橋樑） ===================== */
+const MAPS=[
+  {
+    id:'oldtown', idx:0, icon:'🏘️', name:'1. 晨光老街區',
+    shortDesc:'寬敞標準街區・新手上路首選',
+    mechTag:'標準紅綠燈・少許野狗',
+    goalOrders:4, dogBase:1, carBase:8, speedMul:0.95, timeMul:1.0, speedRatio:0.08, energyRatio:0.28,
+    sky:'rgba(254,240,138,0.12)', lamp:false, ground:'#0f131a',
+    size:{w:1800,h:1200}, half:65, hRoads:[150,600,1050], vRoads:[150,650,1150,1650], seed:20261110,
+    hues:['#7c2d12','#9a3412','#78350f','#134e4a','#374151'],
+    roadblocks:[], river:null, bridges:[],
+    shops:[
+      ['阿妹麵線','🍜',0,'top',0],['老王便當','🍱',1,'bottom',1],['阿嬤滷味','🍢',2,'bottom',0],
+      ['茶語珍奶','🧋',3,'bottom',1],['夜市雞排','🍗',5,'top',0]
+    ],
+    customers:[
+      ['文林公寓','🏢',0,'bottom',1],['科技辦公室','💼',1,'top',0],['河畔大樓','🏙️',2,'top',1],
+      ['公園管理處','🌳',2,'top',0],['補習班','📚',3,'top',0],['青年宿舍','🏫',4,'top',0],
+      ['社區診所','🏥',4,'bottom',1],['老街透天','🏠',5,'bottom',1]
+    ]
+  },
+  {
+    id:'nightmarket', idx:1, icon:'🏮', name:'2. 夜市美食街',
+    shortDesc:'窄巷攤販施工封路・考驗繞道反應',
+    mechTag:'路幅較窄・🚧施工路障・野狗多',
+    goalOrders:5, dogBase:4, carBase:10, speedMul:1.02, timeMul:0.92, speedRatio:0.12, energyRatio:0.30,
+    sky:'rgba(249,115,22,0.18)', lamp:true, ground:'#140f14',
+    size:{w:1800,h:1280}, half:52, hRoads:[130,480,830,1150], vRoads:[150,650,1150,1650], seed:20261122,
+    hues:['#7c2d12','#9a3412','#831843','#713f12','#581c87'],
+    roadblocks:[
+      {x:860,y:428,w:80,h:104,label:'🚧 夜市施工'},
+      {x:598,y:615,w:104,h:80,label:'🚧 攤販封街'},
+      {x:1360,y:778,w:80,h:104,label:'🚧 道路維修'}
+    ],
+    river:null, bridges:[],
+    shops:[
+      ['大腸包小腸','🌭',0,'top',0],['藥燉排骨','🍲',1,'top',1],['蚵仔煎攤','🍳',2,'top',0],
+      ['木瓜牛奶','🥛',3,'bottom',1],['炭烤香雞排','🍗',5,'top',1]
+    ],
+    customers:[
+      ['夜市牌樓','🏮',0,'bottom',1],['廟口廣場','⛩️',3,'top',0],['KTV 歡唱館','🎤',4,'bottom',1],
+      ['巷弄套房','🏠',6,'top',0],['地下停車場','🅿️',7,'top',1],['電玩遊樂場','🕹️',8,'bottom',0],
+      ['文創市集','🎪',2,'bottom',1],['旅宿大廳','🏨',6,'bottom',1]
+    ]
+  },
+  {
+    id:'techpark', idx:2, icon:'🏙️', name:'3. 都會科技園區',
+    shortDesc:'寬闊高速大道・跑車與警車頻現',
+    mechTag:'車速飆升・⚡衝刺補給多',
+    goalOrders:5, dogBase:3, carBase:14, speedMul:1.26, timeMul:0.86, speedRatio:0.36, energyRatio:0.46,
+    sky:'rgba(30,27,75,0.34)', lamp:true, ground:'#0a1020',
+    size:{w:2100,h:1300}, half:72, hRoads:[180,650,1120], vRoads:[180,820,1460,1920], seed:20261133,
+    hues:['#1e3a5f','#312e81','#374151','#0f766e','#1e293b'],
+    roadblocks:[], river:null, bridges:[],
+    shops:[
+      ['精品手沖咖啡','☕',0,'top',0],['健康舒肥餐','🥗',1,'bottom',1],['日式丼飯屋','🍛',2,'bottom',0],
+      ['深夜拉麵吧','🍜',3,'bottom',1],['美式漢堡站','🍔',5,'top',0]
+    ],
+    customers:[
+      ['研發總部','🏢',0,'bottom',1],['AI 實驗室','💻',1,'top',0],['新創孵化器','🚀',2,'top',1],
+      ['國際會展館','🏛️',3,'top',0],['高鐵轉運站','🚄',4,'top',0],['商務大飯店','🏨',4,'bottom',1],
+      ['雲端機房','🖥️',5,'bottom',1],['數位影城','🎬',2,'top',0]
+    ]
+  },
+  {
+    id:'harbor', idx:3, icon:'⚓', name:'4. 河濱港灣區',
+    shortDesc:'大河阻隔南北岸・善用兩座跨河大橋',
+    mechTag:'🌉 跨河瓶頸・警車高密巡邏',
+    goalOrders:6, dogBase:5, carBase:15, speedMul:1.20, timeMul:0.83, speedRatio:0.24, energyRatio:0.36,
+    sky:'rgba(2,6,23,0.44)', lamp:true, ground:'#08121a',
+    size:{w:1900,h:1360}, half:58, hRoads:[140,440,920,1220], vRoads:[170,680,1230,1730], seed:20261144,
+    hues:['#164e63','#1e3a8a','#334155','#7c2d12','#065f46'],
+    roadblocks:[], river:{y:615,h:130}, bridges:[170,1230],
+    shops:[
+      ['港邊現撈海產','🦀',0,'top',0],['碼頭黑輪攤','🍢',1,'bottom',1],['貨櫃美式餐車','🌮',2,'top',1],
+      ['港式茶餐廳','🥟',3,'bottom',0],['漁人燒烤屋','🍤',5,'top',0]
+    ],
+    customers:[
+      ['北岸造船廠','⚓',0,'bottom',1],['海關辦公樓','🏢',1,'top',0],['漁會拍賣場','🐟',2,'bottom',0],
+      ['渡輪售票亭','⛴️',3,'top',0],['貨櫃調度站','🚢',4,'top',1],['港警分局','🚓',4,'bottom',0],
+      ['海景餐廳','🌃',5,'bottom',1],['燈塔管理處','🗼',3,'top',1]
+    ]
+  }
+];
+
+let curMapIdx=0, curMap=MAPS[0];
+let MAP={w:1800,h:1200}, HALF=65, HROADS=[], VROADS=[];
+let roadblocks=[], river=null, bridges=[];
+let blocks=[], big=[], shops=[], customers=[], places=[];
+const CELL=20;
+let GW=90, GH=60, walk=new Uint8Array(90*60), prevArr=new Int32Array(90*60);
+
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function gaps(cs,total){const res=[];let p=0;for(const c of cs){if(c-HALF>p)res.push([p,c-HALF]);p=c+HALF;}if(p<total)res.push([p,total]);return res;}
 function onRoad(x,y,r){
   if(x<r||y<r||x>MAP.w-r||y>MAP.h-r) return false;
+  if(river && y+r>river.y && y-r<river.y+river.h){
+    let onBridge=false;
+    for(const bx of bridges){ if(x>=bx-HALF+r && x<=bx+HALF-r){ onBridge=true; break; } }
+    if(!onBridge) return false;
+  }
+  for(const rb of roadblocks){
+    if(x+r>rb.x && x-r<rb.x+rb.w && y+r>rb.y && y-r<rb.y+rb.h) return false;
+  }
   for(let i=0;i<HROADS.length;i++){const c=HROADS[i]; if(y>=c-HALF+r&&y<=c+HALF-r) return true;}
   for(let i=0;i<VROADS.length;i++){const c=VROADS[i]; if(x>=c-HALF+r&&x<=c+HALF-r) return true;}
   return false;
 }
-function gaps(cs,total){const res=[];let p=0;for(const c of cs){if(c-HALF>p)res.push([p,c-HALF]);p=c+HALF;}if(p<total)res.push([p,total]);return res;}
-function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
-const srand=mulberry(20261110);
-const blocks=[];
-const BUILDING_HUES = [
-  '#7c2d12', // 台灣經典紅磚老宅 (深磚紅)
-  '#9a3412', // 暖色陶土公寓 (赤陶紅)
-  '#78350f', // 傳統洗石子泥作樓 (黃褐土)
-  '#134e4a', // 經典復古綠磁磚公寓 (孔雀綠)
-  '#374151', // 清水模都會商辦 (水泥暖灰)
-  '#581c87', // 現代深紫都會大廈 (都會紫)
-  '#1e3a5f'  // 現代玻璃商辦大樓 (深海藍)
-];
-for(const [y0,y1] of gaps(HROADS,MAP.h)) for(const [x0,x1] of gaps(VROADS,MAP.w)){
-  const b={x:x0,y:y0,w:x1-x0,h:y1-y0,big:(x1-x0)>200&&(y1-y0)>200,win:[],trees:[]};
-  if(b.big){
-    b.hue=BUILDING_HUES[(srand()*BUILDING_HUES.length)|0];
-    b.hasShed=srand()<0.5;
-    b.shedCol=srand()<0.5?'#1d4ed8':'#15803d'; // 台灣經典頂樓藍色/綠色鐵皮加蓋
-    for(let wx=b.x+16;wx<b.x+b.w-16;wx+=28) for(let wy=b.y+20;wy<b.y+b.h-20;wy+=26) if(srand()<0.33) b.win.push([wx,wy]);
-  }else{
-    const n=Math.floor(b.w*b.h/2600);
-    for(let i=0;i<n;i++) b.trees.push([b.x+8+srand()*(b.w-16),b.y+8+srand()*(b.h-16),8+srand()*8]);
-  }
-  blocks.push(b);
-}
-const big=blocks.filter(b=>b.big);
 function mkPlace(name,icon,type,bi,side,off){
   const b=big[bi], w=160, h=64;
   const x=b.x+20+off*(b.w-200);
   const y=side==='top'?b.y+14:b.y+b.h-14-h;
   return {name,icon,type,x,y,w,h,side,door:{x:x+w/2,y:side==='top'?b.y-30:b.y+b.h+30}};
 }
-const shops=[
-  mkPlace('阿妹麵線','🍜','shop',0,'top',0),
-  mkPlace('老王便當','🍱','shop',1,'bottom',1),
-  mkPlace('阿嬤滷味','🍢','shop',2,'bottom',0),
-  mkPlace('茶語珍奶','🧋','shop',3,'bottom',1),
-  mkPlace('夜市雞排','🍗','shop',5,'top',0)
-];
-const customers=[
-  mkPlace('文林公寓','🏢','cust',0,'bottom',1),
-  mkPlace('科技辦公室','💼','cust',1,'top',0),
-  mkPlace('河畔大樓','🏙️','cust',2,'top',1),
-  mkPlace('公園管理處','🌳','cust',2,'top',0),
-  mkPlace('補習班','📚','cust',3,'top',0),
-  mkPlace('青年宿舍','🏫','cust',4,'top',0),
-  mkPlace('社區診所','🏥','cust',4,'bottom',1),
-  mkPlace('老街透天','🏠','cust',5,'bottom',1)
-];
-const places=shops.concat(customers);
+function buildMap(idx){
+  curMapIdx=clamp(idx,0,MAPS.length-1);
+  curMap=MAPS[curMapIdx];
+  MAP=curMap.size; HALF=curMap.half;
+  HROADS=curMap.hRoads; VROADS=curMap.vRoads;
+  roadblocks=curMap.roadblocks||[]; river=curMap.river||null; bridges=curMap.bridges||[];
+
+  const srand=mulberry(curMap.seed);
+  blocks=[];
+  for(const [y0,y1] of gaps(HROADS,MAP.h)) for(const [x0,x1] of gaps(VROADS,MAP.w)){
+    const w=x1-x0, h=y1-y0;
+    const hitRiver=river && y1>river.y && y0<river.y+river.h;
+    const b={x:x0,y:y0,w,h,big:(!hitRiver && w>200 && h>160),win:[],trees:[]};
+    if(b.big){
+      b.hue=curMap.hues[(srand()*curMap.hues.length)|0];
+      b.hasShed=srand()<0.5;
+      b.shedCol=srand()<0.5?'#1d4ed8':'#15803d';
+      for(let wx=b.x+16;wx<b.x+b.w-16;wx+=28) for(let wy=b.y+20;wy<b.y+b.h-20;wy+=26) if(srand()<0.33) b.win.push([wx,wy]);
+    }else{
+      const n=Math.floor(b.w*b.h/2600);
+      for(let i=0;i<n;i++){
+        const tx=b.x+8+srand()*(b.w-16), ty=b.y+8+srand()*(b.h-16);
+        if(!river || ty<river.y-14 || ty>river.y+river.h+14) b.trees.push([tx,ty,8+srand()*8]);
+      }
+    }
+    blocks.push(b);
+  }
+  big=blocks.filter(b=>b.big);
+  shops=curMap.shops.map(s=>mkPlace(s[0],s[1],'shop',s[2],s[3],s[4]));
+  customers=curMap.customers.map(c=>mkPlace(c[0],c[1],'cust',c[2],c[3],c[4]));
+  places=shops.concat(customers);
+
+  GW=Math.round(MAP.w/CELL); GH=Math.round(MAP.h/CELL);
+  walk=new Uint8Array(GW*GH); prevArr=new Int32Array(GW*GH);
+  for(let gy=0;gy<GH;gy++) for(let gx=0;gx<GW;gx++) walk[gy*GW+gx]=onRoad(gx*CELL+CELL/2,gy*CELL+CELL/2,14)?1:0;
+}
 
 /* ===================== 路線格子（BFS 找路，用來畫導航光點與計算時限） ===================== */
-const CELL=20, GW=MAP.w/CELL, GH=MAP.h/CELL;
-const walk=new Uint8Array(GW*GH);
-for(let gy=0;gy<GH;gy++) for(let gx=0;gx<GW;gx++) walk[gy*GW+gx]=onRoad(gx*CELL+CELL/2,gy*CELL+CELL/2,14)?1:0;
 function cellOf(p){
   let gx=clamp((p.x/CELL)|0,0,GW-1), gy=clamp((p.y/CELL)|0,0,GH-1);
   if(walk[gy*GW+gx]) return gy*GW+gx;
@@ -448,7 +646,6 @@ function cellOf(p){
   }
   return gy*GW+gx;
 }
-const prevArr=new Int32Array(GW*GH);
 function bfs(a,b){
   const s=cellOf(a), t=cellOf(b);
   prevArr.fill(-1); prevArr[s]=s;
@@ -471,6 +668,9 @@ const pathLen=(a,b)=>bfs(a,b).length*CELL;
 /* ===================== 遊戲狀態 ===================== */
 const G={state:'title'};
 let char=store.get('dug_char','M');
+let gameMode=store.get('dug_mode','story');
+let unlockedMap=clamp(store.get('dug_unlock',1),1,MAPS.length);
+let selectedMapIdx=clamp(store.get('dug_map',0),0,unlockedMap-1);
 let best=store.get('dug_best',0);
 let bestStage=store.get('dug_best_stage',1);
 let P,cars,dogs,shots,items,pops,order,stats,level,strikes,combo,countdown,shake,itemTimer,orderDelay,banner,lastTick,path,pathTimer,hintT;
@@ -485,12 +685,11 @@ const CAR_COLORS=['#38bdf8','#f87171','#a78bfa','#34d399','#fbbf24','#f472b6','#
 
 function initTrafficSystem(){
   trafficLights=[];
-  // 12 個主要十字路口
   for(const hy of HROADS) for(const vx of VROADS){
+    if(!onRoad(vx,hy,14)) continue;
     trafficLights.push({
       x:vx, y:hy,
-      timer:rand(0,12), // 隨機初始相位
-      // 週期：綠燈 6.5s ➔ 黃燈 2s ➔ 紅燈 4.5s (總計 13s)
+      timer:rand(0,12),
       state:'green'
     });
   }
@@ -530,7 +729,8 @@ const STAGE_CONFIG=[
 ];
 
 function resetGame(){
-  // 出生點設置在安全停車起點（文林公寓門口旁，完全不在快車道路線上）
+  buildMap(selectedMapIdx);
+  // 出生點設置在安全停車起點（店家或建築門口旁）
   const spawnX = places[0].door.x;
   const spawnY = places[0].door.y;
   P={x:spawnX,y:spawnY,r:14,angle:0,fx:1,fy:0,hp:100,ammo:3,inv:3.5,moving:false,boost:0}; // 開場給予 3.5 秒倒數無敵防禦
@@ -571,8 +771,10 @@ function updateTrafficAndPeds(dt){
           cop.chasing = true;
           cop.chaseTimer = 8.5; // 追捕 8.5 秒
           cop.speed = 265;
+          cop.sirenTimer = 0;
+          cop.turnCooldown = 0;
           redCooldown = 3.5;
-          sfx('siren');
+          sfx('siren', 1);
           shake = 0.25;
           showBanner('🚨 警車追捕中！','巡邏警車目擊闖紅燈！快利用轉彎與衝刺甩開！','#f43f5e');
           pop(P.x, P.y-34, '🚔 警察：前面騎士停車！違規闖紅燈！', '#ef4444', 20);
@@ -655,13 +857,14 @@ function makeCarWithType(forcedType){
   const roads=HROADS.map(c=>['h',c]).concat(VROADS.map(c=>['v',c]));
   const rd=pick(roads), axis=rd[0], c=rd[1];
   const side=Math.random()<0.5?-1:1;
-  const isNight=level>=5;
-  const isSpeeder=isNight&&Math.random()<0.25;
+  const laneOff=Math.min(30, Math.round(HALF*0.46));
+  const isNight=curMap.lamp || (gameMode==='endless' && level>=4);
+  const isSpeeder=Math.random()<(curMap.speedRatio + (gameMode==='endless'?(level-1)*0.04:0));
 
   let cType=forcedType || 'sedan';
   if(!forcedType){
     if(isSpeeder) cType='speed';
-    else if(Math.random()<0.20) cType='police';      // 巡邏警車
+    else if(Math.random()<(curMapIdx===3?0.26:0.20)) cType='police';      // 巡邏警車
     else if(Math.random()<0.18) cType='ambulance';   // 119救護車
     else if(Math.random()<0.32) cType='taxi';        // 台灣小黃
     else if(Math.random()<0.30) cType='truck';       // 藍色三噸半
@@ -669,12 +872,13 @@ function makeCarWithType(forcedType){
 
   let cColor=pick(CAR_COLORS);
   let w=48, h=26;
-  let baseSp=75+level*14+rand(0,45);
+  const lvScale=gameMode==='endless'?(level-1)*14:0;
+  let baseSp=(75+lvScale+rand(0,45))*curMap.speedMul;
 
   if(cType==='speed'){
     cColor='#f43f5e'; baseSp*=1.55;
   } else if(cType==='police'){
-    cColor='#020617'; w=50; h=26; baseSp=105; // 巡邏速
+    cColor='#020617'; w=50; h=26; baseSp=105*Math.max(1,curMap.speedMul*0.92); // 巡邏速
   } else if(cType==='ambulance'){
     cColor='#ffffff'; w=58; h=28; baseSp=195; // 緊急出勤速
   } else if(cType==='taxi'){
@@ -684,22 +888,23 @@ function makeCarWithType(forcedType){
   }
 
   const car={
-    axis,lane:c+side*30,dir:axis==='h'?side:-side,len:axis==='h'?MAP.w:MAP.h,pos:0,
-    speed:Math.min(310,baseSp),
+    axis,roadCenter:c,laneOff,lane:c+side*laneOff,dir:axis==='h'?side:-side,len:axis==='h'?MAP.w:MAP.h,pos:0,
+    speed:Math.min(320,baseSp),
     type:cType,
     color:cColor,
     w, h,
     speeder:cType==='speed',
     close:false,nm:false,
     // 警車專屬狀態
-    chasing:false,chaseTimer:0,sirenTimer:0,
+    chasing:false,chaseTimer:0,sirenTimer:0,turnCooldown:0,
     // 救護車專屬狀態
-    warnedPlayer:false,passedPlayer:false,penaltyGiven:false
+    appearedPlayed:false,warnedPlayer:false,passedPlayer:false,penaltyGiven:false
   };
 
-  for(let i=0;i<40;i++){
-    car.pos=rand(0,car.len);
-    if(!P||rectDist(P.x,P.y,carRect(car))>450) break;
+  for(let i=0;i<50;i++){
+    car.pos=rand(30,car.len-30);
+    const cp=carPos(car);
+    if(onRoad(cp.x,cp.y,18) && (!P||rectDist(P.x,P.y,carRect(car))>420)) break;
   }
   return car;
 }
@@ -712,30 +917,33 @@ function carRect(c){
   return c.axis==='h'?{x:c.pos-w/2,y:c.lane-h/2,w,h}:{x:c.lane-h/2,y:c.pos-w/2,w:h,h:w};
 }
 function randomRoadPoint(minDist){
-  for(let i=0;i<40;i++){
+  for(let i=0;i<50;i++){
     let p;
-    if(Math.random()<3/7) p={x:rand(40,MAP.w-40),y:pick(HROADS)+rand(-40,40)};
-    else p={x:pick(VROADS)+rand(-40,40),y:rand(40,MAP.h-40)};
+    if(Math.random()<3/7) p={x:rand(40,MAP.w-40),y:pick(HROADS)+rand(-HALF+18,HALF-18)};
+    else p={x:pick(VROADS)+rand(-HALF+18,HALF-18),y:rand(40,MAP.h-40)};
     if(onRoad(p.x,p.y,14)&&(!P||dist(p,P)>=minDist)) return p;
   }
-  return {x:VROADS[3],y:HROADS[2]};
+  return {x:places[0].door.x,y:places[0].door.y};
 }
 function syncHazards(){
   const cfg=STAGE_CONFIG[Math.min(STAGE_CONFIG.length-1,level-1)];
-  const isNight=level>=5;
-  const carN=Math.min(28, 7+level*3);
+  const isNight=curMap.lamp || (gameMode==='endless'&&level>=5);
+  const carN=gameMode==='story'
+    ? curMap.carBase
+    : Math.min(30, curMap.carBase + (level-1)*3);
   if(cars.length===0){
     cars.push(makeCarWithType('police'));
     cars.push(makeCarWithType('ambulance'));
   }
   while(cars.length<carN) cars.push(makeCar());
   cars.forEach(c=>{
-    const base=75+level*15+rand(0,40);
-    const sp=c.speeder?base*1.55:(isNight?base*1.35:base);
-    c.speed=Math.min(310,Math.max(c.speed,sp));
+    const lvAdd=gameMode==='endless'?(level-1)*15:0;
+    const base=(75+lvAdd+rand(0,40))*curMap.speedMul;
+    const sp=c.speeder?base*1.55:(isNight?base*1.25:base);
+    c.speed=Math.min(320,Math.max(c.speed,sp));
   });
-  const dogN=cfg.dog;
-  while(dogs.length<dogN){const p=randomRoadPoint(500);dogs.push({x:p.x,y:p.y,dx:1,dy:0,wt:rand(1,3),stun:0,eat:0,chase:false});}
+  const dogN=gameMode==='story'?curMap.dogBase:Math.min(8, curMap.dogBase + Math.max(0,level-1));
+  while(dogs.length<dogN){const p=randomRoadPoint(460);dogs.push({x:p.x,y:p.y,dx:1,dy:0,wt:rand(1,3),stun:0,eat:0,chase:false});}
 }
 
 /* ===================== 遊戲流程 ===================== */
@@ -744,11 +952,107 @@ function setBodyState(s){
   $('pauseBtn').style.display=s==='play'?'flex':'none';
   $('throwBtn').style.display=s==='play'?'flex':'none';
 }
-function showOnly(id){['title','howto','pause','over'].forEach(o=>$(o).classList.toggle('show',o===id));}
+function showOnly(id){['title','mapSel','story','howto','pause','over'].forEach(o=>$(o).classList.toggle('show',o===id));}
+let storyIdx=0, storyFromBtn=false;
+function getStorySteps(){
+  const isF=char==='F';
+  const charAva=isF?'👩':'👨';
+  const charName=isF?'妮野可（粉紅勁駒）':'阿豪大叔（藍勁速車）';
+  if(curMapIdx===0){
+    return [
+      {ava:'📱', speaker:'外送平台・緊急派單', text:'「叮咚！」週五尖峰大爆單！全城外送員都塞在車陣裡，現在跑單獎勵翻倍——但累積 3 個差評就會被停權！'},
+      {ava:charAva, speaker:charName, text:isF?'安全帽扣好、馬尾甩起來！誰說可愛不能飆外送？這波尖峰獎金我全收下了！':'房貸還沒繳完呢…哼，我阿豪的字典裡可沒有「遲到」兩個字！'},
+      {ava:'🍗', speaker:'街頭小提醒', text:'「汪汪！」聽說巷口野狗群聞到香味會撲上來…還好車廂備了幾支香噴噴 🍗 雞腿，危急時丟出去定住牠們，出發！'}
+    ];
+  }
+  if(curMapIdx===1){
+    return [
+      {ava:'🏮', speaker:'區域廣播・2. 夜市美食街', text:'越過老街就是人聲鼎沸的夜市！這裡巷子比較窄、部分路段還有「🚧 施工攤販封路」，記得看導航繞道！'},
+      {ava:charAva, speaker:charName, text:'香味四溢的夜市最容易引來餓扁的野狗群…多準備幾支 🍗 雞腿，衝進夜市搶單啦！'}
+    ];
+  }
+  if(curMapIdx===2){
+    return [
+      {ava:'🏙️', speaker:'區域廣播・3. 都會科技園區', text:'工程師們加班狂點宵夜啦！園區道路又寬又直，但超速跑車與巡邏警車特別多，千萬別闖紅燈！'},
+      {ava:charAva, speaker:charName, text:'路上滿滿的 ⚡ 能量飲料！催足油門，把熱騰騰的咖啡與餐盒準時送進科技大樓！'}
+    ];
+  }
+  return [
+    {ava:'⚓', speaker:'區域廣播・4. 河濱港灣區', text:'最終考驗！大河把城市切成南北兩岸，只有兩座 🌉 跨河大橋可以通行，走錯路口可是會被河水擋住的！'},
+    {ava:charAva, speaker:charName, text:'只要撐過這區，我就是傳說中的台灣外送車神！全速前進，目標 6 單制霸港灣！'}
+  ];
+}
+function renderStory(){
+  const steps=getStorySteps(), st=steps[storyIdx];
+  $('storyAva').textContent=st.ava;
+  $('storySpeaker').textContent=st.speaker;
+  $('storyText').textContent=st.text;
+  $('storyNext').textContent=storyIdx===steps.length-1?'🚀 跨上機車出發！':'下一句 ▶';
+  $('storyDots').innerHTML=steps.map((_,i)=>'<span class="'+(i===storyIdx?'on':'')+'"></span>').join('');
+}
+function openStory(fromBtn){
+  storyFromBtn=!!fromBtn; storyIdx=0;
+  G.state='story'; setBodyState('title'); showOnly('story'); renderStory();
+}
+function finishStory(cancelled){
+  store.set('dug_story_seen_'+curMap.id,true);
+  if(cancelled && storyFromBtn){ goTitle(); return; }
+  startGame();
+}
+function nextStory(){
+  const steps=getStorySteps();
+  if(storyIdx<steps.length-1){ storyIdx++; renderStory(); }
+  else finishStory(false);
+}
+function renderMapSel(){
+  const isStory=(gameMode==='story');
+  $('mapSelTitle').textContent=isStory?'🏆 闖關模式：選擇配送區域':'♾️ 無限模式：選擇挑戰地圖';
+  $('mapSelSub').textContent=isStory?'完成各區指定單數即可過關並解鎖下一張新地圖！':'在已解鎖的地圖中無限接單，難度隨單數飆升！';
+  const grid=$('mapGrid'); grid.innerHTML='';
+  MAPS.forEach((m,i)=>{
+    const unlocked=(i<unlockedMap);
+    const cleared=(i<unlockedMap-1) || store.get('dug_clr_'+m.id,false);
+    const mBest=store.get('dug_best_'+m.id,0);
+    const card=document.createElement('button');
+    card.className='mapCard'+(i===selectedMapIdx?' sel':'')+(unlocked?'':' locked');
+    card.disabled=!unlocked;
+    let meta='';
+    if(!unlocked){
+      meta='🔒 通過【'+MAPS[i-1].name+'】後解鎖';
+    }else if(isStory){
+      meta=(cleared?'✅ 已通關':'🎯 目標 '+m.goalOrders+' 單')+' ・ '+m.mechTag+(mBest?' ・ 最高 '+mBest:'');
+    }else{
+      meta='♾️ 無限挑戰 ・ '+m.mechTag+(mBest?' ・ 最高 '+mBest:'');
+    }
+    card.innerHTML='<div class="mapIc">'+m.icon+'</div><div class="mapInfo"><div class="mapName"><span>'+m.name+'</span>'+(unlocked?(cleared?'<span style="color:#6ee7b7;font-size:12px">★ 通關</span>':''):'<span>🔒</span>')+'</div><div class="mapDesc">'+m.shortDesc+'</div><div class="mapMeta">'+meta+'</div></div>';
+    if(unlocked){
+      card.addEventListener('click',()=>{
+        ensureAudio(); sfx('click');
+        selectedMapIdx=i; store.set('dug_map',i);
+        resetGame();
+        if(isTouch) toggleFullScreen();
+        if(!store.get('dug_story_seen_'+m.id,false)){ openStory(false); }
+        else startGame();
+      });
+    }
+    grid.appendChild(card);
+  });
+}
+function openMapSel(){
+  ensureAudio();
+  renderMapSel();
+  G.state='title'; setBodyState('title'); showOnly('mapSel');
+}
+function beginDelivery(){
+  openMapSel();
+}
 function goTitle(){
+  buildMap(selectedMapIdx);
   G.state='title'; resetGame(); setBodyState('title'); showOnly('title');
   $('bestTitle').textContent=best;
+  $('unlockTxt').textContent=unlockedMap+'/'+MAPS.length;
   document.querySelectorAll('.char').forEach(b=>b.classList.toggle('sel',b.dataset.char===char));
+  document.querySelectorAll('.modeBtn').forEach(b=>b.classList.toggle('sel',b.dataset.mode===gameMode));
 }
 function startGame(){
   ensureAudio();
@@ -770,24 +1074,51 @@ function resumeGame(){
   G.state='play'; showOnly(null); setBodyState('play'); lastFrame=performance.now();
   if(Snd.music) Snd.music.gain.value=0.55;
 }
-function gameOver(reason){
-  if(G.state!=='play') return;
-  G.state='over'; joy.id=null; sfx('over'); shake=0.4;
+function showEndCard(isWin, reason){
+  G.state='over'; joy.id=null;
+  if(isWin){ sfx('level'); } else { sfx('over'); shake=0.4; }
   const isNew=stats.score>best;
   if(isNew){best=stats.score;store.set('dug_best',best);}
+  const mBest=store.get('dug_best_'+curMap.id,0);
+  if(stats.score>mBest) store.set('dug_best_'+curMap.id,stats.score);
+
+  $('overTitle').textContent=isWin?'🎉 區域制霸・過關！':'🏁 今日收工';
+  $('overTitle').style.color=isWin?'#6ee7b7':'#fbbf24';
   $('overReason').textContent=reason;
+  $('overReason').classList.toggle('win',!!isWin);
   $('overScore').textContent=stats.score;
   $('newRec').style.display=isNew?'inline-block':'none';
   $('stDel').textContent=stats.delivered;
   $('stCombo').textContent=stats.maxCombo;
-  $('stLv').textContent=level;
+  $('stLv').textContent=gameMode==='story'?((curMapIdx+1)+'/'+MAPS.length):level;
+  $('stLvLbl').textContent=gameMode==='story'?'完成區域':'到達關卡';
   $('stNear').textContent=stats.near;
   $('stDog').textContent=stats.dogs;
   $('stTime').textContent=Math.floor(stats.time)+'s';
   $('bestOver').textContent=best;
   $('bestStageTxt').textContent=bestStage;
+  $('nextStageBtn').style.display=(isWin && gameMode==='story' && curMapIdx<MAPS.length-1)?'inline-flex':'none';
   setBodyState('over');
-  setTimeout(()=>{if(G.state==='over'){showOnly('over');if(Snd.music)Snd.music.gain.value=0.55;}},900);
+  setTimeout(()=>{if(G.state==='over'){showOnly('over');if(Snd.music)Snd.music.gain.value=0.55;}},isWin?650:900);
+}
+function gameOver(reason){
+  if(G.state!=='play') return;
+  showEndCard(false, reason);
+}
+function winStage(){
+  if(G.state!=='play') return;
+  store.set('dug_clr_'+curMap.id,true);
+  let msg='已完成【'+curMap.name+'】全部 '+curMap.goalOrders+' 單！';
+  if(curMapIdx+1<MAPS.length){
+    if(unlockedMap<curMapIdx+2){
+      unlockedMap=curMapIdx+2;
+      store.set('dug_unlock',unlockedMap);
+    }
+    msg='🔓 已解鎖新地圖：【'+MAPS[curMapIdx+1].name+'】！';
+  } else {
+    msg='👑 恭喜制霸全台灣四大外送區域！無限模式已全面解鎖！';
+  }
+  showEndCard(true, msg);
 }
 function showBanner(text,sub,color){banner={text,sub:sub||'',color:color||'#fde68a',t:1.8};}
 function pop(x,y,text,color,size){pops.push({x,y,text,color:color||'#fff',t:1.1,size:size||20});}
@@ -796,15 +1127,22 @@ function updateAmmo(){
   $('throwBtn').classList.toggle('empty',!P||P.ammo<=0);
 }
 
+function calcOrderTime(distPx){
+  const cfg=STAGE_CONFIG[Math.min(STAGE_CONFIG.length-1,level-1)];
+  // 依玩家正常騎乘速度 (210 px/s) 與轉彎緩衝估算，並預留路口等紅燈秒數
+  const rideSec=(distPx/210)*1.35;
+  const estLights=Math.max(1, Math.round(distPx/480));
+  const lightBuffer=estLights*3.8;
+  const mapScale=curMap.timeMul;
+  const stageScale=(gameMode==='story')?(0.82+0.18*mapScale):(0.78+0.22*Math.min(mapScale,cfg.timeMul));
+  return Math.max(14, Math.ceil((rideSec+lightBuffer+4.5)*stageScale));
+}
+
 function newOrder(){
   const shop=pick(shops); let cust=pick(customers);
   for(let i=0;i<30;i++){cust=pick(customers);if(pathLen(shop.door,cust.door)>=600)break;}
-  const d=pathLen(P,shop.door)+pathLen(shop.door,cust.door);
-  const cfg=STAGE_CONFIG[Math.min(STAGE_CONFIG.length-1,level-1)];
-
-  // 緊湊時限計算：基礎騎乘時間 × 關卡係數 (Stage 1 剛好，Stage 3~5 必須熟練或吃加速)
-  const baseRideTime=d/235;
-  const t=Math.max(12, (baseRideTime*1.15 + 2.5) * cfg.timeMul);
+  // 先計算「當前位置 -> 取餐店家」的合理時限，取餐後再重新計算送達顧客的時限
+  const t=calcOrderTime(pathLen(P,shop.door));
 
   // 100% 靠技巧累積：達成連續準時送達 3 單 (Combo >= 3)，必定解鎖「金牌特急單」！
   const isVip = (combo >= 3);
@@ -815,7 +1153,7 @@ function newOrder(){
   if(isVip){
     pop(P.x,P.y-30,'⭐ 實力達成！【金牌特急單】雙倍工資！','#fbbf24',21);
   } else {
-    pop(P.x,P.y-30,'📲 新訂單！','#6ee7b7',18);
+    pop(P.x,P.y-30,'📲 新訂單！限時 '+t+' 秒取餐','#6ee7b7',18);
   }
 }
 function deliver(){
@@ -847,8 +1185,16 @@ function deliver(){
   if(combo%5===0&&strikes>0){strikes--;pop(P.x,P.y-104,'👍 好評！差評 −1','#6ee7b7',18);}
   order=null; orderDelay=0.8; path=[];
 
-  // 每送達 3 單升 1 級關卡 (Stage 推進)
-  if(stats.delivered%3===0) levelUp();
+  // 闖關模式達成目標單數直接過關；無限模式每 3 單升 1 級
+  if(gameMode==='story'){
+    if(stats.delivered>=curMap.goalOrders){
+      winStage();
+    } else {
+      showBanner('進度 '+stats.delivered+'/'+curMap.goalOrders+' 單','還差 '+(curMap.goalOrders-stats.delivered)+' 單就能解鎖下一區！','#6ee7b7');
+    }
+  } else if(stats.delivered%3===0){
+    levelUp();
+  }
 }
 function levelUp(){
   level++; syncHazards(); sfx('level');
@@ -870,7 +1216,7 @@ function damage(n,msg){
 }
 function throwFood(){
   if(G.state!=='play'||countdown>0) return;
-  if(P.ammo<=0){sfx('empty');pop(P.x,P.y-30,'沒有珍奶了！','#94a3b8',16);return;}
+  if(P.ammo<=0){sfx('empty');pop(P.x,P.y-30,'沒有雞腿了！','#94a3b8',16);return;}
   P.ammo--; updateAmmo();
   let tx=P.fx, ty=P.fy, bd=340;
   for(const d of dogs){if(d.stun>0)continue;const dd=dist(d,P);if(dd<bd){bd=dd;tx=(d.x-P.x)/dd;ty=(d.y-P.y)/dd;}}
@@ -911,29 +1257,85 @@ function inputVec(){
 
 /* ===================== 主更新 ===================== */
 function updateCars(dt){
+  const activePlay = (G.state === 'play' && countdown <= 0);
   for(const c of cars){
-    // 移動
+    // 移動（遇到施工路障或未架橋的河岸則平順掉頭）
+    const prevPos=c.pos;
     c.pos+=c.dir*c.speed*dt;
     if(c.pos>c.len+60) c.pos=-60; else if(c.pos<-60) c.pos=c.len+60;
 
-    const cp = carPos(c);
-    const dToP = dist(cp, P);
+    let cp = carPos(c);
+    let blocked=false;
+    if(c.pos>=0 && c.pos<=c.len && !onRoad(cp.x,cp.y,10)){
+      blocked=true;
+      c.pos=prevPos;
+      c.dir*=-1;
+      const off=c.laneOff||30;
+      c.lane=c.roadCenter+(c.axis==='h'?1:-1)*c.dir*off;
+      cp=carPos(c);
+    }
+    let dToP = dist(cp, P);
 
     // ==================== 1. 警車巡邏與追捕系統 ====================
     if(c.type==='police'){
-      if(c.chasing){
+      if(c.chasing && activePlay){
         c.chaseTimer -= dt;
+        c.turnCooldown = Math.max(0, (c.turnCooldown || 0) - dt);
         c.speed = 265; // 全速追捕
 
-        // 追捕中方向自動修正朝向玩家
-        const toP = c.axis==='h' ? (P.x - cp.x) : (P.y - cp.y);
-        if(Math.abs(toP) > 12) c.dir = Math.sign(toP);
+        // 路口自動轉向追蹤（避免玩家轉彎後警車卡在十字路口來回抖動）
+        const dx = P.x - cp.x, dy = P.y - cp.y;
+        const off = c.laneOff || 30;
+        let turned = false;
+        if(c.turnCooldown <= 0){
+          if(c.axis==='h' && Math.abs(dy) > 45){
+            for(const vx of VROADS){
+              if(Math.abs(cp.x - vx) < 28 && (Math.abs(dy) > Math.abs(dx)*0.7 || Math.abs(dx) < 55)){
+                const newDir = Math.sign(dy) || 1;
+                c.axis = 'v';
+                c.roadCenter = vx;
+                c.lane = vx - newDir * off;
+                c.pos = clamp(cp.y, 0, MAP.h);
+                c.dir = newDir;
+                c.len = MAP.h;
+                c.turnCooldown = 0.42;
+                turned = true;
+                break;
+              }
+            }
+          } else if(c.axis==='v' && Math.abs(dx) > 45){
+            for(const hy of HROADS){
+              if(Math.abs(cp.y - hy) < 28 && (Math.abs(dx) > Math.abs(dy)*0.7 || Math.abs(dy) < 55)){
+                const newDir = Math.sign(dx) || 1;
+                c.axis = 'h';
+                c.roadCenter = hy;
+                c.lane = hy + newDir * off;
+                c.pos = clamp(cp.x, 0, MAP.w);
+                c.dir = newDir;
+                c.len = MAP.w;
+                c.turnCooldown = 0.42;
+                turned = true;
+                break;
+              }
+            }
+          }
+        }
 
-        // 循環鳴笛
+        if(turned){
+          cp = carPos(c);
+          dToP = dist(cp, P);
+        } else if(!blocked) {
+          // 同路線追捕時以較寬鬆遲滯門檻迴轉，剛過彎時先駛離路口不原地抖動
+          const toP = c.axis==='h' ? (P.x - cp.x) : (P.y - cp.y);
+          const revThresh = c.turnCooldown > 0 ? 90 : 24;
+          if(Math.abs(toP) > revThresh) c.dir = Math.sign(toP);
+        }
+
+        // 循環鳴笛（追捕期間持續鳴笛，依距離微調音量）
         c.sirenTimer = (c.sirenTimer || 0) + dt;
-        if(c.sirenTimer > 1.3){
+        if(c.sirenTimer >= 0.90){
           c.sirenTimer = 0;
-          if(dToP < 450) sfx('siren');
+          sfx('siren', clamp(1.15 - dToP / 750, 0.45, 1));
         }
 
         // 情況 A：追上玩家（開罰攔檢）
@@ -963,11 +1365,23 @@ function updateCars(dt){
     // ==================== 2. 救護車緊急出勤與禮讓系統 ====================
     if(c.type==='ambulance'){
       c.speed = 200; // 緊急奔馳
-      // 循環救護車長鳴笛
-      c.sirenTimer = (c.sirenTimer || 0) + dt;
-      if(c.sirenTimer > 1.8){
-        c.sirenTimer = 0;
-        if(dToP < 450) sfx('amb');
+      if(!activePlay) continue;
+
+      // 救護車進入畫面或靠近時立即鳴笛，並在附近持續循環鳴笛
+      const visibleOrNear = inView(cp.x - 35, cp.y - 35, 70, 70) || dToP < 480;
+      const ambVol = clamp(1.1 - dToP / 700, 0.35, 1);
+      if(visibleOrNear){
+        if(!c.appearedPlayed){
+          c.appearedPlayed = true;
+          c.sirenTimer = 0;
+          sfx('amb', ambVol);
+        } else {
+          c.sirenTimer = (c.sirenTimer || 0) + dt;
+          if(c.sirenTimer >= 1.25){
+            c.sirenTimer = 0;
+            sfx('amb', ambVol);
+          }
+        }
       }
 
       // 靠近提示
@@ -1006,8 +1420,8 @@ function updateCars(dt){
       }
 
       // 開遠後重置
-      if(dToP > 460){
-        c.warnedPlayer = false; c.passedPlayer = false; c.penaltyGiven = false;
+      if(!visibleOrNear && dToP > 560){
+        c.appearedPlayed = false; c.warnedPlayer = false; c.passedPlayer = false; c.penaltyGiven = false;
       }
     }
   }
@@ -1085,7 +1499,7 @@ function update(dt){
     }
   }
 
-  // 珍奶飛行
+  // 雞腿飛行
   for(const s of shots){
     const n=4;
     for(let i=0;i<n&&s.life>0;i++){
@@ -1094,7 +1508,7 @@ function update(dt){
       for(const d of dogs){
         if(d.stun<=0&&Math.hypot(d.x-s.x,d.y-s.y)<28){
           d.stun=5; d.eat=5; s.life=0; stats.score+=20; stats.dogs++;
-          sfx('stun'); pop(d.x,d.y-24,'🍖 定住 +20','#fde68a',16); break;
+          sfx('stun'); pop(d.x,d.y-24,'🍗 定住 +20','#fde68a',16); break;
         }
       }
     }
@@ -1109,8 +1523,8 @@ function update(dt){
     if(items.length<4){
       const p=randomRoadPoint(180);
       const rVal=Math.random();
-      // 道具機率：能量飲料 30%、珍奶 40%、便當 30%
-      const iType=rVal<0.3?'energy':(rVal<0.7?'tea':'bento');
+      const eP=curMap.energyRatio||0.3;
+      const iType=rVal<eP?'energy':(rVal<eP+(1-eP)*0.55?'leg':'bento');
       items.push({x:p.x,y:p.y,type:iType,life:22});
     }
   }
@@ -1121,9 +1535,9 @@ function update(dt){
       if(it.type==='energy'){
         P.boost=3.5; sfx('boost');
         pop(it.x,it.y-20,'⚡ 能量爆發！加速 3.5 秒','#38bdf8',18);
-      } else if(it.type==='tea'){
+      } else if(it.type==='leg'){
         P.ammo=Math.min(6,P.ammo+2); updateAmmo(); sfx('item');
-        pop(it.x,it.y-20,'🧋 珍奶 +2','#fde68a',16);
+        pop(it.x,it.y-20,'🍗 雞腿 +2','#fde68a',16);
       } else {
         P.hp=Math.min(100,P.hp+30); sfx('item');
         pop(it.x,it.y-20,'🍱 體力 +30','#6ee7b7',16);
@@ -1139,8 +1553,10 @@ function update(dt){
     const tgt=order.stage==='pickup'?order.shop:order.cust;
     if(dist(P,tgt.door)<46){
       if(order.stage==='pickup'){
-        order.stage='deliver'; sfx('pickup'); pathTimer=0;
-        pop(P.x,P.y-30,'📦 取餐成功！','#fde68a',18);
+        order.stage='deliver'; sfx('pickup'); pathTimer=0; lastTick=-1;
+        const deliverTime=calcOrderTime(pathLen(P,order.cust.door));
+        order.time=deliverTime; order.total=deliverTime;
+        pop(P.x,P.y-30,'📦 取餐成功！限時 '+deliverTime+' 秒送達','#fde68a',18);
       }else deliver();
     }else if(order.time<=0) orderFail();
     if(order&&order.time<5){const s=Math.ceil(order.time);if(s!==lastTick){lastTick=s;sfx('tick');}}
@@ -1151,11 +1567,11 @@ function update(dt){
 function followCam(dt){
   const vw=W/ZOOM, vh=H/ZOOM;
   let tx,ty;
-  if(G.state==='title'){const t=performance.now()/9000;tx=MAP.w/2+Math.cos(t)*500-vw/2;ty=MAP.h/2+Math.sin(t*1.3)*300-vh/2;}
+  if(G.state==='title'||G.state==='story'){const t=performance.now()/9000;tx=MAP.w/2+Math.cos(t)*500-vw/2;ty=MAP.h/2+Math.sin(t*1.3)*300-vh/2;}
   else{tx=P.x-vw/2;ty=P.y-vh/2;}
   tx=vw>=MAP.w?(MAP.w-vw)/2:clamp(tx,0,MAP.w-vw);
   ty=vh>=MAP.h?(MAP.h-vh)/2:clamp(ty,0,MAP.h-vh);
-  const k=G.state==='title'?1:Math.min(1,dt*8);
+  const k=(G.state==='title'||G.state==='story')?1:Math.min(1,dt*8);
   cam.x+=(tx-cam.x)*k; cam.y+=(ty-cam.y)*k;
 }
 
@@ -1168,7 +1584,7 @@ function rr(x,y,w,h,r){
 function inView(x,y,w,h){const vw=W/ZOOM,vh=H/ZOOM;return x+w>cam.x-20&&y+h>cam.y-20&&x<cam.x+vw+20&&y<cam.y+vh+20;}
 function drawWorld(now){
   // 1. 底層世界基底
-  ctx.fillStyle='#0f131a'; ctx.fillRect(0,0,MAP.w,MAP.h);
+  ctx.fillStyle=curMap.ground||'#0f131a'; ctx.fillRect(0,0,MAP.w,MAP.h);
 
   // 2. 街區建築物（立體 2.5D 女兒牆、窗戶光影、鐵皮加蓋、冷氣室外機、水塔與綠化人行道）
   for(const b of blocks){
@@ -1247,27 +1663,71 @@ function drawWorld(now){
     }
   }
 
+  // 2.5 跨河港灣區大河（先畫河流與岸壁，再畫跨河大橋）
+  if(river){
+    ctx.fillStyle='#334155';
+    ctx.fillRect(0,river.y-8,MAP.w,river.h+16);
+    const rg=ctx.createLinearGradient(0,river.y,0,river.y+river.h);
+    rg.addColorStop(0,'#0c4a6e'); rg.addColorStop(0.5,'#0369a1'); rg.addColorStop(1,'#0c4a6e');
+    ctx.fillStyle=rg;
+    ctx.fillRect(0,river.y,MAP.w,river.h);
+    // 波光動畫
+    ctx.strokeStyle='rgba(125,211,252,0.35)'; ctx.lineWidth=2;
+    const waveOff=(now*0.04)%60;
+    for(let wy=river.y+20;wy<river.y+river.h-10;wy+=26){
+      for(let wx=-60+waveOff+(wy%52);wx<MAP.w;wx+=90){
+        ctx.beginPath(); ctx.moveTo(wx,wy); ctx.lineTo(wx+34,wy); ctx.stroke();
+      }
+    }
+  }
+
   // 3. 柏油馬路（濃黑純淨柏油色 #151922，與街區強烈對比）
+  const vSegs=c=>{
+    if(!river || bridges.includes(c)) return [[0,MAP.h]];
+    return [[0,river.y-8],[river.y+river.h+8,MAP.h]];
+  };
   ctx.fillStyle='#151922';
   for(const c of HROADS) ctx.fillRect(0,c-HALF,MAP.w,HALF*2);
-  for(const c of VROADS) ctx.fillRect(c-HALF,0,HALF*2,MAP.h);
+  for(const c of VROADS) for(const [y0,y1] of vSegs(c)) ctx.fillRect(c-HALF,y0,HALF*2,y1-y0);
 
   // 台灣街頭經典路緣標線：外側紅線（禁止停車）與內側路緣石
   for(const c of HROADS){
     ctx.fillStyle='#334155'; ctx.fillRect(0,c-HALF-4,MAP.w,4); ctx.fillRect(0,c+HALF,MAP.w,4);
     ctx.fillStyle='#ef4444'; ctx.fillRect(0,c-HALF-1,MAP.w,2); ctx.fillRect(0,c+HALF-1,MAP.w,2);
   }
-  for(const c of VROADS){
-    ctx.fillStyle='#334155'; ctx.fillRect(c-HALF-4,0,4,MAP.h); ctx.fillRect(c+HALF,0,4,MAP.h);
-    ctx.fillStyle='#ef4444'; ctx.fillRect(c-HALF-1,0,2,MAP.h); ctx.fillRect(c+HALF-1,0,2,MAP.h);
+  for(const c of VROADS) for(const [y0,y1] of vSegs(c)){
+    ctx.fillStyle='#334155'; ctx.fillRect(c-HALF-4,y0,4,y1-y0); ctx.fillRect(c+HALF,y0,4,y1-y0);
+    ctx.fillStyle='#ef4444'; ctx.fillRect(c-HALF-1,y0,2,y1-y0); ctx.fillRect(c+HALF-1,y0,2,y1-y0);
   }
 
   // 中央分向雙黃線（清晰亮黃色）
   ctx.strokeStyle='#fbbf24'; ctx.lineWidth=3; ctx.setLineDash([18,16]);
   ctx.beginPath();
   for(const c of HROADS){ctx.moveTo(0,c);ctx.lineTo(MAP.w,c);}
-  for(const c of VROADS){ctx.moveTo(c,0);ctx.lineTo(c,MAP.h);}
+  for(const c of VROADS) for(const [y0,y1] of vSegs(c)){ctx.moveTo(c,y0);ctx.lineTo(c,y1);}
   ctx.stroke(); ctx.setLineDash([]);
+
+  // 橋樑護欄與未架橋河岸防撞護欄
+  if(river){
+    for(const c of VROADS){
+      if(bridges.includes(c)){
+        ctx.fillStyle='#f59e0b';
+        ctx.fillRect(c-HALF-6,river.y-4,8,river.h+8);
+        ctx.fillRect(c+HALF-2,river.y-4,8,river.h+8);
+        ctx.fillStyle='#0f172a';
+        for(let py=river.y+4;py<river.y+river.h;py+=18){
+          ctx.fillRect(c-HALF-5,py,6,8);
+          ctx.fillRect(c+HALF-1,py,6,8);
+        }
+      }else{
+        [river.y-12, river.y+river.h+2].forEach(by=>{
+          ctx.fillStyle='#facc15'; ctx.fillRect(c-HALF,by,HALF*2,10);
+          ctx.fillStyle='#111827';
+          for(let bx=c-HALF+6;bx<c+HALF-6;bx+=20) ctx.fillRect(bx,by,10,10);
+        });
+      }
+    }
+  }
 
   // 4. 十字路口（斑馬線 + 黃色網狀禁停區 + 紅綠燈號誌燈）
   for(const tl of trafficLights){
@@ -1371,6 +1831,24 @@ function drawWorld(now){
     ctx.fillText(tagText, lx, ly - 38);
   }
 
+  // 4.5 施工 / 夜市攤販封閉路障
+  for(const rb of roadblocks){
+    if(!inView(rb.x-10,rb.y-10,rb.w+20,rb.h+20)) continue;
+    ctx.fillStyle='#1f2937'; rrc(ctx,rb.x,rb.y,rb.w,rb.h,8); ctx.fill();
+    ctx.save(); ctx.beginPath(); rrc(ctx,rb.x,rb.y,rb.w,rb.h,8); ctx.clip();
+    ctx.fillStyle='#f59e0b';
+    for(let sx=-rb.h;sx<rb.w+rb.h;sx+=22){
+      ctx.beginPath(); ctx.moveTo(rb.x+sx,rb.y); ctx.lineTo(rb.x+sx+11,rb.y);
+      ctx.lineTo(rb.x+sx-rb.h+11,rb.y+rb.h); ctx.lineTo(rb.x+sx-rb.h,rb.y+rb.h); ctx.closePath(); ctx.fill();
+    }
+    ctx.restore();
+    ctx.strokeStyle='#fde047'; ctx.lineWidth=2.5; rrc(ctx,rb.x,rb.y,rb.w,rb.h,8); ctx.stroke();
+    ctx.fillStyle='rgba(15,23,42,0.92)';
+    rrc(ctx,rb.x+rb.w/2-38,rb.y+rb.h/2-11,76,22,6); ctx.fill();
+    ctx.fillStyle='#fde68a'; ctx.font='900 11px system-ui,sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(rb.label||'🚧 封路',rb.x+rb.w/2,rb.y+rb.h/2);
+  }
+
   // 5. 行人（漫步路人 / 斑馬線過路人）
   for(const ped of peds){
     if(!inView(ped.x-15,ped.y-15,30,30)) continue;
@@ -1453,19 +1931,19 @@ function drawWorld(now){
   for(const it of items){
     if(it.life<4&&Math.floor(now/150)%2) continue;
     const isEnergy=it.type==='energy';
-    const isTea=it.type==='tea';
+    const isLeg=it.type==='leg';
     const bounce=Math.sin(now/180+it.x)*6;
     const pulse=Math.sin(now/150)*4;
 
     // 地面外圈擴散波紋光環
-    ctx.strokeStyle=isEnergy?'rgba(56,189,248,0.85)':(isTea?'rgba(245,158,11,0.8)':'rgba(34,197,94,0.8)');
+    ctx.strokeStyle=isEnergy?'rgba(56,189,248,0.85)':(isLeg?'rgba(245,158,11,0.8)':'rgba(34,197,94,0.8)');
     ctx.lineWidth=2.5;
     ctx.beginPath();
     ctx.arc(it.x, it.y, 22+pulse, 0, Math.PI*2);
     ctx.stroke();
 
     // 內層實心發光底盤
-    ctx.fillStyle=isEnergy?'#0284c7':(isTea?'#b45309':'#15803d');
+    ctx.fillStyle=isEnergy?'#0284c7':(isLeg?'#b45309':'#15803d');
     ctx.beginPath();
     ctx.arc(it.x, it.y+bounce*0.4, 18, 0, Math.PI*2);
     ctx.fill();
@@ -1474,7 +1952,7 @@ function drawWorld(now){
     ctx.stroke();
 
     // 向上升起的小光芒束
-    ctx.fillStyle=isEnergy?'rgba(56,189,248,0.35)':(isTea?'rgba(251,191,36,0.3)':'rgba(74,222,128,0.3)');
+    ctx.fillStyle=isEnergy?'rgba(56,189,248,0.35)':(isLeg?'rgba(251,191,36,0.3)':'rgba(74,222,128,0.3)');
     ctx.beginPath();
     ctx.moveTo(it.x-14, it.y);
     ctx.lineTo(it.x+14, it.y);
@@ -1487,12 +1965,12 @@ function drawWorld(now){
     ctx.font='28px system-ui,sans-serif';
     ctx.textAlign='center';
     ctx.textBaseline='middle';
-    ctx.fillText(isEnergy?'⚡':(isTea?'🧋':'🍱'), it.x, it.y+bounce-3);
+    ctx.fillText(isEnergy?'⚡':(isLeg?'🍗':'🍱'), it.x, it.y+bounce-3);
 
     // 頂部小標籤
     ctx.font='bold 11px system-ui,sans-serif';
-    ctx.fillStyle=isEnergy?'#bae6fd':(isTea?'#fef08a':'#bbf7d0');
-    ctx.fillText(isEnergy?'+衝刺':(isTea?'+珍奶':'+體力'), it.x, it.y-22+bounce);
+    ctx.fillStyle=isEnergy?'#bae6fd':(isLeg?'#fef08a':'#bbf7d0');
+    ctx.fillText(isEnergy?'+衝刺':(isLeg?'+雞腿':'+體力'), it.x, it.y-22+bounce);
   }
   // 8. 車輛（精緻車款：小黃計程車、藍色發財貨車、流線轎車、超速跑車）
   for(const c of cars){
@@ -1681,9 +2159,9 @@ function drawWorld(now){
       ctx.fillText('⚠️ 追!',d.x,d.y-28+Math.sin(now/80)*3);
     }
   }
-  // 珍奶
+  // 雞腿
   ctx.font='22px system-ui,sans-serif';
-  for(const s of shots){ctx.save();ctx.translate(s.x,s.y);ctx.rotate(s.rot);ctx.fillText('🧋',0,0);ctx.restore();}
+  for(const s of shots){ctx.save();ctx.translate(s.x,s.y);ctx.rotate(s.rot);ctx.fillText('🍗',0,0);ctx.restore();}
   // 玩家
   if(!(P.inv>0&&Math.floor(now/90)%2)) drawPlayer(now);
   // 飄字
@@ -1995,12 +2473,16 @@ function drawHUD(now){
   ctx.fillStyle='#94a3b8'; ctx.font='bold 12px system-ui,sans-serif'; ctx.fillText('連擊',L+10,T+63);
   ctx.fillStyle=combo>0?'#f472b6':'#475569'; ctx.font='900 16px system-ui,sans-serif'; ctx.fillText('×'+combo+(combo>0?'  (加乘 '+(1+0.2*Math.min(combo,10)).toFixed(1)+')':''),L+44,T+63);
 
-  // 右：等級、差評（在按鈕下方）
-  const rw=138, rx=R-rw, ry=T+52;
+  // 右：關卡／進度、差評（在按鈕下方）
+  const rw=146, rx=R-rw, ry=T+52;
   hudPanel(rx,ry,rw,52);
   ctx.textAlign='left'; ctx.fillStyle='#6ee7b7'; ctx.font='900 13px system-ui,sans-serif';
-  const curCfg=STAGE_CONFIG[Math.min(STAGE_CONFIG.length-1,level-1)];
-  ctx.fillText('St.'+level+' '+curCfg.name.substring(0,6),rx+8,ry+15);
+  if(gameMode==='story'){
+    ctx.fillText(curMap.icon+' 進度 '+stats.delivered+'/'+curMap.goalOrders+'單',rx+8,ry+15);
+  }else{
+    const curCfg=STAGE_CONFIG[Math.min(STAGE_CONFIG.length-1,level-1)];
+    ctx.fillText('♾️ Lv.'+level+' '+curCfg.name.substring(0,5),rx+8,ry+15);
+  }
   ctx.fillStyle='#94a3b8'; ctx.font='bold 12px system-ui,sans-serif'; ctx.fillText('差評',rx+8,ry+37);
   for(let i=0;i<3;i++){
     ctx.beginPath(); ctx.arc(rx+54+i*22,ry+37,8,0,Math.PI*2);
@@ -2057,7 +2539,7 @@ function drawHUD(now){
     ctx.fillStyle='rgba(245,158,11,.9)'; ctx.beginPath(); ctx.arc(joy.ox+(l?dx/l*c:0),joy.oy+(l?dy/l*c:0),24,0,Math.PI*2); ctx.fill();
   }else if(hintT>0&&countdown<=0){
     ctx.globalAlpha=Math.min(1,hintT); ctx.textAlign='center'; ctx.font='bold 15px system-ui,sans-serif';
-    const msg=isTouch?'👆 按住畫面任一處拖曳＝移動　右下按鈕＝丟珍奶':'⌨️ WASD／方向鍵移動・空白鍵丟珍奶（滑鼠拖曳也可移動）';
+    const msg=isTouch?'👆 按住畫面任一處拖曳＝移動　右下按鈕＝丟雞腿':'⌨️ WASD／方向鍵移動・空白鍵丟雞腿（滑鼠拖曳也可移動）';
     const tw=ctx.measureText(msg).width+30;
     hudPanel(W/2-tw/2,H-safe.b-120,tw,34); ctx.fillStyle='#fde68a'; ctx.fillText(msg,W/2,H-safe.b-103);
     ctx.globalAlpha=1;
@@ -2092,15 +2574,16 @@ function draw(now){
   ctx.setTransform(s,0,0,s,(-cam.x*ZOOM+sx)*DPR,(-cam.y*ZOOM+sy)*DPR);
   drawWorld(now);
 
-  // 晝夜氛圍濾鏡（依關卡呈現晨光、正午、橘黃夕陽、紫粉魔幻或深藍街景）
-  if(G.state!=='title'){
+  // 晝夜氛圍濾鏡（依地圖與無限關卡呈現晨光、夕陽、夜色或港灣夜景）
+  if(G.state!=='title'&&G.state!=='story'){
     const cfg=STAGE_CONFIG[Math.min(STAGE_CONFIG.length-1,level-1)];
-    ctx.fillStyle=cfg.sky;
+    ctx.fillStyle=(gameMode==='endless'&&level>=4)?cfg.sky:curMap.sky;
     ctx.fillRect(cam.x-20,cam.y-20,(W/ZOOM)+40,(H/ZOOM)+40);
 
-    // 夜晚與深夜時的溫暖街燈光暈
-    if(cfg.lamp){
+    // 夜晚與黃昏時的溫暖街燈光暈
+    if(curMap.lamp || (gameMode==='endless'&&cfg.lamp)){
       for(const hy of HROADS) for(const vx of VROADS){
+        if(!onRoad(vx,hy,14)) continue;
         if(inView(vx-90,hy-90,180,180)){
           const lg=ctx.createRadialGradient(vx,hy,15,vx,hy,85);
           lg.addColorStop(0,'rgba(254,240,138,0.22)');
@@ -2113,7 +2596,7 @@ function draw(now){
   }
 
   ctx.setTransform(DPR,0,0,DPR,0,0);
-  if(G.state!=='title') drawHUD(now); else drawCharPreviews(now);
+  if(G.state!=='title'&&G.state!=='story') drawHUD(now); else drawCharPreviews(now);
 }
 
 /* ===================== 主迴圈 ===================== */
@@ -2122,7 +2605,7 @@ function loop(now){
   const dt=Math.min(0.05,Math.max(0,(now-lastFrame)/1000)); lastFrame=now;
   try{
     if(G.state==='play') update(dt);
-    else if(G.state==='title'){updateCars(dt);followCam(dt);}
+    else if(G.state==='title'||G.state==='story'){updateCars(dt);followCam(dt);}
     else if(G.state==='over'){updateCars(dt);if(shake>0)shake-=dt;for(const p of pops){p.t-=dt;p.y-=34*dt;}pops=pops.filter(p=>p.t>0);if(banner){banner.t-=dt;if(banner.t<=0)banner=null;}}
     draw(now);
   }catch(err){console.error(err);}
@@ -2146,7 +2629,7 @@ $('throwBtn').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropag
 addEventListener('keydown',e=>{
   const k=e.key.toLowerCase();
   if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k)) e.preventDefault();
-  if(e.repeat&&(k===' '||k==='j'||k==='p'||k==='m'||k==='escape')) return;
+  if(e.repeat&&(k===' '||k==='j'||k==='p'||k==='m'||k==='escape'||k==='enter')) return;
   keys[k]=true;
   if(k==='m'){ensureAudio();setMuted(!muted);return;}
   if(G.state==='play'){
@@ -2154,9 +2637,17 @@ addEventListener('keydown',e=>{
     if(k==='p'||k==='escape') pauseGame();
   }else if(G.state==='pause'){
     if(k==='p'||k==='escape'||k==='enter') resumeGame();
+  }else if(G.state==='story'){
+    if(k==='enter'||k===' ') {ensureAudio();sfx('click');nextStory();}
+    if(k==='escape') {ensureAudio();sfx('click');finishStory(true);}
   }else if(G.state==='title'){
-    if(k==='enter'&&!$('howto').classList.contains('show')) {sfx('click');startGame();}
-    if(k==='escape') showOnly('title');
+    if($('mapSel').classList.contains('show')){
+      if(k==='escape') showOnly('title');
+      else if(k==='enter'){ensureAudio();sfx('click');resetGame();if(!store.get('dug_story_seen_'+curMap.id,false))openStory(false);else startGame();}
+    }else{
+      if(k==='enter'&&!$('howto').classList.contains('show')) {sfx('click');beginDelivery();}
+      if(k==='escape') showOnly('title');
+    }
   }else if(G.state==='over'&&$('over').classList.contains('show')){
     if(k==='enter'||k===' ') startGame();
   }
@@ -2201,17 +2692,33 @@ function updateFullscreenBtn(){
   document.addEventListener(ev, updateFullscreenBtn);
 });
 function btn(id,fn){$(id).addEventListener('click',()=>{ensureAudio();sfx('click');fn();});}
-btn('startBtn',startGame);
+btn('startBtn',beginDelivery);
+btn('mapBack',()=>showOnly('title'));
+btn('storyBtn',()=>{buildMap(selectedMapIdx);openStory(true);});
+btn('storyNext',nextStory);
+btn('storyBox',nextStory);
+btn('storySkip',()=>finishStory(true));
 btn('howBtn',()=>showOnly('howto'));
 btn('howClose',()=>showOnly('title'));
 btn('resumeBtn',resumeGame);
 btn('restartBtn',startGame);
 btn('homeBtn1',goTitle);
+btn('nextStageBtn',()=>{
+  if(selectedMapIdx<MAPS.length-1){ selectedMapIdx++; store.set('dug_map',selectedMapIdx); }
+  resetGame();
+  if(!store.get('dug_story_seen_'+curMap.id,false)) openStory(false);
+  else startGame();
+});
 btn('againBtn',startGame);
+btn('mapBtn',openMapSel);
 btn('homeBtn2',goTitle);
 btn('pauseBtn',pauseGame);
 $('fullBtn').addEventListener('click',()=>{sfx('click');toggleFullScreen();});
 $('muteBtn').addEventListener('click',()=>{ensureAudio();setMuted(!muted);sfx('click');});
+document.querySelectorAll('.modeBtn').forEach(b=>b.addEventListener('click',()=>{
+  ensureAudio(); sfx('click'); gameMode=b.dataset.mode; store.set('dug_mode',gameMode);
+  document.querySelectorAll('.modeBtn').forEach(x=>x.classList.toggle('sel',x===b));
+}));
 document.querySelectorAll('.char').forEach(b=>b.addEventListener('click',()=>{
   ensureAudio(); sfx('click'); char=b.dataset.char; store.set('dug_char',char);
   document.querySelectorAll('.char').forEach(x=>x.classList.toggle('sel',x===b));
