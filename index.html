@@ -42,11 +42,12 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
 .gsub{font-size:15px;color:#6ee7b7;font-weight:800;margin:2px 0 8px;letter-spacing:1px}
 .best{display:inline-block;padding:4px 12px;border-radius:20px;background:#0b1222;border:1px solid #334155;color:#fbbf24;font-weight:800;font-size:14px}
 .chars{display:flex;gap:12px;justify-content:center;margin:10px 0 6px;flex-wrap:wrap}
-.char{width:176px;padding:8px 10px;border-radius:16px;border:2px solid #334155;background:#0f172a;color:#cbd5e1;font-weight:800;font-size:15px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:3px;transition:transform .12s,border-color .12s,background .12s}
-.char canvas{width:136px;height:76px;border-radius:10px;background:radial-gradient(circle at 50% 55%,#1e293b,#0b1222);border:1px solid #1e293b;display:block}
+.char{width:186px;padding:9px 11px;border-radius:16px;border:2px solid #334155;background:linear-gradient(165deg,#131d33,#0b1222);color:#cbd5e1;font-weight:800;font-size:15px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px;transition:transform .12s,border-color .12s,background .12s,box-shadow .12s}
+.char canvas{width:152px;height:84px;border-radius:11px;background:radial-gradient(circle at 50% 55%,#1e293b,#0b1222);border:1.5px solid #26344b;display:block}
 .char .cn{font-size:15px;font-weight:900;color:#fff}
 .char .cd{font-size:11px;color:#94a3b8;font-weight:700}
-.char.sel{border-color:#fbbf24;background:#2a2410;color:#fff;box-shadow:0 0 0 3px rgba(251,191,36,.28);transform:translateY(-2px)}
+.char.sel{border-color:#fbbf24;background:linear-gradient(165deg,#332a12,#1c1608);color:#fff;box-shadow:0 0 0 3px rgba(251,191,36,.32),0 8px 20px rgba(251,191,36,.18);transform:translateY(-2px)}
+.char.sel canvas{border-color:rgba(251,191,36,.55)}
 .char.sel .cn{color:#fde68a}
 .char.sel .cd{color:#fcd34d}
 .small{font-size:12px;color:#64748b;margin-top:6px}
@@ -59,7 +60,7 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
 .storySkip{background:none;border:1px solid #475569;color:#94a3b8;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit}
 .storySkip:hover{color:#fff;border-color:#94a3b8}
 .storyBox{display:flex;align-items:center;gap:14px;background:#0b1222;border:1.5px solid #334155;border-radius:14px;padding:14px 16px;text-align:left;min-height:92px;cursor:pointer}
-.storyAva{font-size:42px;line-height:1;flex:0 0 auto;width:54px;height:54px;border-radius:14px;background:#16213a;border:1px solid #334155;display:flex;align-items:center;justify-content:center}
+.storyAva{font-size:42px;line-height:1;flex:0 0 auto;width:54px;height:54px;border-radius:14px;background:#16213a;border:1.5px solid #334155;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .storyBody{flex:1;min-width:0}
 .storySpeaker{font-size:13px;font-weight:900;color:#6ee7b7;margin-bottom:4px}
 .storyText{font-size:15px;line-height:1.6;color:#f1f5f9;font-weight:700}
@@ -127,12 +128,12 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
   </div>
   <div class="chars">
     <button class="char" data-char="M">
-      <canvas id="prevM" width="136" height="76"></canvas>
+      <canvas id="prevM" width="304" height="168"></canvas>
       <span class="cn">👨 阿豪大叔</span>
       <span class="cd">黃帽八字鬍・藍勁速車</span>
     </button>
     <button class="char" data-char="F">
-      <canvas id="prevF" width="136" height="76"></canvas>
+      <canvas id="prevF" width="304" height="168"></canvas>
       <span class="cn">👩 妮野可</span>
       <span class="cd">貓耳安全帽・飄逸馬尾粉車</span>
     </button>
@@ -1148,7 +1149,7 @@ function resetGame(){
   // 出生點設置在安全停車起點（店家或建築門口旁）
   const spawnX = places[0].door.x;
   const spawnY = places[0].door.y;
-  P={x:spawnX,y:spawnY,r:14,angle:0,fx:1,fy:0,hp:100,ammo:4,inv:3.5,moving:false,boost:0,stopT:0}; // 開場給予 3.5 秒倒數無敵防禦與 4 支雞腿
+  P={x:spawnX,y:spawnY,r:14,angle:0,steer:0,fx:1,fy:0,hp:100,ammo:4,inv:3.5,moving:false,boost:0,stopT:0}; // 開場給予 3.5 秒倒數無敵防禦與 4 支雞腿
   cars=[];dogs=[];shots=[];items=[];pops=[];
   level=1;strikes=0;combo=0;lastStars=0;lastWasVip=false;redCooldown=0;tutDogShown=false;
   stats={score:0,delivered:0,maxCombo:0,near:0,dogs:0,time:0};
@@ -1469,9 +1470,116 @@ function getStorySteps(){
     {ava:charAva, speaker:charName, text:'傳說中的台灣環台外送車神最終戰！催到底衝向台北 101——！'}
   ];
 }
+function renderCharPortrait(cv, gender){
+  const c=cv.getContext('2d'), F=gender==='F';
+  c.setTransform(2,0,0,2,0,0);
+  c.clearRect(0,0,54,54);
+  const bg=c.createRadialGradient(27,20,4,27,27,36);
+  bg.addColorStop(0,F?'#4c1d4b':'#1e3a5f');
+  bg.addColorStop(1,'#0f172a');
+  c.fillStyle=bg; c.fillRect(0,0,54,54);
+
+  // 馬尾在背景後方（妮野可）
+  if(F){
+    c.fillStyle='#581c87'; c.strokeStyle='#1e1b4b'; c.lineWidth=1.2;
+    c.beginPath(); c.moveTo(36,16); c.quadraticCurveTo(49,18,47,36); c.quadraticCurveTo(41,38,37,26); c.closePath(); c.fill(); c.stroke();
+    c.fillStyle='#c084fc';
+    c.beginPath(); c.moveTo(39,19); c.quadraticCurveTo(45,22,44,32); c.quadraticCurveTo(41,26,38,21); c.closePath(); c.fill();
+    c.fillStyle='#fde047'; c.beginPath(); c.arc(38,16,3,0,Math.PI*2); c.fill();
+  }
+
+  // 肩膀與外套
+  if(F){
+    c.fillStyle='#fff1f2'; c.strokeStyle='#1e293b'; c.lineWidth=1.4;
+    c.beginPath(); c.moveTo(8,54); c.quadraticCurveTo(10,39,27,39); c.quadraticCurveTo(44,39,46,54); c.closePath(); c.fill(); c.stroke();
+    c.fillStyle='#10b981';
+    c.fillRect(16,41,4.5,13); c.fillRect(33.5,41,4.5,13);
+    c.fillStyle='#f43f5e';
+    c.beginPath(); c.moveTo(21,40); c.lineTo(27,46); c.lineTo(33,40); c.closePath(); c.fill();
+  } else {
+    c.fillStyle='#1e3a8a'; c.strokeStyle='#0f172a'; c.lineWidth=1.4;
+    c.beginPath(); c.moveTo(6,54); c.quadraticCurveTo(8,38,27,38); c.quadraticCurveTo(46,38,48,54); c.closePath(); c.fill(); c.stroke();
+    c.fillStyle='#facc15';
+    c.beginPath(); c.moveTo(13,40); c.lineTo(22,40); c.lineTo(24,54); c.lineTo(12,54); c.closePath(); c.fill();
+    c.beginPath(); c.moveTo(32,40); c.lineTo(41,40); c.lineTo(42,54); c.lineTo(30,54); c.closePath(); c.fill();
+    c.fillStyle='#f8fafc';
+    c.fillRect(14,45,7,2); c.fillRect(33,45,7,2);
+  }
+
+  // 臉部
+  const sg=c.createRadialGradient(25,25,2,27,27,14);
+  sg.addColorStop(0,F?'#fff1f2':'#fed7aa');
+  sg.addColorStop(1,F?'#fecdd3':'#fb923c');
+  c.fillStyle=sg; c.strokeStyle='#1e293b'; c.lineWidth=1.3;
+  c.beginPath(); c.arc(27,27,12.5,0,Math.PI*2); c.fill(); c.stroke();
+
+  if(F){
+    // 劉海與雙眼
+    c.fillStyle='#6b21a8';
+    c.beginPath(); c.moveTo(14,24); c.quadraticCurveTo(18,15,27,16); c.quadraticCurveTo(36,15,40,24);
+    c.quadraticCurveTo(33,19,27,22); c.quadraticCurveTo(21,19,14,24); c.closePath(); c.fill();
+    c.fillStyle='#fb7185';
+    c.beginPath(); c.ellipse(19.5,30,2.6,1.5,0,0,Math.PI*2); c.ellipse(34.5,30,2.6,1.5,0,0,Math.PI*2); c.fill();
+    c.fillStyle='#1e1b4b';
+    c.beginPath(); c.arc(22,27,2.1,0,Math.PI*2); c.arc(32,27,2.1,0,Math.PI*2); c.fill();
+    c.fillStyle='#fff';
+    c.beginPath(); c.arc(22.7,26.2,0.8,0,Math.PI*2); c.arc(32.7,26.2,0.8,0,Math.PI*2); c.fill();
+    c.strokeStyle='#be185d'; c.lineWidth=1.3; c.lineCap='round';
+    c.beginPath(); c.arc(27,31.2,2.4,0.15*Math.PI,0.85*Math.PI); c.stroke();
+
+    // 貓耳安全帽
+    const hg=c.createLinearGradient(13,6,41,22);
+    hg.addColorStop(0,'#fbcfe8'); hg.addColorStop(0.55,'#f472b6'); hg.addColorStop(1,'#db2777');
+    c.fillStyle=hg; c.strokeStyle='#500724'; c.lineWidth=1.3;
+    c.beginPath(); c.arc(27,23,14.2,Math.PI*1.04,Math.PI*1.96); c.quadraticCurveTo(27,16,12.8,21.5); c.closePath(); c.fill(); c.stroke();
+    // 貓耳
+    [[-1,17,12,8],[1,37,42,8]].forEach(([s,x0,x1,yTip])=>{
+      c.fillStyle='#f472b6'; c.strokeStyle='#500724'; c.lineWidth=1.2;
+      c.beginPath(); c.moveTo(x0,14); c.lineTo(x1,5); c.lineTo(x0+s*7,11); c.closePath(); c.fill(); c.stroke();
+      c.fillStyle='#fda4af';
+      c.beginPath(); c.moveTo(x0+s*1.2,13); c.lineTo(x1+s*0.5,7); c.lineTo(x0+s*5.2,11.2); c.closePath(); c.fill();
+    });
+    // 透明護目鏡片高光
+    c.strokeStyle='rgba(224,242,254,0.85)'; c.lineWidth=1.8;
+    c.beginPath(); c.arc(27,23,13.5,Math.PI*1.12,Math.PI*1.88); c.stroke();
+  } else {
+    // 濃眉、眼睛、八字鬍與笑臉
+    c.strokeStyle='#1e293b'; c.lineWidth=2; c.lineCap='round';
+    c.beginPath(); c.moveTo(19,23.5); c.lineTo(24,24.5); c.moveTo(35,23.5); c.lineTo(30,24.5); c.stroke();
+    c.fillStyle='#0f172a';
+    c.beginPath(); c.arc(22,26.8,1.9,0,Math.PI*2); c.arc(32,26.8,1.9,0,Math.PI*2); c.fill();
+    c.fillStyle='#fff';
+    c.beginPath(); c.arc(22.6,26.1,0.7,0,Math.PI*2); c.arc(32.6,26.1,0.7,0,Math.PI*2); c.fill();
+    // 招牌八字鬍
+    c.fillStyle='#1f2937';
+    c.beginPath();
+    c.moveTo(27,30.2); c.quadraticCurveTo(21,29.2,17.5,33.5); c.quadraticCurveTo(21,34.5,27,32.5);
+    c.quadraticCurveTo(33,34.5,36.5,33.5); c.quadraticCurveTo(33,29.2,27,30.2); c.fill();
+    c.strokeStyle='#fff'; c.lineWidth=1.4;
+    c.beginPath(); c.arc(27,34.2,2.8,0.1*Math.PI,0.9*Math.PI); c.stroke();
+
+    // 工程黃安全帽 + 藍條紋 + 護目鏡
+    const hg=c.createLinearGradient(13,6,41,22);
+    hg.addColorStop(0,'#fef08a'); hg.addColorStop(0.55,'#facc15'); hg.addColorStop(1,'#ca8a04');
+    c.fillStyle=hg; c.strokeStyle='#422006'; c.lineWidth=1.3;
+    c.beginPath(); c.arc(27,23,14.4,Math.PI*1.03,Math.PI*1.97); c.quadraticCurveTo(27,16,12.6,21.5); c.closePath(); c.fill(); c.stroke();
+    c.fillStyle='#1e3a8a'; c.fillRect(24.5,8.8,5,8.5);
+    // 護目鏡
+    c.fillStyle='#334155'; rrc(c,15,15,10,6.5,2.5); c.fill(); rrc(c,29,15,10,6.5,2.5); c.fill();
+    c.fillStyle='#38bdf8'; rrc(c,16.2,16.1,7.6,4.3,1.8); c.fill(); rrc(c,30.2,16.1,7.6,4.3,1.8); c.fill();
+    c.strokeStyle='rgba(255,255,255,0.7)'; c.lineWidth=1.1;
+    c.beginPath(); c.moveTo(17.5,19.5); c.lineTo(20.5,16.8); c.moveTo(31.5,19.5); c.lineTo(34.5,16.8); c.stroke();
+  }
+}
 function renderStory(){
   const steps=getStorySteps(), st=steps[storyIdx];
-  $('storyAva').textContent=st.ava;
+  const avaEl=$('storyAva');
+  if(st.ava==='👨'||st.ava==='👩'){
+    avaEl.innerHTML='<canvas width="108" height="108" style="width:54px;height:54px;display:block"></canvas>';
+    renderCharPortrait(avaEl.firstChild, st.ava==='👩'?'F':'M');
+  } else {
+    avaEl.textContent=st.ava;
+  }
   $('storySpeaker').textContent=st.speaker;
   $('storyText').textContent=st.text;
   $('storySkip').textContent=storyFromBtn?'✕ 關閉':'略過 ⏭';
@@ -2174,7 +2282,12 @@ function update(dt){
   const curSpeed=P.boost>0?295:210; // 能量飲料衝刺加速 +40%
   if(P.moving){
     moveEnt(P,v.x*curSpeed*dt,v.y*curSpeed*dt,P.r,true);
-    P.angle=Math.atan2(v.y,v.x); const L=Math.hypot(v.x,v.y); P.fx=v.x/L; P.fy=v.y/L;
+    const newAng=Math.atan2(v.y,v.x);
+    const da=Math.atan2(Math.sin(newAng-P.angle),Math.cos(newAng-P.angle));
+    P.steer=clamp((P.steer||0)*(1-Math.min(1,dt*10))+da*4.2,-1,1);
+    P.angle=newAng; const L=Math.hypot(v.x,v.y); P.fx=v.x/L; P.fy=v.y/L;
+  } else {
+    P.steer=(P.steer||0)*Math.max(0,1-dt*8);
   }
   if(P.inv>0) P.inv-=dt;
 
@@ -3127,28 +3240,71 @@ function drawWorld(now){
 
   // 5. 行人（沿人行道漫步／路口停等／斑馬線過馬路）
   for(const ped of peds){
-    if(!inView(ped.x-15,ped.y-15,30,30)) continue;
-    const walkBob=(ped.state!=='wait')?Math.sin(now/110+ped.x*0.08)*1.6:0;
+    if(!inView(ped.x-18,ped.y-18,36,36)) continue;
+    const walking=ped.state!=='wait';
+    const walkPhase=walking?Math.sin(now/105+ped.x*0.09):0;
+    const walkBob=walking?Math.abs(walkPhase)*1.4:0;
+    const armSwing=walking?walkPhase*3.2:0;
     ctx.save();
-    ctx.translate(ped.x,ped.y+walkBob);
-    // 影子
-    ctx.fillStyle='rgba(0,0,0,0.35)';
-    ctx.beginPath(); ctx.ellipse(0,3-walkBob*0.5,7,4,0,0,Math.PI*2); ctx.fill();
+    ctx.translate(ped.x,ped.y-walkBob);
+    // 地面影子
+    ctx.fillStyle='rgba(0,0,0,0.34)';
+    ctx.beginPath(); ctx.ellipse(0,5+walkBob*0.5,7.5,4.2,0,0,Math.PI*2); ctx.fill();
 
-    // 衣服身體
-    ctx.fillStyle=ped.color;
-    ctx.beginPath(); ctx.arc(0,0,5.5,0,Math.PI*2); ctx.fill();
-    // 頭與黑髮
+    ctx.save();
+    if(ped.dir<0) ctx.scale(-1,1);
+    // 雙腳步態
     ctx.fillStyle='#1e293b';
-    ctx.beginPath(); ctx.arc(0,-2,3.8,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#fde68a';
-    ctx.beginPath(); ctx.arc(0,-1.5,2.6,0,Math.PI*2); ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(-2+armSwing*0.7,4,2.4,1.6,0,0,Math.PI*2);
+    ctx.ellipse(2-armSwing*0.7,4,2.4,1.6,0,0,Math.PI*2);
+    ctx.fill();
+    // 擺動手臂
+    ctx.fillStyle='#fde68a'; ctx.strokeStyle='#0f172a'; ctx.lineWidth=0.9;
+    ctx.beginPath(); ctx.arc(armSwing,-5.2,2.1,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.arc(-armSwing,5.2,2.1,0,Math.PI*2); ctx.fill(); ctx.stroke();
 
-    // 過馬路提示🚶；路口停等時顯示微小停等點
+    // 背包或提袋依角色變化
+    if(ped.role==='學生'){
+      ctx.fillStyle='#334155'; rrc(ctx,-7.5,-4.2,4.5,8.4,1.8); ctx.fill();
+    } else if(ped.role==='阿姨'){
+      ctx.fillStyle='#fb7185'; rrc(ctx,-2,4.5,4.5,3.5,1); ctx.fill();
+    }
+
+    // 身體上衣與領口
+    ctx.fillStyle=ped.color; ctx.strokeStyle='#0f172a'; ctx.lineWidth=1.1;
+    ctx.beginPath(); ctx.ellipse(0,0,5.2,6.4,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+
+    // 頭部與臉頰
+    ctx.fillStyle='#fde68a';
+    ctx.beginPath(); ctx.arc(1.2,0,4.2,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    // 髮型／帽子依角色區分
+    if(ped.role==='阿伯'){
+      ctx.fillStyle='#cbd5e1';
+      ctx.beginPath(); ctx.arc(-0.4,0,4.3,Math.PI*0.45,Math.PI*1.55); ctx.fill();
+      ctx.fillStyle='#38bdf8'; // 小鴨舌帽
+      ctx.beginPath(); ctx.arc(0.4,0,4.3,-Math.PI*0.4,Math.PI*0.4); ctx.fill();
+    } else if(ped.role==='辣妹'){
+      ctx.fillStyle='#78350f';
+      ctx.beginPath(); ctx.arc(-0.5,0,4.5,Math.PI*0.35,Math.PI*1.65); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(-5.2,0,2.8,1.8,0,0,Math.PI*2); ctx.fill(); // 馬尾
+    } else if(ped.role==='阿姨'){
+      ctx.fillStyle='#334155';
+      ctx.beginPath(); ctx.arc(-0.6,0,4.8,Math.PI*0.3,Math.PI*1.7); ctx.fill();
+    } else {
+      ctx.fillStyle='#1e293b';
+      ctx.beginPath(); ctx.arc(-0.3,0,4.3,Math.PI*0.35,Math.PI*1.65); ctx.fill();
+    }
+    // 眼睛
+    ctx.fillStyle='#0f172a';
+    ctx.beginPath(); ctx.arc(3.6,-1.4,0.75,0,Math.PI*2); ctx.arc(3.6,1.4,0.75,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+
+    // 過馬路提示🚶
     if(ped.isCrossing){
       ctx.font='12px system-ui,sans-serif';
       ctx.textAlign='center';
-      ctx.fillText('🚶',0,-12);
+      ctx.fillText('🚶',0,-13);
     }
     ctx.restore();
   }
@@ -3486,8 +3642,73 @@ function drawWorld(now){
       ctx.stroke();
       ctx.setLineDash([]);
     }
-    ctx.font='32px system-ui,sans-serif';
-    ctx.save(); ctx.translate(d.x,d.y); if(d.dx>0||(d.chase&&P.x>d.x)) ctx.scale(-1,1); ctx.fillText('🐕',0,0); ctx.restore();
+    // 精緻向量台灣土狗（奔跑動態四肢、搖尾巴、項圈與神情）
+    const dogAng=d.chase?Math.atan2(P.y-d.y,P.x-d.x):Math.atan2(d.dy||0,d.dx||1);
+    const pawRun=d.stun>0?0:Math.sin(now/(isChasing?48:110))*3.4;
+    const tailWag=Math.sin(now/(isChasing?42:120))*(d.eat>0?0.6:0.45);
+    ctx.save();
+    ctx.translate(d.x,d.y);
+    // 地面陰影
+    ctx.fillStyle='rgba(0,0,0,0.34)';
+    ctx.beginPath(); ctx.ellipse(0,3,13,7,0,0,Math.PI*2); ctx.fill();
+    ctx.rotate(dogAng);
+
+    // 捲翹搖擺尾巴
+    ctx.save();
+    ctx.translate(-11,0);
+    ctx.rotate(tailWag);
+    ctx.strokeStyle='#b45309'; ctx.lineWidth=3.6; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.quadraticCurveTo(-5,-4,-7,-1); ctx.stroke();
+    ctx.strokeStyle='#fbbf24'; ctx.lineWidth=2.2;
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.quadraticCurveTo(-5,-4,-7,-1); ctx.stroke();
+    ctx.restore();
+
+    // 四隻奔跑小腳
+    ctx.fillStyle='#fef3c7'; ctx.strokeStyle='#451a03'; ctx.lineWidth=0.9;
+    [[-6+pawRun,-6.5],[-6-pawRun,6.5],[6-pawRun,-6.5],[6+pawRun,6.5]].forEach(([px,py])=>{
+      ctx.beginPath(); ctx.ellipse(px,py,2.6,1.8,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    });
+
+    // 身體毛皮漸層
+    const dg=ctx.createLinearGradient(-11,-7,11,7);
+    dg.addColorStop(0,'#fbbf24'); dg.addColorStop(0.6,'#f59e0b'); dg.addColorStop(1,'#d97706');
+    ctx.fillStyle=dg; ctx.strokeStyle='#451a03'; ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.ellipse(-1,0,11.5,6.8,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    // 背部淺色毛紋
+    ctx.fillStyle='rgba(254,243,199,0.45)';
+    ctx.beginPath(); ctx.ellipse(-2,0,6.5,3.2,0,0,Math.PI*2); ctx.fill();
+
+    // 紅項圈＋金鈴鐺
+    ctx.strokeStyle='#dc2626'; ctx.lineWidth=2.4;
+    ctx.beginPath(); ctx.moveTo(6.5,-5.2); ctx.lineTo(6.5,5.2); ctx.stroke();
+    ctx.fillStyle='#fde047'; ctx.beginPath(); ctx.arc(8,0,1.6,0,Math.PI*2); ctx.fill();
+
+    // 狗頭與吻部
+    ctx.fillStyle='#f59e0b'; ctx.strokeStyle='#451a03'; ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.ellipse(10.5,0,6.8,6.2,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    // 奶油色口鼻
+    ctx.fillStyle='#fef3c7';
+    ctx.beginPath(); ctx.ellipse(14.5,0,3.8,3.2,0,0,Math.PI*2); ctx.fill();
+    // 豎立／微壓尖耳
+    ctx.fillStyle='#b45309'; ctx.strokeStyle='#451a03'; ctx.lineWidth=1;
+    const earBack=isChasing?-2.5:0;
+    ctx.beginPath(); ctx.moveTo(8,-4.5); ctx.lineTo(5+earBack,-10.2); ctx.lineTo(12,-5.5); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(8,4.5); ctx.lineTo(5+earBack,10.2); ctx.lineTo(12,5.5); ctx.closePath(); ctx.fill(); ctx.stroke();
+    // 黑鼻頭
+    ctx.fillStyle='#0f172a'; ctx.beginPath(); ctx.arc(17.2,0,1.6,0,Math.PI*2); ctx.fill();
+    // 眼睛神情（追擊兇眼 vs 吃雞腿開心眼 vs 普通圓眼）
+    if(d.eat>0){
+      ctx.strokeStyle='#1e293b'; ctx.lineWidth=1.3;
+      ctx.beginPath(); ctx.arc(12,-2.5,1.5,Math.PI,0); ctx.arc(12,2.5,1.5,Math.PI,0); ctx.stroke();
+    } else {
+      ctx.fillStyle=isChasing?'#ef4444':'#0f172a';
+      ctx.beginPath(); ctx.arc(12.6,-2.4,1.2,0,Math.PI*2); ctx.arc(12.6,2.4,1.2,0,Math.PI*2); ctx.fill();
+      if(isChasing){
+        ctx.strokeStyle='#0f172a'; ctx.lineWidth=1.4;
+        ctx.beginPath(); ctx.moveTo(11,-4); ctx.lineTo(13.8,-1.6); ctx.moveTo(11,4); ctx.lineTo(13.8,1.6); ctx.stroke();
+      }
+    }
+    ctx.restore();
     if(d.stun>0){
       ctx.font='18px system-ui,sans-serif';
       ctx.fillText(d.eat>0?'🍖💤':'💫',d.x,d.y-26);
@@ -3666,266 +3887,387 @@ function rrc(c,x,y,w,h,r){
   c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r);
   c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath();
 }
-function renderRider(c,gender,now,moving,hasMeal,scale,boosting){
+function renderRider(c,gender,now,moving,hasMeal,scale,boosting,lean=0){
   const F=gender==='F';
-  const vib=moving?(boosting?Math.sin(now/22)*1.1:Math.sin(now/35)*0.55):Math.sin(now/240)*0.2;
+  const vib=moving?(boosting?Math.sin(now/22)*1.05:Math.sin(now/35)*0.5):Math.sin(now/260)*0.18;
+  const steerAng=lean*0.16;
+  const bodyShift=lean*1.25;
   c.save();
   c.scale(scale,scale);
 
-  // 1. 地面陰影
-  c.fillStyle='rgba(0,0,0,.42)';
-  c.beginPath(); c.ellipse(-2,2,27,13,0,0,Math.PI*2); c.fill();
+  // 1. 雙層柔和地面陰影
+  c.fillStyle='rgba(0,0,0,.22)';
+  c.beginPath(); c.ellipse(-3,2.5,31,15,0,0,Math.PI*2); c.fill();
+  c.fillStyle='rgba(0,0,0,.35)';
+  c.beginPath(); c.ellipse(-2,2,25,11.5,0,0,Math.PI*2); c.fill();
 
-  // 加速衝刺狀態：車身青藍色電光能量外圈與殘影
+  // 加速衝刺狀態：青藍電光能量環、速度氣流線與雙噴射氮氣藍焰
   if(boosting){
-    c.strokeStyle='rgba(56,189,248,0.7)';
-    c.lineWidth=3;
-    c.beginPath();
-    c.ellipse(-3, 0, 36, 20, 0, 0, Math.PI*2);
-    c.stroke();
+    c.strokeStyle='rgba(56,189,248,0.78)';
+    c.lineWidth=2.6;
+    c.beginPath(); c.ellipse(-3,0,37,20.5,0,0,Math.PI*2); c.stroke();
+    c.strokeStyle='rgba(250,204,21,0.45)';
+    c.lineWidth=1.4;
+    c.beginPath(); c.ellipse(-3,0,34,18,0,0,Math.PI*2); c.stroke();
 
     // 噴射氮氣藍焰
-    c.fillStyle='rgba(56,189,248,0.9)';
-    c.beginPath();
-    c.moveTo(-24, 6);
-    c.lineTo(-44-Math.sin(now/40)*8, 9);
-    c.lineTo(-24, 12);
-    c.closePath();
-    c.fill();
+    const fl=Math.sin(now/36)*7;
+    c.fillStyle='rgba(56,189,248,0.92)';
+    c.beginPath(); c.moveTo(-24,6); c.lineTo(-46-fl,9.5); c.lineTo(-24,13); c.closePath(); c.fill();
     c.fillStyle='#ffffff';
+    c.beginPath(); c.moveTo(-24,7.8); c.lineTo(-36-fl*0.5,9.5); c.lineTo(-24,11.2); c.closePath(); c.fill();
+
+    // 速度流線
+    c.strokeStyle='rgba(186,230,253,0.65)'; c.lineWidth=1.3; c.lineCap='round';
+    const wOff=(now*0.25)%18;
     c.beginPath();
-    c.moveTo(-24, 7.5);
-    c.lineTo(-34-Math.sin(now/40)*4, 9);
-    c.lineTo(-24, 10.5);
-    c.closePath();
-    c.fill();
+    c.moveTo(-14-wOff,-17); c.lineTo(-28-wOff,-17);
+    c.moveTo(-18-(wOff+9)%18,17); c.lineTo(-32-(wOff+9)%18,17);
+    c.stroke();
   }
 
-  // 2. 車頭燈光束
-  const grad=c.createLinearGradient(18,0,56,0);
-  grad.addColorStop(0,'rgba(254,249,195,.42)');
+  // 2. 車頭燈立體光束
+  const grad=c.createLinearGradient(19,0,62,0);
+  grad.addColorStop(0,'rgba(254,249,195,.46)');
+  grad.addColorStop(0.55,'rgba(254,240,138,.16)');
   grad.addColorStop(1,'rgba(254,249,195,0)');
   c.fillStyle=grad;
-  c.beginPath(); c.moveTo(19,-4); c.lineTo(56,-15); c.lineTo(56,15); c.lineTo(19,4); c.closePath(); c.fill();
+  c.beginPath(); c.moveTo(20,-4.5); c.lineTo(62,-17); c.lineTo(62,17); c.lineTo(20,4.5); c.closePath(); c.fill();
 
-  // 3. 排氣管與動態尾氣
-  c.fillStyle='#64748b'; rrc(c,-22,8.5,13,3.5,1.5); c.fill();
-  c.fillStyle='#334155'; c.fillRect(-23,9.2,3,2.2);
-  if(moving){
-    const p1=(now/90)%1, p2=((now/90)+0.5)%1;
-    c.fillStyle='rgba(226,232,240,'+(0.45*(1-p1))+')';
-    c.beginPath(); c.arc(-25-p1*13,10+Math.sin(now/70)*1.5,2.2+p1*3.2,0,Math.PI*2); c.fill();
-    c.fillStyle='rgba(226,232,240,'+(0.4*(1-p2))+')';
-    c.beginPath(); c.arc(-25-p2*13,10-Math.cos(now/70)*1.5,2+p2*3,0,Math.PI*2); c.fill();
-  }
-
-  // 4. 前後輪胎
-  c.fillStyle='#0f172a';
-  rrc(c,12,-3.2,11,6.4,3); c.fill();
-  rrc(c,-24,-3.2,10,6.4,3); c.fill();
-
-  c.translate(0,vib);
-
-  // 5. 摩托車車體（後整流罩 ➔ 腳踏板 ➔ 前斜板）
-  c.fillStyle=F?'#f472b6':'#1d4ed8';
-  rrc(c,-21,-9.5,20,19,6); c.fill();
-  c.strokeStyle=F?'#fbcfe8':'#60a5fa'; c.lineWidth=1.2; c.stroke();
-  c.fillStyle=F?'#fdf2f8':'#38bdf8';
-  c.fillRect(-16,-8.5,10,2); c.fillRect(-16,6.5,10,2);
-
-  // 中央腳踏板
-  c.fillStyle='#1f2937';
-  rrc(c,-3,-7.5,12,15,3); c.fill();
-  c.strokeStyle='#374151'; c.lineWidth=1;
-  c.beginPath(); c.moveTo(0,-5.5); c.lineTo(6,-5.5); c.moveTo(0,0); c.lineTo(6,0); c.moveTo(0,5.5); c.lineTo(6,5.5); c.stroke();
-
-  // 機車坐墊
-  c.fillStyle=F?'#78350f':'#111827';
-  rrc(c,-15,-6.5,14,13,4.5); c.fill();
-  c.strokeStyle=F?'#a16207':'#334155'; c.lineWidth=1; c.stroke();
-
-  // 前車頭斜板
-  c.fillStyle=F?'#ec4899':'#2563eb';
-  c.beginPath();
-  c.moveTo(6,-9.5); c.quadraticCurveTo(19,-8.5,20,0); c.quadraticCurveTo(19,8.5,6,9.5); c.closePath();
-  c.fill();
-  c.strokeStyle=F?'#fce7f3':'#93c5fd'; c.lineWidth=1.2; c.stroke();
-
-  // 前車頭飾板與大燈、方向燈
-  c.fillStyle=F?'#fdf2f8':'#1e3a8a';
-  c.beginPath(); c.moveTo(10,-5); c.lineTo(17,-3); c.lineTo(17,3); c.lineTo(10,5); c.closePath(); c.fill();
-  c.fillStyle='#fef08a';
-  c.beginPath(); c.ellipse(19,0,2.2,4.2,0,0,Math.PI*2); c.fill();
-  c.fillStyle='#fb923c';
-  c.beginPath(); c.arc(16,-6.8,1.5,0,Math.PI*2); c.arc(16,6.8,1.5,0,Math.PI*2); c.fill();
-
-  // 尾燈
-  c.fillStyle='#ef4444';
-  c.fillRect(-21.5,-4,2,8);
-
-  // 6. 後方外送保溫箱（架在後貨架上）
-  c.fillStyle=hasMeal?'#10b981':'#f59e0b';
-  rrc(c,-31,-10.5,14,21,3.5); c.fill();
-  c.strokeStyle='#fff'; c.lineWidth=1.4; c.stroke();
-  c.fillStyle=hasMeal?'#047857':'#b45309';
-  c.fillRect(-28,-9,8,18);
-  c.fillStyle='#fef08a';
-  c.fillRect(-30,-7.5,2,15);
-  c.fillStyle='#fff'; c.font='bold 8px system-ui,sans-serif'; c.textAlign='center'; c.textBaseline='middle';
-  c.fillText(hasMeal?'熱':'外',-24,0);
-
-  // 7. 車手把、握把、儀表與左右後照鏡
-  c.strokeStyle='#94a3b8'; c.lineWidth=2.6; c.lineCap='round';
-  c.beginPath(); c.moveTo(9,-13); c.lineTo(11,0); c.lineTo(9,13); c.stroke();
-  c.strokeStyle='#0f172a'; c.lineWidth=3.8;
-  c.beginPath(); c.moveTo(9,-13.5); c.lineTo(9,-9); c.moveTo(9,9); c.lineTo(9,13.5); c.stroke();
-  c.fillStyle='#0f172a'; c.beginPath(); c.arc(11.5,0,3.2,0,Math.PI*2); c.fill();
-  c.fillStyle='#38bdf8'; c.beginPath(); c.arc(11.5,0,1.8,0,Math.PI*2); c.fill();
-  c.strokeStyle='#cbd5e1'; c.lineWidth=1.3;
-  c.beginPath(); c.moveTo(10,-11); c.lineTo(13,-16); c.moveTo(10,11); c.lineTo(13,16); c.stroke();
-  c.fillStyle=F?'#f9a8d4':'#64748b';
-  c.beginPath();
-  if(F){ c.arc(13.5,-16.8,2.6,0,Math.PI*2); c.arc(13.5,16.8,2.6,0,Math.PI*2); }
-  else { c.ellipse(13.5,-16.8,2.2,3.2,-0.3,0,Math.PI*2); c.ellipse(13.5,16.8,2.2,3.2,0.3,0,Math.PI*2); }
-  c.fill();
-  c.strokeStyle='#e2e8f0'; c.lineWidth=0.9; c.stroke();
-
-  // 8. 騎士下半身（跨坐在坐墊上、膝蓋彎曲踩在踏板上）
-  c.fillStyle=F?'#f43f5e':'#334155';
-  c.beginPath(); c.ellipse(4.5,-7,3.8,2.1,0.1,0,Math.PI*2); c.ellipse(4.5,7,3.8,2.1,-0.1,0,Math.PI*2); c.fill();
-  c.strokeStyle=F?'#312e81':'#1e3a8a';
-  c.lineWidth=F?4.2:5; c.lineCap='round';
-  c.beginPath();
-  c.moveTo(-6,-5); c.quadraticCurveTo(0,-8.5,4,-6.8);
-  c.moveTo(-6,5);  c.quadraticCurveTo(0,8.5,4,6.8);
-  c.stroke();
-
-  // 9. 騎士上半身軀幹與雙臂伸向握把
-  if(F){
-    // 妮野可：合身白色運動外送外套＋薄荷綠背帶
-    c.fillStyle='#fff1f2';
-    c.beginPath(); c.ellipse(-5.5,0,6.5,8.2,0,0,Math.PI*2); c.fill();
-    c.strokeStyle='#f43f5e'; c.lineWidth=1.2; c.stroke();
-    c.strokeStyle='#10b981'; c.lineWidth=2;
-    c.beginPath(); c.moveTo(-10,-4.5); c.lineTo(-1,-5.5); c.moveTo(-10,4.5); c.lineTo(-1,5.5); c.stroke();
-    // 纖細雙臂握住手把
-    c.strokeStyle='#ffe4e6'; c.lineWidth=3.4; c.lineCap='round';
-    c.beginPath();
-    c.moveTo(-3,-6.8); c.quadraticCurveTo(3,-11.5,8.5,-11.2);
-    c.moveTo(-3,6.8);  c.quadraticCurveTo(3,11.5,8.5,11.2);
-    c.stroke();
-    c.fillStyle='#ec4899';
-    c.beginPath(); c.arc(9,-11.2,2.3,0,Math.PI*2); c.arc(9,11.2,2.3,0,Math.PI*2); c.fill();
-  }else{
-    // 阿豪大叔：寬肩深藍 POLO 衫＋螢光黃反光背心
-    c.fillStyle='#1e293b';
-    c.beginPath(); c.ellipse(-5.5,0,7.5,10,0,0,Math.PI*2); c.fill();
-    c.strokeStyle='#475569'; c.lineWidth=1.2; c.stroke();
-    c.strokeStyle='#facc15'; c.lineWidth=2.4;
-    c.beginPath();
-    c.moveTo(-11,-5.2); c.lineTo(0,-6.2);
-    c.moveTo(-11,5.2);  c.lineTo(0,6.2);
-    c.moveTo(-9,-6);    c.lineTo(-9,6);
-    c.stroke();
-    // 粗壯手臂（短袖＋小麥膚色前臂）
-    c.strokeStyle='#1e293b'; c.lineWidth=4.8; c.lineCap='round';
-    c.beginPath(); c.moveTo(-3,-8.2); c.lineTo(1.5,-10.2); c.moveTo(-3,8.2); c.lineTo(1.5,10.2); c.stroke();
-    c.strokeStyle='#f59e0b'; c.lineWidth=1.5;
-    c.beginPath(); c.moveTo(1.5,-8.5); c.lineTo(1.5,-11.8); c.moveTo(1.5,8.5); c.lineTo(1.5,11.8); c.stroke();
-    c.strokeStyle='#fdba74'; c.lineWidth=3.8;
-    c.beginPath(); c.moveTo(1.5,-10.2); c.lineTo(8.5,-11.2); c.moveTo(1.5,10.2); c.lineTo(8.5,11.2); c.stroke();
-    c.fillStyle='#111827';
-    c.beginPath(); c.arc(9,-11.2,2.6,0,Math.PI*2); c.arc(9,11.2,2.6,0,Math.PI*2); c.fill();
-  }
-
-  // 10. 妮野可專屬：從安全帽後方飄出的高馬尾長髮（隨速度擺動）
-  if(F){
-    const sway=Math.sin(now/(moving?75:190))*(moving?3.6:1.4);
-    c.save();
-    c.translate(-9.5,0);
-    c.fillStyle='#fde047';
-    c.beginPath(); c.arc(0,0,2.4,0,Math.PI*2); c.fill();
-    c.fillStyle='#581c87';
-    c.beginPath();
-    c.moveTo(0,-2.2);
-    c.quadraticCurveTo(-7,-5.5+sway*0.5,-14,sway*1.2);
-    c.quadraticCurveTo(-7,5.5+sway*0.5,0,2.2);
-    c.closePath();
-    c.fill();
-    c.strokeStyle='#a855f7'; c.lineWidth=1.4;
-    c.beginPath(); c.moveTo(-1,0); c.quadraticCurveTo(-6,sway*0.5,-11.5,sway); c.stroke();
-    c.restore();
-  }
-
-  // 11. 騎士頭部、安全帽、護目鏡與臉部特徵
+  // 3. 金屬排氣管、防燙蓋與動態尾氣
   c.save();
-  c.translate(-1.5,0);
-  if(F){
-    c.fillStyle='#ffe4e6';
-    c.beginPath(); c.arc(3.2,0,6.4,0,Math.PI*2); c.fill();
-    c.fillStyle='#fb7185';
-    c.beginPath(); c.arc(6.5,-3.6,1.3,0,Math.PI*2); c.arc(6.5,3.6,1.3,0,Math.PI*2); c.fill();
-    c.fillStyle='#1e293b';
-    c.beginPath(); c.arc(7.4,-2.2,0.9,0,Math.PI*2); c.arc(7.4,2.2,0.9,0,Math.PI*2); c.fill();
-
-    // 粉色半罩安全帽
-    c.fillStyle='#ec4899';
-    c.beginPath(); c.arc(0,0,7.8,Math.PI*0.36,Math.PI*1.64); c.closePath(); c.fill();
-    c.strokeStyle='#fbcfe8'; c.lineWidth=1.3; c.stroke();
-    c.fillStyle='#fdf2f8';
-    c.fillRect(-7.5,-1.6,10,3.2);
-
-    // 透明防風鏡片
-    c.strokeStyle='#e0f2fe'; c.lineWidth=1.1;
-    c.beginPath(); c.arc(1.2,0,7.6,-Math.PI*0.38,Math.PI*0.38); c.stroke();
-
-    // 立體貓耳裝飾
-    c.fillStyle='#f472b6'; c.strokeStyle='#fdf2f8'; c.lineWidth=1;
-    c.beginPath(); c.moveTo(-1,-6.5); c.lineTo(-4.8,-12.5); c.lineTo(2.5,-8.2); c.closePath(); c.fill(); c.stroke();
-    c.fillStyle='#fda4af';
-    c.beginPath(); c.moveTo(-1,-7.2); c.lineTo(-3.5,-10.8); c.lineTo(1.2,-8.2); c.closePath(); c.fill();
-    c.fillStyle='#f472b6';
-    c.beginPath(); c.moveTo(-1,6.5); c.lineTo(-4.8,12.5); c.lineTo(2.5,8.2); c.closePath(); c.fill(); c.stroke();
-    c.fillStyle='#fda4af';
-    c.beginPath(); c.moveTo(-1,7.2); c.lineTo(-3.5,10.8); c.lineTo(1.2,8.2); c.closePath(); c.fill();
-  }else{
-    // 阿豪大叔小麥色臉龐
-    c.fillStyle='#fdba74';
-    c.beginPath(); c.arc(3.4,0,6.6,0,Math.PI*2); c.fill();
-    c.strokeStyle='#1e293b'; c.lineWidth=1.6;
-    c.beginPath(); c.moveTo(6.2,-3.8); c.lineTo(7.8,-1.6); c.moveTo(6.2,3.8); c.lineTo(7.8,1.6); c.stroke();
-    // 招牌八字鬍
-    c.strokeStyle='#1f2937'; c.lineWidth=2.2; c.lineCap='round';
-    c.beginPath();
-    c.moveTo(9.2,0); c.quadraticCurveTo(9.5,-3.2,7.5,-4.8);
-    c.moveTo(9.2,0); c.quadraticCurveTo(9.5,3.2,7.5,4.8);
-    c.stroke();
-
-    // 工程黃半罩安全帽＋深藍賽車雙條紋
-    c.fillStyle='#facc15';
-    c.beginPath(); c.arc(0,0,8.2,Math.PI*0.34,Math.PI*1.66); c.closePath(); c.fill();
-    c.strokeStyle='#ca8a04'; c.lineWidth=1.3; c.stroke();
-    c.fillStyle='#1e3a8a';
-    c.fillRect(-8,-2.8,11,1.8);
-    c.fillRect(-8,1.0,11,1.8);
-
-    // 帽沿飛行護目鏡
-    c.fillStyle='#334155';
-    rrc(c,2.2,-6.5,3.6,5.5,1.5); c.fill();
-    rrc(c,2.2,1.0,3.6,5.5,1.5); c.fill();
-    c.fillStyle='#38bdf8';
-    rrc(c,2.8,-5.8,2.4,4.1,1); c.fill();
-    rrc(c,2.8,1.7,2.4,4.1,1); c.fill();
+  const exG=c.createLinearGradient(-23,8,-10,12);
+  exG.addColorStop(0,'#94a3b8'); exG.addColorStop(1,'#475569');
+  c.fillStyle=exG; c.strokeStyle='#0f172a'; c.lineWidth=1;
+  rrc(c,-23,8.2,14,4,1.8); c.fill(); c.stroke();
+  c.fillStyle='#e2e8f0'; rrc(c,-19,8.8,8,1.8,0.8); c.fill(); // 銀色防燙飾板
+  c.fillStyle='#1e293b'; c.fillRect(-24.2,9.1,2.5,2.2);
+  if(moving){
+    const p1=(now/95)%1, p2=((now/95)+0.5)%1;
+    c.fillStyle='rgba(226,232,240,'+(0.42*(1-p1))+')';
+    c.beginPath(); c.arc(-26-p1*14,10.2+Math.sin(now/70)*1.4,2+p1*3.3,0,Math.PI*2); c.fill();
+    c.fillStyle='rgba(226,232,240,'+(0.36*(1-p2))+')';
+    c.beginPath(); c.arc(-26-p2*14,10.2-Math.cos(now/70)*1.4,1.8+p2*3,0,Math.PI*2); c.fill();
   }
   c.restore();
 
+  // 4. 前後輪胎（含輪框亮條與轉向微偏）
+  c.fillStyle='#090d16';
+  rrc(c,-25,-3.6,11,7.2,3.2); c.fill();
+  c.fillStyle='#475569'; c.fillRect(-22,-0.8,5,1.6);
+  c.save();
+  c.translate(17,0); c.rotate(steerAng);
+  c.fillStyle='#090d16'; rrc(c,-4.5,-3.4,11.5,6.8,3.2); c.fill();
+  c.fillStyle='#64748b'; c.fillRect(-1,-0.8,5,1.6);
+  c.restore();
+
+  c.translate(0,vib);
+
+  // 5. 摩托車流線車體（漸層烤漆＋深色描邊＋賽車塗裝）
+  // 5a. 後整流罩（錐形流線尾殼）
+  const rearG=c.createLinearGradient(-22,-10,-2,10);
+  if(F){ rearG.addColorStop(0,'#fbcfe8'); rearG.addColorStop(0.5,'#f472b6'); rearG.addColorStop(1,'#db2777'); }
+  else { rearG.addColorStop(0,'#60a5fa'); rearG.addColorStop(0.5,'#2563eb'); rearG.addColorStop(1,'#1e3a8a'); }
+  c.fillStyle=rearG; c.strokeStyle=F?'#500724':'#090d16'; c.lineWidth=1.3;
+  c.beginPath();
+  c.moveTo(-2,-9.8);
+  c.quadraticCurveTo(-15,-10.5,-22,-6.5);
+  c.quadraticCurveTo(-24,0,-22,6.5);
+  c.quadraticCurveTo(-15,10.5,-2,9.8);
+  c.closePath();
+  c.fill(); c.stroke();
+  // 側邊雙色賽車飾條
+  c.fillStyle=F?'#fff1f2':'#38bdf8';
+  c.beginPath(); c.ellipse(-12,-8.2,6,1.1,-0.1,0,Math.PI*2); c.ellipse(-12,8.2,6,1.1,0.1,0,Math.PI*2); c.fill();
+  // 後扶手與亮紅 LED 尾燈
+  c.strokeStyle='#cbd5e1'; c.lineWidth=1.8;
+  c.beginPath(); c.moveTo(-18,-6); c.quadraticCurveTo(-22.8,0,-18,6); c.stroke();
+  c.fillStyle='#ef4444'; rrc(c,-23.2,-3.8,2.2,7.6,1); c.fill();
+  c.fillStyle='#fca5a5'; c.fillRect(-22.7,-2.2,1,4.4);
+
+  // 5b. 中央防滑腳踏板
+  c.fillStyle='#1e293b'; c.strokeStyle='#090d16'; c.lineWidth=1.1;
+  rrc(c,-3,-8,12.5,16,3.5); c.fill(); c.stroke();
+  c.strokeStyle='#475569'; c.lineWidth=1.1;
+  c.beginPath(); c.moveTo(0,-5.5); c.lineTo(6.5,-5.5); c.moveTo(0,0); c.lineTo(6.5,0); c.moveTo(0,5.5); c.lineTo(6.5,5.5); c.stroke();
+
+  // 5c. 雙色縫線坐墊
+  const seatG=c.createLinearGradient(-16,-6,0,6);
+  if(F){ seatG.addColorStop(0,'#92400e'); seatG.addColorStop(1,'#78350f'); }
+  else { seatG.addColorStop(0,'#334155'); seatG.addColorStop(1,'#0f172a'); }
+  c.fillStyle=seatG; c.strokeStyle='#090d16'; c.lineWidth=1.1;
+  rrc(c,-16.5,-6.8,15,13.6,5); c.fill(); c.stroke();
+  c.strokeStyle=F?'#fcd34d':'#64748b'; c.lineWidth=0.9;
+  rrc(c,-15,-5.2,12,10.4,3.8); c.stroke();
+
+  // 5d. 前車頭斜板、風鏡、大燈與方向燈
+  c.save();
+  c.translate(10,0); c.rotate(steerAng*0.55); c.translate(-10,0);
+  const frontG=c.createLinearGradient(6,-10,22,10);
+  if(F){ frontG.addColorStop(0,'#f9a8d4'); frontG.addColorStop(0.55,'#ec4899'); frontG.addColorStop(1,'#be185d'); }
+  else { frontG.addColorStop(0,'#38bdf8'); frontG.addColorStop(0.5,'#2563eb'); frontG.addColorStop(1,'#1e3a8a'); }
+  c.fillStyle=frontG; c.strokeStyle=F?'#500724':'#090d16'; c.lineWidth=1.3;
+  c.beginPath();
+  c.moveTo(6,-9.8); c.quadraticCurveTo(19.5,-9,21.5,0); c.quadraticCurveTo(19.5,9,6,9.8); c.closePath();
+  c.fill(); c.stroke();
+
+  // 前斜板V字飾條與廠徽
+  c.fillStyle=F?'#fff1f2':'#0f172a';
+  c.beginPath(); c.moveTo(9.5,-5.4); c.lineTo(18.2,-2.6); c.lineTo(18.2,2.6); c.lineTo(9.5,5.4); c.closePath(); c.fill();
+  c.fillStyle=F?'#f43f5e':'#38bdf8';
+  c.beginPath(); c.arc(14.8,0,1.7,0,Math.PI*2); c.fill();
+
+  // 璀璨 LED 頭燈＋高光反光罩 + 方向燈
+  c.fillStyle='#fde047'; c.strokeStyle='#713f12'; c.lineWidth=0.9;
+  c.beginPath(); c.ellipse(19.8,0,2.4,4.5,0,0,Math.PI*2); c.fill(); c.stroke();
+  c.fillStyle='#ffffff';
+  c.beginPath(); c.ellipse(20.2,0,1.2,2.6,0,0,Math.PI*2); c.fill();
+  c.fillStyle='#fb923c';
+  c.beginPath(); c.arc(16.8,-7.1,1.6,0,Math.PI*2); c.arc(16.8,7.1,1.6,0,Math.PI*2); c.fill();
+
+  // 透明小風鏡＋斜線反光
+  c.fillStyle=F?'rgba(224,242,254,0.48)':'rgba(15,23,42,0.58)';
+  c.strokeStyle='rgba(224,242,254,0.85)'; c.lineWidth=1;
+  c.beginPath(); c.moveTo(11.5,-6.2); c.quadraticCurveTo(15.5,0,11.5,6.2); c.quadraticCurveTo(13.8,0,11.5,-6.2); c.fill(); c.stroke();
+  c.restore();
+
+  // 6. 立體外送保溫箱（3D 頂蓋斜面＋交叉束帶＋金屬扣環＋熱氣動畫）
+  const boxG=c.createLinearGradient(-32,-11,-18,11);
+  if(hasMeal){ boxG.addColorStop(0,'#34d399'); boxG.addColorStop(1,'#047857'); }
+  else { boxG.addColorStop(0,'#fbbf24'); boxG.addColorStop(1,'#d97706'); }
+  c.fillStyle=boxG; c.strokeStyle='#090d16'; c.lineWidth=1.35;
+  rrc(c,-32.5,-11,15,22,4); c.fill(); c.stroke();
+  // 頂蓋立體內框
+  c.fillStyle=hasMeal?'#065f46':'#b45309';
+  rrc(c,-29.5,-8.8,9,17.6,2.2); c.fill();
+  // 交叉黑色固定束帶＋銀扣
+  c.strokeStyle='#1e293b'; c.lineWidth=1.5;
+  c.beginPath(); c.moveTo(-32.2,0); c.lineTo(-17.8,0); c.moveTo(-25,-10.7); c.lineTo(-25,10.7); c.stroke();
+  // 反光安全條
+  c.fillStyle='#fef08a';
+  c.fillRect(-31.2,-8,1.8,16);
+  // 中心狀態徽章
+  c.fillStyle=hasMeal?'#10b981':'#f59e0b'; c.strokeStyle='#ffffff'; c.lineWidth=1.1;
+  c.beginPath(); c.arc(-25,0,4.6,0,Math.PI*2); c.fill(); c.stroke();
+  c.fillStyle='#ffffff'; c.font='900 7.2px system-ui,sans-serif'; c.textAlign='center'; c.textBaseline='middle';
+  c.fillText(hasMeal?'熱':'外',-25,0.4);
+  if(hasMeal){
+    const st1=(now/650)%1;
+    c.strokeStyle='rgba(255,255,255,'+(0.6*(1-st1))+')'; c.lineWidth=1.2; c.lineCap='round';
+    c.beginPath(); c.arc(-25-st1*5,-4-st1*4,2.2+st1*2.5,Math.PI*0.7,Math.PI*1.6); c.stroke();
+  }
+
+  // 7. 車手把、發光數位儀表板與左右造型後照鏡
+  c.save();
+  c.translate(10.5,0); c.rotate(steerAng); c.translate(-10.5,0);
+  c.strokeStyle='#94a3b8'; c.lineWidth=2.8; c.lineCap='round';
+  c.beginPath(); c.moveTo(8.5,-13.5); c.lineTo(11,0); c.lineTo(8.5,13.5); c.stroke();
+  c.strokeStyle='#090d16'; c.lineWidth=4.2;
+  c.beginPath(); c.moveTo(8.5,-14); c.lineTo(9.2,-9.5); c.moveTo(8.5,9.5); c.lineTo(9.2,14); c.stroke();
+  // 彩色平衡端子
+  c.fillStyle=F?'#f472b6':'#38bdf8';
+  c.beginPath(); c.arc(8.3,-14.2,1.5,0,Math.PI*2); c.arc(8.3,14.2,1.5,0,Math.PI*2); c.fill();
+  // 數位儀表
+  c.fillStyle='#090d16'; rrc(c,9.5,-3.6,4.2,7.2,1.8); c.fill();
+  c.fillStyle=F?'#f9a8d4':'#38bdf8'; rrc(c,10.3,-2.5,2.4,5,1); c.fill();
+  // 後照鏡支架與鏡殼
+  c.strokeStyle='#cbd5e1'; c.lineWidth=1.35;
+  c.beginPath(); c.moveTo(9.8,-11.2); c.lineTo(13.2,-16.8); c.moveTo(9.8,11.2); c.lineTo(13.2,16.8); c.stroke();
+  c.fillStyle=F?'#f472b6':'#334155'; c.strokeStyle='#e2e8f0'; c.lineWidth=1;
+  c.beginPath();
+  if(F){ c.arc(13.6,-17.4,2.8,0,Math.PI*2); c.arc(13.6,17.4,2.8,0,Math.PI*2); }
+  else { c.ellipse(13.6,-17.4,2.4,3.5,-0.32,0,Math.PI*2); c.ellipse(13.6,17.4,2.4,3.5,0.32,0,Math.PI*2); }
+  c.fill(); c.stroke();
+  c.restore();
+
+  // 8. 騎士下半身（合身褲裝與防滑靴／球鞋穩踩踏板）
+  c.save();
+  c.translate(0, bodyShift*0.4);
+  c.fillStyle=F?'#fff1f2':'#451a03'; c.strokeStyle='#090d16'; c.lineWidth=1;
+  c.beginPath(); c.ellipse(4.8,-7.2,4.1,2.2,0.12,0,Math.PI*2); c.fill(); c.stroke();
+  c.beginPath(); c.ellipse(4.8,7.2,4.1,2.2,-0.12,0,Math.PI*2); c.fill(); c.stroke();
+  if(F){
+    c.fillStyle='#f472b6'; c.fillRect(4,-8.2,2.5,1.8); c.fillRect(4,6.4,2.5,1.8);
+  }
+  c.strokeStyle=F?'#312e81':'#1e3a8a';
+  c.lineWidth=F?4.4:5.4; c.lineCap='round';
+  c.beginPath(); c.moveTo(-6,-5.2); c.quadraticCurveTo(0,-8.8,4.2,-7); c.moveTo(-6,5.2); c.quadraticCurveTo(0,8.8,4.2,7); c.stroke();
+  c.restore();
+
+  // 9. 騎士上半身、外套與手臂（含轉向傾身）
+  c.save();
+  c.translate(0, bodyShift);
+  if(F){
+    // 妮野可：白粉撞色連帽外送夾克＋薄荷綠雙肩背帶
+    const jG=c.createLinearGradient(-12,-8,2,8);
+    jG.addColorStop(0,'#ffffff'); jG.addColorStop(1,'#ffe4e6');
+    c.fillStyle=jG; c.strokeStyle='#881337'; c.lineWidth=1.25;
+    c.beginPath(); c.ellipse(-5.5,0,7,8.8,0,0,Math.PI*2); c.fill(); c.stroke();
+    // 粉色肩飾與後方摺疊兜帽
+    c.fillStyle='#f43f5e';
+    c.beginPath(); c.ellipse(-9.5,0,3.2,5.6,0,0,Math.PI*2); c.fill();
+    c.strokeStyle='#10b981'; c.lineWidth=2.3;
+    c.beginPath(); c.moveTo(-10.2,-4.8); c.lineTo(-0.5,-5.8); c.moveTo(-10.2,4.8); c.lineTo(-0.5,5.8); c.stroke();
+    // 手臂與露指粉紅騎士手套
+    c.strokeStyle='#090d16'; c.lineWidth=5; c.lineCap='round';
+    c.beginPath(); c.moveTo(-2.5,-7.2); c.quadraticCurveTo(3.5,-11.8,8.8+steerAng*3,-11.4);
+    c.moveTo(-2.5,7.2); c.quadraticCurveTo(3.5,11.8,8.8-steerAng*3,11.4); c.stroke();
+    c.strokeStyle='#fff1f2'; c.lineWidth=3.2;
+    c.beginPath(); c.moveTo(-2.5,-7.2); c.quadraticCurveTo(3.5,-11.8,8.8+steerAng*3,-11.4);
+    c.moveTo(-2.5,7.2); c.quadraticCurveTo(3.5,11.8,8.8-steerAng*3,11.4); c.stroke();
+    c.fillStyle='#ec4899'; c.strokeStyle='#500724'; c.lineWidth=0.9;
+    c.beginPath(); c.arc(9+steerAng*3,-11.4,2.5,0,Math.PI*2); c.fill(); c.stroke();
+    c.beginPath(); c.arc(9-steerAng*3,11.4,2.5,0,Math.PI*2); c.fill(); c.stroke();
+  } else {
+    // 阿豪大叔：深藍夾克＋螢光黃3M反光背心＋強壯小麥膚前臂
+    const mG=c.createLinearGradient(-13,-10,2,10);
+    mG.addColorStop(0,'#334155'); mG.addColorStop(1,'#0f172a');
+    c.fillStyle=mG; c.strokeStyle='#090d16'; c.lineWidth=1.35;
+    c.beginPath(); c.ellipse(-5.5,0,8,10.6,0,0,Math.PI*2); c.fill(); c.stroke();
+    // 螢光黃反光背心片
+    c.fillStyle='#facc15';
+    c.beginPath(); c.moveTo(-11.5,-7); c.lineTo(0.5,-7.8); c.lineTo(0.5,-3.6); c.lineTo(-10.5,-3.4); c.closePath(); c.fill();
+    c.beginPath(); c.moveTo(-11.5,7); c.lineTo(0.5,7.8); c.lineTo(0.5,3.6); c.lineTo(-10.5,3.4); c.closePath(); c.fill();
+    c.fillRect(-11.5,-7,3.2,14);
+    // 銀色反光條
+    c.strokeStyle='#f8fafc'; c.lineWidth=1.2;
+    c.beginPath(); c.moveTo(-10.2,-5.6); c.lineTo(-1,-6); c.moveTo(-10.2,5.6); c.lineTo(-1,6); c.stroke();
+    // 粗壯短袖＋小麥色前臂＋護具手套
+    c.strokeStyle='#1e293b'; c.lineWidth=5.4; c.lineCap='round';
+    c.beginPath(); c.moveTo(-3,-8.8); c.lineTo(1.5,-10.6); c.moveTo(-3,8.8); c.lineTo(1.5,10.6); c.stroke();
+    c.strokeStyle='#090d16'; c.lineWidth=5.2;
+    c.beginPath(); c.moveTo(1.5,-10.6); c.lineTo(8.8+steerAng*3,-11.4); c.moveTo(1.5,10.6); c.lineTo(8.8-steerAng*3,11.4); c.stroke();
+    c.strokeStyle='#fdba74'; c.lineWidth=3.6;
+    c.beginPath(); c.moveTo(1.5,-10.6); c.lineTo(8.8+steerAng*3,-11.4); c.moveTo(1.5,10.6); c.lineTo(8.8-steerAng*3,11.4); c.stroke();
+    // 運動腕帶
+    c.strokeStyle='#f59e0b'; c.lineWidth=1.8;
+    c.beginPath(); c.moveTo(5.8,-10.9); c.lineTo(6.6,-11); c.moveTo(5.8,10.9); c.lineTo(6.6,11); c.stroke();
+    c.fillStyle='#111827'; c.strokeStyle='#475569'; c.lineWidth=0.9;
+    c.beginPath(); c.arc(9+steerAng*3,-11.4,2.8,0,Math.PI*2); c.fill(); c.stroke();
+    c.beginPath(); c.arc(9-steerAng*3,11.4,2.8,0,Math.PI*2); c.fill(); c.stroke();
+  }
+
+  // 10. 妮野可專屬：層次漸層飄逸高馬尾
+  if(F){
+    const sway=Math.sin(now/(moving?72:180))*(moving?3.8:1.3)-lean*3.2;
+    c.save();
+    c.translate(-10,0);
+    // 多層次髮束
+    const hairG=c.createLinearGradient(0,0,-17,sway);
+    hairG.addColorStop(0,'#4c1d95'); hairG.addColorStop(0.55,'#7e22ce'); hairG.addColorStop(1,'#c084fc');
+    c.fillStyle=hairG; c.strokeStyle='#2e1065'; c.lineWidth=1.1;
+    c.beginPath();
+    c.moveTo(0,-2.6);
+    c.quadraticCurveTo(-7,-6.5+sway*0.45,-16.5,sway*1.25);
+    c.quadraticCurveTo(-7.5,6.5+sway*0.45,0,2.6);
+    c.closePath();
+    c.fill(); c.stroke();
+    // 亮紫色髮絲高光
+    c.strokeStyle='#e9d5ff'; c.lineWidth=1.3; c.lineCap='round';
+    c.beginPath(); c.moveTo(-1.5,-0.4); c.quadraticCurveTo(-7.5,sway*0.45-1.2,-13.5,sway*1.05); c.stroke();
+    // 金色蝴蝶結髮圈
+    c.fillStyle='#fde047'; c.strokeStyle='#a16207'; c.lineWidth=0.8;
+    c.beginPath(); c.arc(0,0,2.7,0,Math.PI*2); c.fill(); c.stroke();
+    c.restore();
+  }
+
+  // 11. 騎士頭部、立體安全帽、護目鏡與鮮明五官
+  c.save();
+  c.translate(-1.5,0);
+  if(F){
+    // 粉嫩白皙臉龐＋斜分瀏海＋閃亮雙眼＋紅暈
+    const fSkin=c.createRadialGradient(3,0,1,3.5,0,7);
+    fSkin.addColorStop(0,'#fff1f2'); fSkin.addColorStop(1,'#fecdd3');
+    c.fillStyle=fSkin; c.strokeStyle='#500724'; c.lineWidth=1.1;
+    c.beginPath(); c.arc(3.6,0,6.6,0,Math.PI*2); c.fill(); c.stroke();
+    // 臉頰紅暈
+    c.fillStyle='rgba(251,113,133,0.65)';
+    c.beginPath(); c.ellipse(6.8,-3.7,1.4,0.9,0,0,Math.PI*2); c.ellipse(6.8,3.7,1.4,0.9,0,0,Math.PI*2); c.fill();
+    // 閃亮大眼
+    c.fillStyle='#1e1b4b';
+    c.beginPath(); c.arc(7.8,-2.1,1.15,0,Math.PI*2); c.arc(7.8,2.1,1.15,0,Math.PI*2); c.fill();
+    c.fillStyle='#ffffff';
+    c.beginPath(); c.arc(8.1,-2.4,0.45,0,Math.PI*2); c.arc(8.1,1.8,0.45,0,Math.PI*2); c.fill();
+    // 紫色側分瀏海
+    c.fillStyle='#6b21a8';
+    c.beginPath(); c.arc(2.5,-4.8,2.4,0,Math.PI*2); c.arc(2.5,4.8,2.4,0,Math.PI*2); c.fill();
+
+    // 櫻花粉珍珠安全帽（徑向立體光澤＋白粉賽車中線）
+    const fhG=c.createRadialGradient(-2.5,-2.5,1,0,0,8.8);
+    fhG.addColorStop(0,'#fce7f3'); fhG.addColorStop(0.5,'#f472b6'); fhG.addColorStop(1,'#db2777');
+    c.fillStyle=fhG; c.strokeStyle='#500724'; c.lineWidth=1.35;
+    c.beginPath(); c.arc(0,0,8.3,Math.PI*0.35,Math.PI*1.65); c.closePath(); c.fill(); c.stroke();
+    c.fillStyle='#fff1f2'; c.fillRect(-8,-1.7,10.5,3.4);
+    // 帽頂高光弧
+    c.strokeStyle='rgba(255,255,255,0.65)'; c.lineWidth=1.4; c.lineCap='round';
+    c.beginPath(); c.arc(-0.5,0,5.6,Math.PI*1.12,Math.PI*1.52); c.stroke();
+
+    // 弧形透明泡泡防風鏡片（含淡藍玻璃反光）
+    c.strokeStyle='rgba(186,230,253,0.85)'; c.lineWidth=1.9;
+    c.beginPath(); c.arc(1.8,0,7.9,-Math.PI*0.36,Math.PI*0.36); c.stroke();
+    c.strokeStyle='rgba(255,255,255,0.8)'; c.lineWidth=1;
+    c.beginPath(); c.arc(1.8,0,7.6,-Math.PI*0.26,-Math.PI*0.08); c.stroke();
+
+    // 立體貓耳裝飾
+    [[-1,-1],[1,1]].forEach(([sy])=>{
+      c.fillStyle='#f472b6'; c.strokeStyle='#500724'; c.lineWidth=1.1;
+      c.beginPath(); c.moveTo(-1,sy*6.6); c.lineTo(-5.2,sy*13.2); c.lineTo(2.6,sy*8.4); c.closePath(); c.fill(); c.stroke();
+      c.fillStyle='#fda4af';
+      c.beginPath(); c.moveTo(-1,sy*7.5); c.lineTo(-3.6,sy*11.3); c.lineTo(1.2,sy*8.5); c.closePath(); c.fill();
+    });
+  } else {
+    // 阿豪大叔小麥色臉龐＋濃眉＋神氣雙眼＋立體八字鬍
+    const mSkin=c.createRadialGradient(3,0,1,3.6,0,7.2);
+    mSkin.addColorStop(0,'#fed7aa'); mSkin.addColorStop(1,'#fb923c');
+    c.fillStyle=mSkin; c.strokeStyle='#431407'; c.lineWidth=1.1;
+    c.beginPath(); c.arc(3.6,0,6.8,0,Math.PI*2); c.fill(); c.stroke();
+    // 眼睛與濃眉
+    c.fillStyle='#0f172a';
+    c.beginPath(); c.arc(7.5,-2.1,1.0,0,Math.PI*2); c.arc(7.5,2.1,1.0,0,Math.PI*2); c.fill();
+    c.fillStyle='#ffffff';
+    c.beginPath(); c.arc(7.8,-2.3,0.38,0,Math.PI*2); c.arc(7.8,1.9,0.38,0,Math.PI*2); c.fill();
+    c.strokeStyle='#1e293b'; c.lineWidth=1.7; c.lineCap='round';
+    c.beginPath(); c.moveTo(6.0,-4.2); c.lineTo(8.0,-1.8); c.moveTo(6.0,4.2); c.lineTo(8.0,1.8); c.stroke();
+    // 霸氣捲翹八字鬍
+    c.fillStyle='#1f2937'; c.strokeStyle='#090d16'; c.lineWidth=0.6;
+    c.beginPath();
+    c.moveTo(9.5,0); c.quadraticCurveTo(10.8,-3.5,7.4,-5.6); c.quadraticCurveTo(8.4,-2.6,8.2,0);
+    c.quadraticCurveTo(8.4,2.6,7.4,5.6); c.quadraticCurveTo(10.8,3.5,9.5,0);
+    c.fill(); c.stroke();
+
+    // 工程黃立體安全帽＋深藍賽車雙條紋＋高光
+    const mhG=c.createRadialGradient(-2.5,-2.5,1,0,0,9.2);
+    mhG.addColorStop(0,'#fef9c3'); mhG.addColorStop(0.5,'#facc15'); mhG.addColorStop(1,'#ca8a04');
+    c.fillStyle=mhG; c.strokeStyle='#422006'; c.lineWidth=1.35;
+    c.beginPath(); c.arc(0,0,8.6,Math.PI*0.34,Math.PI*1.66); c.closePath(); c.fill(); c.stroke();
+    c.fillStyle='#1e3a8a';
+    c.fillRect(-8.3,-2.9,11.2,1.9);
+    c.fillRect(-8.3,1.0,11.2,1.9);
+    c.strokeStyle='rgba(255,255,255,0.65)'; c.lineWidth=1.4; c.lineCap='round';
+    c.beginPath(); c.arc(-0.5,0,5.8,Math.PI*1.12,Math.PI*1.5); c.stroke();
+
+    // 帽沿飛行員護目鏡＋天藍反光鏡片
+    c.fillStyle='#1e293b'; c.strokeStyle='#090d16'; c.lineWidth=0.8;
+    rrc(c,2.2,-6.8,3.8,5.8,1.6); c.fill(); c.stroke();
+    rrc(c,2.2,1.0,3.8,5.8,1.6); c.fill(); c.stroke();
+    const gogG=c.createLinearGradient(2.6,-6,5.5,6);
+    gogG.addColorStop(0,'#7dd3fc'); gogG.addColorStop(1,'#0284c7');
+    c.fillStyle=gogG;
+    rrc(c,2.8,-6.0,2.5,4.2,1.1); c.fill();
+    rrc(c,2.8,1.8,2.5,4.2,1.1); c.fill();
+    c.strokeStyle='rgba(255,255,255,0.75)'; c.lineWidth=0.9;
+    c.beginPath(); c.moveTo(3.3,-5.2); c.lineTo(4.7,-3.1); c.moveTo(3.3,2.6); c.lineTo(4.7,4.7); c.stroke();
+  }
+  c.restore();
+
+  c.restore();
   c.restore();
 }
 function drawPlayer(now){
   ctx.save();
   ctx.translate(P.x,P.y);
   ctx.rotate(P.angle);
-  renderRider(ctx,char,now,P.moving,!!(order&&order.stage==='deliver'),1.18,P.boost>0);
+  renderRider(ctx,char,now,P.moving,!!(order&&order.stage==='deliver'),1.18,P.boost>0,P.steer||0);
   ctx.restore();
   if(P.stopT>0){
     ctx.save();
@@ -3953,16 +4295,35 @@ function drawCharPreviews(now){
   [['prevM','M'],['prevF','F']].forEach(([id,g])=>{
     const el=$(id); if(!el) return;
     const c=el.getContext('2d');
-    const w=el.width, h=el.height;
-    c.setTransform(1,0,0,1,0,0);
-    c.clearRect(0,0,w,h);
-    c.fillStyle='#162033'; c.fillRect(0,0,w,h);
-    c.strokeStyle='#f59e0b'; c.lineWidth=2.5; c.setLineDash([12,10]);
-    c.lineDashOffset=(now/18)%22;
-    c.beginPath(); c.moveTo(0,h/2); c.lineTo(w,h/2); c.stroke(); c.setLineDash([]);
+    const lw=152, lh=84;
+    c.setTransform(2,0,0,2,0,0);
+    c.clearRect(0,0,lw,lh);
+    // 柏油路面與路緣線
+    const bg=c.createLinearGradient(0,0,0,lh);
+    bg.addColorStop(0,'#0f172a'); bg.addColorStop(0.5,'#1e293b'); bg.addColorStop(1,'#0f172a');
+    c.fillStyle=bg; c.fillRect(0,0,lw,lh);
+    c.fillStyle='rgba(148,163,184,0.28)';
+    c.fillRect(0,5,lw,1.5); c.fillRect(0,lh-6.5,lw,1.5);
+    // 動態道路虛線
+    c.strokeStyle='#f59e0b'; c.lineWidth=2.4; c.setLineDash([12,10]);
+    c.lineDashOffset=(now/16)%22;
+    c.beginPath(); c.moveTo(0,lh/2); c.lineTo(lw,lh/2); c.stroke(); c.setLineDash([]);
+    // 速度風線
+    c.strokeStyle='rgba(148,163,184,0.22)'; c.lineWidth=1.2; c.lineCap='round';
+    [15,24,61,70].forEach((sy,idx)=>{
+      const sx=lw-((now*0.18+idx*39)%(lw+36));
+      c.beginPath(); c.moveTo(sx,sy); c.lineTo(sx+22,sy); c.stroke();
+    });
+    // 角色聚光燈
+    const spot=c.createRadialGradient(lw/2+4,lh/2,6,lw/2+4,lh/2,58);
+    spot.addColorStop(0,g==='M'?'rgba(56,189,248,0.22)':'rgba(244,114,182,0.22)');
+    spot.addColorStop(1,'rgba(0,0,0,0)');
+    c.fillStyle=spot; c.fillRect(0,0,lw,lh);
     c.save();
-    c.translate(w/2+4,h/2);
-    renderRider(c,g,now,true,g===char,1.45);
+    const cruiseLean=Math.sin(now/780+(g==='F'?1.5:0))*0.22;
+    c.translate(lw/2+4,lh/2+cruiseLean*3);
+    c.rotate(cruiseLean*0.08);
+    renderRider(c,g,now,true,g===char,1.54,false,cruiseLean);
     c.restore();
   });
 }
