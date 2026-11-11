@@ -63,7 +63,8 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
 .storyBody{flex:1;min-width:0}
 .storySpeaker{font-size:13px;font-weight:900;color:#6ee7b7;margin-bottom:4px}
 .storyText{font-size:15px;line-height:1.6;color:#f1f5f9;font-weight:700}
-.storyFoot{display:flex;align-items:center;justify-content:space-between;margin-top:12px;gap:10px}
+.storyFoot{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:12px;gap:10px}
+.storyActions{display:flex;align-items:center;gap:8px;margin-left:auto}
 .storyDots{display:flex;gap:6px;align-items:center}
 .storyDots span{width:8px;height:8px;border-radius:50%;background:#334155;transition:all .2s}
 .storyDots span.on{width:20px;border-radius:999px;background:#fbbf24}
@@ -159,7 +160,10 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
   </div>
   <div class="storyFoot">
     <div class="storyDots" id="storyDots"></div>
-    <button class="btn primary" id="storyNext" style="margin:0;min-width:168px">下一句 ▶</button>
+    <div class="storyActions">
+      <button class="btn" id="storyBack" style="margin:0;min-width:124px;padding:10px 14px;display:none">🏠 返回大廳</button>
+      <button class="btn primary" id="storyNext" style="margin:0;min-width:156px">下一句 ▶</button>
+    </div>
   </div>
 </div></div>
 
@@ -1470,6 +1474,8 @@ function renderStory(){
   $('storyAva').textContent=st.ava;
   $('storySpeaker').textContent=st.speaker;
   $('storyText').textContent=st.text;
+  $('storySkip').textContent=storyFromBtn?'✕ 關閉':'略過 ⏭';
+  $('storyBack').style.display=storyFromBtn?'inline-flex':'none';
   $('storyNext').textContent=storyIdx===steps.length-1?'🚀 跨上機車出發！':'下一句 ▶';
   $('storyDots').innerHTML=steps.map((_,i)=>'<span class="'+(i===storyIdx?'on':'')+'"></span>').join('');
 }
@@ -4236,6 +4242,7 @@ btn('mapBack',()=>showOnly('title'));
 btn('storyBtn',()=>{buildMap(selectedMapIdx);openStory(true);});
 btn('storyNext',nextStory);
 btn('storyBox',nextStory);
+btn('storyBack',()=>finishStory(true));
 btn('storySkip',()=>finishStory(true));
 btn('howBtn',()=>showOnly('howto'));
 btn('howClose',()=>showOnly('title'));
