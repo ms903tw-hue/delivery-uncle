@@ -104,6 +104,13 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
 .stat .v{font-size:18px;font-weight:900;color:#fff}
 .stat .k{font-size:11px;color:#94a3b8}
 
+#tutModal{background:rgba(5,8,20,.46);backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);z-index:65}
+#tutModal .card{max-width:460px;border-color:#fbbf24;background:linear-gradient(165deg,#16223d,#0d1527);padding:16px 20px}
+.tutTag{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;background:#0b1222;border:1.5px solid #fbbf24;color:#fde68a;font-size:12px;font-weight:900;margin-bottom:8px}
+.tutTitle{font-size:20px;font-weight:900;color:#fff;margin:2px 0 8px}
+.tutMsg{background:#0b1222;border:1.5px solid #334155;border-radius:12px;padding:12px 14px;font-size:15px;line-height:1.65;color:#f1f5f9;font-weight:700;text-align:left;margin-bottom:12px}
+.tutHint{font-size:12px;color:#94a3b8;margin-top:4px}
+
 #rotate{z-index:90;background:#0b1020;flex-direction:column;text-align:center}
 #rotate .ph{font-size:60px;animation:rot 1.6s ease-in-out infinite}
 @keyframes rot{0%,30%{transform:rotate(0)}60%,100%{transform:rotate(-90deg)}}
@@ -202,6 +209,15 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
   <button class="btn primary" id="resumeBtn">▶ 繼續</button>
   <button class="btn" id="restartBtn">🔄 重新開始</button>
   <button class="btn" id="homeBtn1">🏠 回主畫面</button>
+</div></div>
+
+<!-- 首次教學暫停提示 -->
+<div class="overlay" id="tutModal"><div class="card" id="tutCard">
+  <div class="tutTag" id="tutTag">💡 首次遇到・遊戲已暫停</div>
+  <div class="tutTitle" id="tutTitle">外送小提醒</div>
+  <div class="tutMsg" id="tutMsg"></div>
+  <button class="btn primary" id="tutOkBtn">▶ 我知道了，繼續外送</button>
+  <div class="tutHint">訂單計時與車流已暫停・按空白鍵 / Enter 或點擊繼續</div>
 </div></div>
 
 <!-- 結束畫面 -->
@@ -1215,15 +1231,62 @@ let peds=[];          // 行人
 let redCooldown=0;    // 闖紅燈判定冷卻
 let lastStars=0, lastWasVip=false;
 const tutSeen=store.get('dug_tut_v1',{});
-let tutToast=null, tutQueue=[];
+let tutToast=null, tutQueue=[], tutLockT=0;
+const TUT_TITLES={
+  bay:'🛵 認識「外送臨停區」',
+  red:'🚦 紅綠燈與路口停等規則',
+  ped:'🚶 斑馬線行人禮讓',
+  dog:'🐕 遇到野狗追擊',
+  wrongway:'⚠️ 逆向行駛與雙黃線鑽車縫',
+  police:'🚔 甩開警車追捕秘訣',
+  amb:'🚑 禮讓緊急救護車'
+};
+function renderTutModal(){
+  if(!tutToast) return;
+  const col=tutToast.color||'#fde68a';
+  const card=$('tutCard'), tag=$('tutTag'), tit=$('tutTitle'), msg=$('tutMsg'), btn=$('tutOkBtn');
+  if(card) card.style.borderColor=col;
+  if(tag){tag.style.borderColor=col; tag.style.color=col;}
+  if(tit) tit.textContent=TUT_TITLES[tutToast.key]||'💡 首次遇到・操作提醒';
+  if(msg) msg.textContent=tutToast.text;
+  if(btn) btn.style.opacity=tutLockT>0?'0.72':'1';
+}
 function triggerTut(key,text,color){
+  if(G.state!=='play'&&G.state!=='tut') return false;
+  if(G.state==='play'&&countdown>0) return false;
   if(tutSeen[key]) return false;
   tutSeen[key]=1;
   store.set('dug_tut_v1',tutSeen);
-  const item={text,color:color||'#fde68a',t:4.6,maxT:4.6};
-  if(!tutToast) tutToast=item;
-  else if(tutQueue.length<2) tutQueue.push(item);
+  const item={key,text,color:color||'#fde68a'};
+  if(!tutToast){
+    tutToast=item;
+    tutLockT=0.45;
+    if(G.state==='play'){
+      G.state='tut'; joy.id=null;
+      for(const k in keys) keys[k]=false;
+      setBodyState('tut'); showOnly('tutModal');
+      if(Snd.music) Snd.music.gain.value=0.2;
+    }
+    renderTutModal();
+  }else if(tutQueue.length<4){
+    tutQueue.push(item);
+  }
   return true;
+}
+function dismissTut(force){
+  if(G.state!=='tut') return;
+  if(!force && tutLockT>0) return;
+  tutToast=tutQueue.shift()||null;
+  if(tutToast){
+    tutLockT=0.32;
+    renderTutModal();
+    return;
+  }
+  for(const k in keys) keys[k]=false;
+  joy.id=null;
+  G.state='play'; showOnly(null); setBodyState('play');
+  lastFrame=performance.now();
+  if(Snd.music) Snd.music.gain.value=0.55;
 }
 const cam={x:0,y:0};
 const joy={id:null,ox:0,oy:0,x:0,y:0};
@@ -1348,7 +1411,7 @@ function resetGame(){
   const spawnY = places[0].door.y;
   P={x:spawnX,y:spawnY,r:14,angle:0,steer:0,fx:1,fy:0,hp:100,ammo:4,inv:3.5,moving:false,boost:0,stopT:0,wrongWayT:0}; // 開場給予 3.5 秒倒數無敵防禦與 4 支雞腿
   cars=[];dogs=[];shots=[];items=[];pops=[];
-  level=1;strikes=0;combo=0;lastStars=0;lastWasVip=false;redCooldown=0;tutToast=null;tutQueue=[];
+  level=1;strikes=0;combo=0;lastStars=0;lastWasVip=false;redCooldown=0;tutToast=null;tutQueue=[];tutLockT=0;
   stats={score:0,delivered:0,maxCombo:0,near:0,dogs:0,time:0};
   order=null;orderDelay=0.2;countdown=3.2;shake=0;itemTimer=4;banner=null;lastTick=-1;path=[];pathTimer=0;hintT=(gameMode==='story'&&curMapIdx===0)?16:7;
   initTrafficSystem();
@@ -1651,22 +1714,71 @@ function makeCarWithType(forcedType){
     appearedPlayed:false,warnedPlayer:false,passedPlayer:false,penaltyGiven:false
   };
 
-  const p0=picked.s0+35, p1=picked.s1-35;
   const ints=getIntersections();
-  let safeFallbackPos=null;
-  for(let i=0;i<60;i++){
-    car.pos=rand(p0, Math.max(p0+10, p1));
-    const cp=carPos(car);
-    const inInter=ints.some(it=>Math.abs(cp.x-it.x)<HALF+68 && Math.abs(cp.y-it.y)<HALF+68);
-    if(!inInter && onRoad(cp.x,cp.y,14)){
-      if(safeFallbackPos===null) safeFallbackPos=car.pos;
-      if((!P||rectDist(P.x,P.y,carRect(car))>420) && !cars.some(o=>rectDist(cp.x,cp.y,carRect(o))<72)){
-        safeFallbackPos=car.pos;
-        break;
+  let safeFallbackPos=null, noOverlapPos=null;
+  const trySeg=(spick)=>{
+    const a0=spick.s0+35, a1=spick.s1-35;
+    if(a1<=a0+10) return false;
+    for(let i=0;i<36;i++){
+      const candPos=rand(a0, a1);
+      car.axis=spick.axis; car.seg=spick.seg; car.roadCenter=spick.center;
+      car.lane=spick.center+side*laneOff; car.dir=spick.axis==='h'?side:-side;
+      car.len=spick.axis==='h'?MAP.w:MAP.h; car.pos=candPos;
+      const cp=carPos(car), cr=carRect(car);
+      const inInter=ints.some(it=>Math.abs(cp.x-it.x)<HALF+68 && Math.abs(cp.y-it.y)<HALF+68);
+      if(!inInter && onRoad(cp.x,cp.y,14)){
+        if(safeFallbackPos===null) safeFallbackPos={spick, pos:candPos};
+        const clearCars=!cars.some(o=>{
+          const rO=carRect(o);
+          return cr.x<rO.x+rO.w+24 && cr.x+cr.w+24>rO.x && cr.y<rO.y+rO.h+24 && cr.y+cr.h+24>rO.y;
+        });
+        if(clearCars){
+          if(noOverlapPos===null) noOverlapPos={spick, pos:candPos};
+          if(!P||rectDist(P.x,P.y,cr)>420){
+            noOverlapPos={spick, pos:candPos};
+            return true;
+          }
+        }
       }
     }
+    return false;
+  };
+  if(!trySeg(picked)){
+    for(let t=0;t<6;t++){ if(trySeg(pickRoadSeg())) break; }
   }
-  if(safeFallbackPos!==null) car.pos=safeFallbackPos;
+  if(!noOverlapPos){
+    const allSegs=[
+      ...H_SEGS.map(s=>({axis:'h',seg:s,center:s.y,s0:s.c0,s1:s.c1})),
+      ...V_SEGS.map(s=>({axis:'v',seg:s,center:s.x,s0:s.c0,s1:s.c1}))
+    ];
+    for(const segPick of allSegs){
+      const a0=segPick.s0+35, a1=segPick.s1-35;
+      if(a1<=a0+10) continue;
+      for(let k=0;k<=20;k++){
+        const candPos=a0+(a1-a0)*(k/20);
+        car.axis=segPick.axis; car.seg=segPick.seg; car.roadCenter=segPick.center;
+        car.lane=segPick.center+side*laneOff; car.dir=segPick.axis==='h'?side:-side;
+        car.len=segPick.axis==='h'?MAP.w:MAP.h; car.pos=candPos;
+        const cp=carPos(car), cr=carRect(car);
+        const inInter=ints.some(it=>Math.abs(cp.x-it.x)<HALF+34 && Math.abs(cp.y-it.y)<HALF+34);
+        if(inInter || !onRoad(cp.x,cp.y,14)) continue;
+        if(safeFallbackPos===null) safeFallbackPos={spick:segPick, pos:candPos};
+        const clearCars=!cars.some(o=>{
+          const rO=carRect(o);
+          return cr.x<rO.x+rO.w+14 && cr.x+cr.w+14>rO.x && cr.y<rO.y+rO.h+14 && cr.y+cr.h+14>rO.y;
+        });
+        if(clearCars){ noOverlapPos={spick:segPick, pos:candPos}; break; }
+      }
+      if(noOverlapPos) break;
+    }
+  }
+  const chosen=noOverlapPos||safeFallbackPos;
+  if(chosen){
+    const sp=chosen.spick;
+    car.axis=sp.axis; car.seg=sp.seg; car.roadCenter=sp.center;
+    car.lane=sp.center+side*laneOff; car.dir=sp.axis==='h'?side:-side;
+    car.len=sp.axis==='h'?MAP.w:MAP.h; car.pos=chosen.pos;
+  }
   return car;
 }
 
@@ -1725,7 +1837,7 @@ function setBodyState(s){
   $('pauseBtn').style.display=s==='play'?'flex':'none';
   $('throwBtn').style.display=s==='play'?'flex':'none';
 }
-function showOnly(id){['title','mapSel','story','howto','pause','over'].forEach(o=>$(o).classList.toggle('show',o===id));}
+function showOnly(id){['title','mapSel','story','howto','pause','tutModal','over'].forEach(o=>$(o).classList.toggle('show',o===id));}
 let storyIdx=0, storyFromBtn=false;
 function getStorySteps(){
   const isF=char==='F';
@@ -2229,12 +2341,12 @@ function updateCars(dt){
   for(const tl of trafficLights) tlMap.set(tl.x + ',' + tl.y, tl);
   const outerEntries = [];
   for(const s of H_SEGS){
-    if(s.c0 <= 0) outerEntries.push({axis:'h', seg:s, roadCenter:s.y, dir:1, pos:-170, len:MAP.w});
-    if(s.c1 >= MAP.w) outerEntries.push({axis:'h', seg:s, roadCenter:s.y, dir:-1, pos:MAP.w+170, len:MAP.w});
+    if(s.c0 <= 0) outerEntries.push({axis:'h', seg:s, roadCenter:s.y, dir:1, pos:-140, len:MAP.w});
+    if(s.c1 >= MAP.w) outerEntries.push({axis:'h', seg:s, roadCenter:s.y, dir:-1, pos:MAP.w+140, len:MAP.w});
   }
   for(const s of V_SEGS){
-    if(s.c0 <= 0) outerEntries.push({axis:'v', seg:s, roadCenter:s.x, dir:1, pos:-170, len:MAP.h});
-    if(s.c1 >= MAP.h) outerEntries.push({axis:'v', seg:s, roadCenter:s.x, dir:-1, pos:MAP.h+170, len:MAP.h});
+    if(s.c0 <= 0) outerEntries.push({axis:'v', seg:s, roadCenter:s.x, dir:1, pos:-140, len:MAP.h});
+    if(s.c1 >= MAP.h) outerEntries.push({axis:'v', seg:s, roadCenter:s.x, dir:-1, pos:MAP.h+140, len:MAP.h});
   }
   const turnTarget = (c, inter, side) => {
     const off = c.laneOff || 30;
@@ -2252,7 +2364,8 @@ function updateCars(dt){
     const chkY = tgt.newAxis==='h' ? tgt.newLane : inter.y + tgt.newDir*54;
     return onRoad(chkX, chkY, 12);
   };
-  for(const c of cars){
+  for(let ci=0; ci<cars.length; ci++){
+    const c=cars[ci];
     // 移動（一般車停紅黃燈、綠燈清空交叉車流、左轉禮讓對向來車、排隊不重疊、不擋外送臨停區）
     const prevPos=c.pos;
     if(c.hornCooldown>0) c.hornCooldown-=dt;
@@ -2285,17 +2398,18 @@ function updateCars(dt){
         const stopEdge = interPos - c.dir * (HALF + 28);
         const dToLine = (stopEdge - front) * c.dir;
 
-        // 接近路口時規劃左／右轉；若直行無路（內部T字或L型轉角）則強制選可行轉向
+        // 接近路口時規劃左／右轉；若直行無路（內部T字或L型轉角）則強制選可行轉向（跑車與巡邏警車遇L/T角亦順暢轉彎不撞死巷）
         const sameTurnInter = c.turnTl && c.turnTl.x===inter.x && c.turnTl.y===inter.y;
-        if(canTurnCar && c.turnCool <= 0 && !sameTurnInter && dToLine >= -4 && dToLine < 165){
-          c.turnTl = inter;
+        if(c.turnCool <= 0 && !sameTurnInter && dToLine >= -4 && dToLine < 165){
           const canS = !!findSegAt(c.axis, c.roadCenter, interPos + c.dir * (HALF + 40));
           const canL = canTurnAt(c, inter, 'L');
           const canR = canTurnAt(c, inter, 'R');
           if(!canS && (canL || canR)){
+            c.turnTl = inter;
             if(canL && canR) c.turnSide = Math.random() < 0.5 ? 'L' : 'R';
             else c.turnSide = canL ? 'L' : 'R';
-          } else {
+          } else if(canTurnCar){
+            c.turnTl = inter;
             const rTurn = Math.random();
             const cand = rTurn < 0.24 ? 'L' : (rTurn < 0.46 ? 'R' : 'S');
             if(cand==='L' && canL) c.turnSide='L';
@@ -2319,10 +2433,10 @@ function updateCars(dt){
           c.redChoiceTl = null;
         }
 
-        // 2) 綠燈起步、閃黃／無號誌路口（含L型轉角）：淨空交會區並依路權互相禮讓，避免路口互撞
-        const checkCrossYield = (!tl || sig==='blink' || (!ignoreRed && sig==='green'));
-        if(checkCrossYield && dToLine >= -4 && dToLine < 82){
-          const boxPad = HALF + 26;
+        // 2) 綠燈起步、閃黃／無號誌路口（僅限三叉以上真正交叉路口；L型轉角雙向平行不交叉免互等）
+        const checkCrossYield = (inter.arms >= 3) && (!tl || sig==='blink' || (!ignoreRed && sig==='green'));
+        if(checkCrossYield && dToLine >= -2 && dToLine < 82){
+          const boxPad = HALF + 27;
           const isUnsigOrBlink = !tl || sig==='blink';
           const interScore = (v, dV) => -Math.round(dV * 10) + (v.type!=='bike' ? 120 : 0) + (v.axis==='h' ? 5 : 0);
           let needCrossYield = false;
@@ -2334,14 +2448,14 @@ function updateCars(dt){
                rO.y < inter.y + boxPad && rO.y + rO.h > inter.y - boxPad){
               needCrossYield = true; break;
             }
-            // 2b) 無號誌／閃黃路口（或緊急車輛接近）：同時抵達時依優先權決定誰先過
-            if((o.axis==='h' ? o.roadCenter===inter.y : o.roadCenter===inter.x)){
+            // 2b) 無號誌／閃黃路口（或緊急車輛接近）：僅在尚未進入路口盒（dToLine >= 0）且對方未煞停時依優先權決定誰先過
+            if(dToLine >= 0 && (o.axis==='h' ? o.roadCenter===inter.y : o.roadCenter===inter.x)){
               const oInterPos = o.axis==='h' ? inter.x : inter.y;
               const oFront = o.pos + o.dir * ((o.w || 48) / 2);
               const oStopEdge = oInterPos - o.dir * (HALF + 28);
               const oDToLine = (oStopEdge - oFront) * o.dir;
-              if(oDToLine >= -4 && oDToLine < 64 && (o.curSpeed > 15 || oDToLine < 18)){
-                const oEmerg = (o.type==='ambulance') || (o.type==='police' && o.chasing);
+              const oEmerg = (o.type==='ambulance') || (o.type==='police' && o.chasing);
+              if(oDToLine >= -2 && oDToLine < 64 && (oEmerg || o.curSpeed > 15 || (oDToLine < 10 && o.axis==='h' && c.axis==='v'))){
                 if(oEmerg || (isUnsigOrBlink && interScore(o, oDToLine) > interScore(c, dToLine))){
                   needCrossYield = true; break;
                 }
@@ -2382,13 +2496,13 @@ function updateCars(dt){
           }
         }
 
-        // 3b) 欲右轉時，若外側慢車道有同向直行單車／機車並行，先減速禮讓通過再轉入
+        // 3b) 欲右轉時，若外側慢車道有同向直行（非同向一起右轉）單車／機車並行，先減速禮讓通過再轉入
         if(c.turnTl && c.turnTl.x===inter.x && c.turnTl.y===inter.y && c.turnSide === 'R' && (!tl || sig==='green' || sig==='blink')){
           const tgt = turnTarget(c, inter, 'R');
           const dToPivot = (tgt.pivotPos - c.pos) * c.dir;
-          if(dToPivot > 2 && dToPivot < 72){
-            const bikeConflict = cars.some(o => o!==c && o.axis===c.axis && o.roadCenter===c.roadCenter && o.dir===c.dir && (o.laneOff||0)>(c.laneOff||0)+6 && Math.abs(o.pos - tgt.pivotPos) < 42);
-            if(bikeConflict) applyYield(dToPivot - 14);
+          if(dToPivot > 2 && dToPivot < 68){
+            const bikeConflict = cars.some(o => o!==c && o.axis===c.axis && o.roadCenter===c.roadCenter && o.dir===c.dir && (o.laneOff||0)>(c.laneOff||0)+6 && o.turnSide!=='R' && (o.curSpeed||0)>18 && Math.abs(o.pos - tgt.pivotPos) < 34);
+            if(bikeConflict) applyYield(dToPivot - 12);
           }
         }
 
@@ -2410,30 +2524,36 @@ function updateCars(dt){
         }
       }
 
-      // C. 同車道前車偵測（排隊保持明顯安全車距，不貼尾不重疊）＋路口內橫向阻擋防撞
+      // C. 同車道前車偵測（排隊保持明顯安全車距，不貼尾不重疊）＋前方交叉障礙物防撞
       const cHalfW = (c.h || 26) / 2;
-      for(const o of cars){
+      const turnPivotRem = (c.turnTl && (c.turnSide==='L'||c.turnSide==='R'))
+        ? (turnTarget(c, c.turnTl, c.turnSide).pivotPos - c.pos) * c.dir
+        : Infinity;
+      for(let oi=0; oi<cars.length; oi++){
+        const o=cars[oi];
         if(o===c) continue;
         if(o.axis!==c.axis){
-          // 若交叉方向車輛正好擋在正前方車道上（例如轉彎或剛進路口），預留安全距離煞停防撞
+          // 若前方尚未到達轉彎點，且交叉車輛確實擋在正前方車道上，預留安全距離防撞（若雙方皆慢速則由縱向讓橫向以打破僵局）
           const rO = carRect(o);
           const latHit = c.axis==='h'
-            ? (rO.y < c.lane + cHalfW + 3 && rO.y + rO.h > c.lane - cHalfW - 3)
-            : (rO.x < c.lane + cHalfW + 3 && rO.x + rO.w > c.lane - cHalfW - 3);
+            ? (rO.y < c.lane + cHalfW + 2 && rO.y + rO.h > c.lane - cHalfW - 2)
+            : (rO.x < c.lane + cHalfW + 2 && rO.x + rO.w > c.lane - cHalfW - 2);
           if(latHit){
             const oNear = c.axis==='h' ? (c.dir>0 ? rO.x : rO.x+rO.w) : (c.dir>0 ? rO.y : rO.y+rO.h);
             const dGap = (oNear - front) * c.dir;
-            if(dGap >= -2 && dGap < 58){
-              applyYield(Math.max(0, dGap - 8));
+            if(dGap >= -2 && dGap < 34 && dGap < turnPivotRem + 2){
+              applyYield(Math.max(0, dGap - 14));
             }
           }
           continue;
         }
         if(o.roadCenter!==c.roadCenter || o.dir!==c.dir) continue;
         if(Math.abs(o.lane - c.lane) > 12) continue;
+        const aheadDelta = (o.pos - c.pos) * c.dir;
+        if(aheadDelta < 0 || (aheadDelta === 0 && oi < ci)) continue; // 僅後方車輛讓前方車輛，絕不雙向互相鎖死
         const oRear = o.pos - c.dir * ((o.w || 48) / 2);
         const gap = (oRear - front) * c.dir;
-        if(gap > -6 && gap < 135){
+        if(gap > -((c.w || 48) + 8) && gap < 135){
           const safeGap = 24;
           const dQueue = Math.max(0, gap - safeGap);
           maxStep = Math.min(maxStep, dQueue);
@@ -2506,9 +2626,21 @@ function updateCars(dt){
         const nRect=tgt.newAxis==='h'?{x:oldLane-nw/2,y:tgt.newLane-nh/2,w:nw,h:nh}:{x:tgt.newLane-nh/2,y:oldLane-nw/2,w:nh,h:nw};
         const cornerBusy = cars.some(o => {
           if(o===c) return false;
-          if(o.axis===tgt.newAxis && o.roadCenter===tgt.newCenter && o.dir===tgt.newDir && Math.abs(o.pos - oldLane) < 50) return true;
+          if(o.axis!==tgt.newAxis){
+            // 同向內／外車道併行之直行或內側將轉彎快車尚未通過時，外側暫緩轉彎避免擦撞鄰道車身
+            if(o.axis===c.axis && o.roadCenter===c.roadCenter && o.dir===c.dir && (o.curSpeed||0)>15 && (!o.turnTl || o.turnSide==='S' || (o.laneOff||30) < (c.laneOff||30))){
+              const rO=carRect(o);
+              return nRect.x < rO.x + rO.w + 2 && nRect.x + nRect.w + 2 > rO.x && nRect.y < rO.y + rO.h + 2 && nRect.y + nRect.h + 2 > rO.y;
+            }
+            return false;
+          }
+          if(o.roadCenter===tgt.newCenter && o.dir===tgt.newDir){
+            const along=(o.pos - oldLane) * tgt.newDir;
+            if(along > -8 && along < 48) return true;
+          }
+          if((o.curSpeed||0) <= 15 && (o.pos - oldLane) * tgt.newDir < -18) return false; // 後方已停等讓行之來車不卡死轉彎車
           const rO=carRect(o);
-          return nRect.x < rO.x + rO.w + 4 && nRect.x + nRect.w + 4 > rO.x && nRect.y < rO.y + rO.h + 4 && nRect.y + nRect.h + 4 > rO.y;
+          return nRect.x < rO.x + rO.w + 2 && nRect.x + nRect.w + 2 > rO.x && nRect.y < rO.y + rO.h + 2 && nRect.y + nRect.h + 2 > rO.y;
         });
         if(!cornerBusy){
           c.axis = tgt.newAxis;
@@ -2559,21 +2691,32 @@ function updateCars(dt){
     }
 
     // 外側邊界離場後從任一外緣路網入口平滑重生
-    if(c.pos > c.len + 160 || c.pos < -160){
+    const axisLen = c.axis==='h' ? MAP.w : MAP.h;
+    c.len = axisLen;
+    if(c.pos > axisLen + 280 || c.pos < -280){
       if(c.type==='police' && c.chasing){
-        c.pos = clamp(c.pos, 15, c.len - 15);
+        c.pos = clamp(c.pos, 15, axisLen - 15);
       } else if(outerEntries.length){
-        const ent = pick(outerEntries);
+        const startIdx = Math.floor(Math.random() * outerEntries.length);
+        let ent = outerEntries[startIdx], newPos = ent.pos;
+        for(let t=0; t<outerEntries.length; t++){
+          const cand = outerEntries[(startIdx + t) % outerEntries.length];
+          const cPos = cand.pos;
+          const offT = c.laneOff || 30;
+          const cLane = cand.roadCenter + (cand.axis==='h'?1:-1)*cand.dir*offT;
+          const eX = cand.axis==='h' ? (cand.dir>0?25:cand.len-25) : cLane;
+          const eY = cand.axis==='h' ? cLane : (cand.dir>0?skyEdge:cand.len-25);
+          const blockedEnt = (G.state==='play' && P && Math.hypot(P.x-eX, P.y-eY) < 180)
+            || cars.some(o => o!==c && o.axis===cand.axis && o.roadCenter===cand.roadCenter && o.dir===cand.dir && (((cand.dir>0 && o.pos<120) || (cand.dir<0 && o.pos>cand.len-120)) || Math.abs(o.pos-cPos)<90));
+          if(!blockedEnt){ ent = cand; newPos = cPos; break; }
+          if(t===0){
+            newPos = cand.dir > 0 ? -245 : cand.len + 245;
+          }
+        }
         c.axis = ent.axis; c.seg = ent.seg; c.roadCenter = ent.roadCenter;
         c.dir = ent.dir; c.len = ent.len;
         const off = c.laneOff || 30;
         c.lane = c.roadCenter + (c.axis==='h'?1:-1)*c.dir*off;
-        let newPos = ent.pos;
-        const entryX = c.axis==='h' ? (c.dir>0?25:c.len-25) : c.lane;
-        const entryY = c.axis==='h' ? c.lane : (c.dir>0?skyEdge:c.len-25);
-        const busyNearEntry = (G.state==='play' && P && Math.hypot(P.x-entryX, P.y-entryY) < 180)
-          || cars.some(o => o!==c && o.axis===c.axis && o.roadCenter===c.roadCenter && o.dir===c.dir && ((c.dir>0 && o.pos<120) || (c.dir<0 && o.pos>c.len-120)));
-        if(busyNearEntry) newPos = c.dir > 0 ? -260 : c.len + 260;
         c.pos = newPos;
         c.curSpeed = c.speed * 0.52;
         c.turnTl = null;
@@ -2762,7 +2905,6 @@ function update(dt){
   updateTrafficAndPeds(dt);
   if(shake>0) shake-=dt;
   if(banner){banner.t-=dt;if(banner.t<=0)banner=null;}
-  if(tutToast){tutToast.t-=dt;if(tutToast.t<=0)tutToast=tutQueue.shift()||null;}
   for(const p of pops){p.t-=dt;p.y-=34*dt;} pops=pops.filter(p=>p.t>0);
 
   if(countdown>0){
@@ -5231,21 +5373,7 @@ function drawHUD(now){
     ctx.beginPath(); ctx.arc(joy.ox,joy.oy,55,0,Math.PI*2); ctx.fill(); ctx.stroke();
     const dx=joy.x-joy.ox, dy=joy.y-joy.oy, l=Math.hypot(dx,dy), c=Math.min(55,l);
     ctx.fillStyle='rgba(245,158,11,.9)'; ctx.beginPath(); ctx.arc(joy.ox+(l?dx/l*c:0),joy.oy+(l?dy/l*c:0),24,0,Math.PI*2); ctx.fill();
-  }else if(tutToast&&countdown<=0){
-    const a=Math.min(1, tutToast.t/0.6, (tutToast.maxT-tutToast.t)*4+0.1);
-    ctx.save();
-    ctx.globalAlpha=clamp(a,0,1); ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.font='bold 14px system-ui,sans-serif';
-    const rawW=ctx.measureText(tutToast.text).width+30;
-    const maxW=Math.max(240, W-24);
-    const sc=rawW>maxW ? maxW/rawW : 1;
-    ctx.translate(W/2, H-safe.b-103);
-    ctx.scale(sc, sc);
-    hudPanel(-rawW/2,-18,rawW,36);
-    ctx.strokeStyle=tutToast.color; ctx.lineWidth=1.5; ctx.stroke();
-    ctx.fillStyle=tutToast.color; ctx.fillText(tutToast.text,0,0);
-    ctx.restore();
-  }else if(hintT>0&&countdown<=0){
+  }else if(hintT>0&&countdown<=0&&!tutToast){
     ctx.globalAlpha=Math.min(1,hintT); ctx.textAlign='center'; ctx.font='bold 15px system-ui,sans-serif';
     let msg=isTouch?'👆 按住畫面任一處拖曳＝移動　右下按鈕＝丟雞腿':'⌨️ WASD／方向鍵移動・空白鍵丟雞腿（滑鼠拖曳也可移動）';
     if(gameMode==='story'&&curMapIdx===0&&stats.delivered===0){
@@ -5316,6 +5444,12 @@ function loop(now){
   const dt=Math.min(0.05,Math.max(0,(now-lastFrame)/1000)); lastFrame=now;
   try{
     if(G.state==='play') update(dt);
+    else if(G.state==='tut'){
+      if(tutLockT>0){
+        tutLockT=Math.max(0,tutLockT-dt);
+        if(tutLockT<=0){const btn=$('tutOkBtn');if(btn)btn.style.opacity='1';}
+      }
+    }
     else if(G.state==='title'||G.state==='story'){updateTrafficAndPeds(dt);updateCars(dt);followCam(dt);}
     else if(G.state==='over'){updateCars(dt);if(shake>0)shake-=dt;for(const p of pops){p.t-=dt;p.y-=34*dt;}pops=pops.filter(p=>p.t>0);if(banner){banner.t-=dt;if(banner.t<=0)banner=null;}}
     draw(now);
@@ -5346,6 +5480,10 @@ addEventListener('keydown',e=>{
   if(G.state==='play'){
     if(k===' '||k==='j') throwFood();
     if(k==='p'||k==='escape') pauseGame();
+  }else if(G.state==='tut'){
+    if((k===' '||k==='enter'||k==='escape') && tutLockT<=0){
+      ensureAudio(); sfx('click'); dismissTut();
+    }
   }else if(G.state==='pause'){
     if(k==='p'||k==='escape'||k==='enter') resumeGame();
   }else if(G.state==='story'){
@@ -5417,6 +5555,8 @@ btn('storySkip',()=>finishStory(true));
 btn('howBtn',()=>showOnly('howto'));
 btn('howClose',()=>showOnly('title'));
 btn('resumeBtn',resumeGame);
+$('tutOkBtn').addEventListener('click',()=>{if(tutLockT>0)return;ensureAudio();sfx('click');dismissTut();});
+$('tutModal').addEventListener('click',e=>{if(e.target===$('tutModal')&&tutLockT<=0){ensureAudio();sfx('click');dismissTut();}});
 btn('restartBtn',startGame);
 btn('homeBtn1',goTitle);
 btn('nextStageBtn',()=>{
