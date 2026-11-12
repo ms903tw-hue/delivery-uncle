@@ -56,6 +56,25 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
 .char.sel .cn{color:#fde68a}
 .char.sel .cd{color:#fcd34d}
 .small{font-size:12px;color:#64748b;margin-top:6px}
+#title .card{width:min(96vw,740px);padding:12px 16px}
+.titleBtns{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:4px}
+.titleBtns .btn{min-width:auto;margin:0;padding:9px 14px;font-size:15px}
+@media (max-height:580px){
+  #title .card{padding:8px 14px}
+  #title .logo{display:inline-block;font-size:24px;margin:0 6px 0 0;vertical-align:middle}
+  #title .gname{display:inline-block;font-size:24px;margin:0;vertical-align:middle}
+  #title .gsub{font-size:13px;margin:2px 0 4px}
+  #title .best{font-size:12.5px;padding:3px 10px}
+  #title .modes{margin:4px 0 2px;padding:3px}
+  #title .modeBtn{padding:4px 12px;font-size:12.5px}
+  #title .chars{gap:10px;margin:5px 0 4px}
+  #title .char{width:196px;padding:6px 8px;gap:3px}
+  #title .char canvas{width:146px;height:66px}
+  #title .char .cn{font-size:14px}
+  #title .char .cd{font-size:11px}
+  .titleBtns .btn{padding:7px 12px;font-size:13.5px}
+  #title .small{margin-top:4px;font-size:11px}
+}
 
 #howto .card{text-align:left}
 #howto h2{text-align:center}
@@ -132,6 +151,26 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
 .devBtn.danger{border-color:#ef4444;color:#fecaca}
 .devStat{font-size:12px;color:#7dd3fc;min-height:18px;margin:4px 0 8px;font-weight:700}
 
+#garageModal .card{max-width:520px;border-color:#fbbf24;background:linear-gradient(160deg,#16223d,#0c1324);padding:16px 20px}
+.garageCoins{display:inline-flex;align-items:center;gap:6px;padding:4px 14px;border-radius:999px;background:#0b1222;border:1.5px solid #fbbf24;color:#fde68a;font-size:15px;font-weight:900;margin:4px 0 10px}
+.upgGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+@media (max-width:520px){.upgGrid{grid-template-columns:1fr}}
+.upgCard{background:#0b1222;border:1.5px solid #334155;border-radius:12px;padding:10px 12px;text-align:left;display:flex;flex-direction:column;gap:5px}
+.upgTop{display:flex;align-items:center;justify-content:space-between;font-size:15px;font-weight:900;color:#fde68a}
+.upgLv{font-size:12px;padding:2px 7px;border-radius:999px;background:#1e293b;color:#38bdf8}
+.upgDesc{font-size:12.5px;color:#94a3b8;line-height:1.4}
+.upgBuy{margin-top:4px;padding:7px 10px;border-radius:9px;border:none;background:linear-gradient(135deg,#fbbf24,#d97706);color:#1a1204;font-weight:900;font-size:13px;cursor:pointer;font-family:inherit}
+.upgBuy:disabled{background:#1e293b;color:#64748b;cursor:not-allowed}
+#achModal .card{max-width:560px;border-color:#a855f7;background:linear-gradient(160deg,#1a1438,#0c1324);padding:16px 20px}
+.achGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 12px}
+@media (max-width:520px){.achGrid{grid-template-columns:1fr}}
+.achCard{background:#0b1222;border:1.5px solid #334155;border-radius:12px;padding:9px 11px;text-align:left;opacity:.62;display:flex;flex-direction:column;gap:3px}
+.achCard.done{border-color:#fbbf24;background:linear-gradient(155deg,#2a210d,#0b1222);opacity:1}
+.achTop{display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:900;color:#e2e8f0}
+.achCard.done .achTop{color:#fde68a}
+.achReward{font-size:11.5px;padding:2px 7px;border-radius:999px;background:#1e293b;color:#fbbf24;font-weight:900}
+.achDesc{font-size:12px;color:#94a3b8}
+
 #rotate{z-index:90;background:#0b1020;flex-direction:column;text-align:center}
 #rotate .ph{font-size:60px;animation:rot 1.6s ease-in-out infinite}
 @keyframes rot{0%,30%{transform:rotate(0)}60%,100%{transform:rotate(-90deg)}}
@@ -151,7 +190,7 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
   <div class="logo">🛵💨</div>
   <div class="gname">外送大叔：限時爆走</div>
   <div class="gsub">閃過車流・甩開野狗・準時送達！</div>
-  <div class="best">🏆 最高紀錄：<span id="bestTitle">0</span>　｜　🗺️ 已解鎖：<span id="unlockTxt">1/4</span></div>
+  <div class="best">🏆 最高紀錄：<span id="bestTitle">0</span>　｜　🪙 金幣：<span id="coinsTitle">0</span>　｜　🗺️ 已解鎖：<span id="unlockTxt">1/4</span></div>
   <div class="modes" role="group" aria-label="遊戲模式">
     <button class="modeBtn sel" data-mode="story">🏆 闖關模式</button>
     <button class="modeBtn" data-mode="endless">♾️ 無限模式</button>
@@ -160,18 +199,20 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
     <button class="char" data-char="M">
       <canvas id="prevM" width="376" height="196"></canvas>
       <span class="cn"><span class="roleTag m">資深王牌</span>阿豪大叔</span>
-      <span class="cd">黃帽護目鏡・藍勁速車</span>
+      <span class="cd">耐撞減傷 20%・藍勁速車</span>
     </button>
     <button class="char" data-char="F">
       <canvas id="prevF" width="376" height="196"></canvas>
       <span class="cn"><span class="roleTag f">神速騎士</span>妮野可</span>
-      <span class="cd">貓耳安全帽・飄逸馬尾粉車</span>
+      <span class="cd">極速 +15・粉紅貓耳快車</span>
     </button>
   </div>
-  <div>
+  <div class="titleBtns">
     <button class="btn primary" id="startBtn">🚀 開始外送</button>
+    <button class="btn" id="garageBtn">🔧 車庫升級</button>
+    <button class="btn" id="achBtn">🏅 成就</button>
     <button class="btn" id="howBtn">📖 玩法說明</button>
-    <button class="btn" id="storyBtn" style="min-width:auto;padding:11px 14px">📜 故事</button>
+    <button class="btn" id="storyBtn" style="padding:9px 12px">📜 故事</button>
   </div>
   <div class="small">單機遊戲・不需網路・建議橫向遊玩 <span class="verTap" style="display:inline-block;margin-left:6px;padding:2px 6px;border-radius:6px;background:#1e293b;border:1px solid #475569;color:#38bdf8;font-weight:bold;">v1.4.0</span></div>
 </div></div>
@@ -241,6 +282,22 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
   <div class="tutHint">訂單計時與車流已暫停・按空白鍵 / Enter 或點擊繼續</div>
 </div></div>
 
+<!-- 車庫升級 -->
+<div class="overlay" id="garageModal"><div class="card">
+  <h2>🔧 車庫改裝升級</h2>
+  <div class="garageCoins">🪙 目前外送金幣：<span id="garageCoinsTxt">0</span></div>
+  <div class="upgGrid" id="upgGrid"></div>
+  <button class="btn primary" id="garageCloseBtn">✔ 返回主畫面</button>
+</div></div>
+
+<!-- 成就徽章牆 -->
+<div class="overlay" id="achModal"><div class="card">
+  <h2>🏅 外送成就徽章</h2>
+  <div class="garageCoins" style="border-color:#a855f7;color:#e9d5ff;" id="achCountTxt">已解鎖 0 / 8</div>
+  <div class="achGrid" id="achGrid"></div>
+  <button class="btn primary" id="achCloseBtn">✔ 返回主畫面</button>
+</div></div>
+
 <!-- 開發人員秘密外掛面板 -->
 <div class="overlay" id="devModal"><div class="card">
   <div class="tutTag" style="border-color:#38bdf8;color:#7dd3fc;">🛠️ DEV TOOLS · 秘密外掛面板</div>
@@ -252,7 +309,8 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
     <button class="devBtn" id="devGhostBtn">👻 透明不被追：關</button>
     <button class="devBtn" id="devSpeedBtn">⚡ 極速模式：關</button>
     <button class="devBtn" id="devRefillBtn">🍗 補滿雞腿／體力</button>
-    <button class="devBtn warn" id="devWinBtn" style="grid-column:span 2;">🏁 一鍵過關</button>
+    <button class="devBtn warn" id="devCoinsBtn">🪙 +1000 金幣</button>
+    <button class="devBtn warn" id="devWinBtn">🏁 一鍵過關</button>
   </div>
   <button class="btn primary" id="devCloseBtn">✖ 關閉</button>
 </div></div>
@@ -267,7 +325,7 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
       <span class="starSlot" id="overS2">☆</span>
       <span class="starSlot" id="overS3">☆</span>
     </div>
-    <div class="starColl"><span id="overStarTotal">⭐ 總星星收集：0 / 36</span><span class="starNew" id="overStarNew" style="display:none"></span></div>
+    <div class="starColl"><span id="overStarTotal">⭐ 總星星收集：0 / 36</span><span class="starNew" id="overStarNew" style="display:none"></span><span class="starNew" id="overCleanBadge" style="display:none;background:linear-gradient(135deg,#38bdf8,#0284c7);color:#f0f9ff;"></span></div>
   </div>
   <div class="bigScore" id="overScore">0</div>
   <span class="newRec" id="newRec">🎉 新紀錄！</span>
@@ -1270,11 +1328,109 @@ if(unlockedMap===4 && store.get('dug_clr_harbor',false)) unlockedMap=5;
 let selectedMapIdx=clamp(store.get('dug_map',0),0,unlockedMap-1);
 let best=store.get('dug_best',0);
 let bestStage=store.get('dug_best_stage',1);
+let coins=store.get('dug_coins',0);
+const upg=Object.assign({engine:0,frame:0,bag:0,box:0}, store.get('dug_upg',{}));
+const UPG_DEFS=[
+  {key:'engine', icon:'⚡', name:'引擎改裝', max:5, costs:[80,160,280,440,650], desc:lv=>'極速 +'+(lv*12)+' (目前 '+(210+lv*12)+')'},
+  {key:'frame',  icon:'🛡️', name:'強化車架', max:5, costs:[80,160,280,440,650], desc:lv=>'體力上限 '+(100+lv*12)+'・撞車減傷 -'+(lv*2)},
+  {key:'bag',    icon:'🎒', name:'大保溫袋', max:5, costs:[90,180,300,460,680], desc:lv=>'訂單時限 +'+(lv*7)+'% 寬裕度'},
+  {key:'box',    icon:'🍗', name:'大雞腿箱', max:5, costs:[70,150,260,420,620], desc:lv=>'開場雞腿 '+(4+lv)+' 支 (上限 '+(8+Math.floor(lv/2))+')'}
+];
+function getMaxHp(){return 100+(upg.frame||0)*12;}
+function getMaxAmmo(){return 8+Math.floor((upg.box||0)/2);}
+function getBaseSpeed(){return 210+(upg.engine||0)*12+(char==='F'?15:0);}
+const life=Object.assign({orders:0,dogs:0,cleanStages:0,fragileOk:0,rainOk:0}, store.get('dug_life',{}));
+const ach=Object.assign({}, store.get('dug_ach',{}));
+const ACH_DEFS=[
+  {id:'first_order', icon:'🛵', name:'初出茅廬', desc:'累計完成 1 筆外送訂單', reward:30, chk:()=>life.orders>=1},
+  {id:'orders_25',   icon:'📦', name:'熟練跑單員', desc:'累計完成 25 筆外送訂單', reward:120, chk:()=>life.orders>=25},
+  {id:'combo_5',     icon:'🔥', name:'節奏大師', desc:'單場達成 5 連擊', reward:80, chk:()=>stats&&stats.maxCombo>=5},
+  {id:'combo_10',    icon:'⚡', name:'連擊傳說', desc:'單場達成 10 連擊', reward:200, chk:()=>stats&&stats.maxCombo>=10},
+  {id:'dogs_10',     icon:'🍗', name:'雞腿馴犬師', desc:'累計定住 10 隻野狗', reward:100, chk:()=>life.dogs>=10},
+  {id:'fragile_5',   icon:'🍲', name:'穩如泰山', desc:'累計完美送達 5 筆熱湯單', reward:120, chk:()=>life.fragileOk>=5},
+  {id:'rain_5',      icon:'🌧️', name:'風雨無阻', desc:'累計於雨天送達 5 筆訂單', reward:120, chk:()=>life.rainOk>=5},
+  {id:'clean_stage', icon:'🏅', name:'模範騎士', desc:'闖關模式 0 違規過關 1 次', reward:150, chk:()=>life.cleanStages>=1}
+];
+function saveLife(){store.set('dug_life',life);}
+function checkAchievements(){
+  let unlockedAny=false;
+  for(const a of ACH_DEFS){
+    if(ach[a.id]) continue;
+    if(a.chk()){
+      ach[a.id]=true; unlockedAny=true;
+      addCoins(a.reward);
+      if(G.state==='play'){
+        showBanner('🏅 成就解鎖：'+a.icon+' '+a.name,'獲得獎勵 +'+a.reward+' 🪙','#fbbf24');
+      }
+    }
+  }
+  if(unlockedAny) store.set('dug_ach',ach);
+}
+function renderAch(){
+  const grid=$('achGrid'), cntTxt=$('achCountTxt');
+  if(!grid) return;
+  grid.innerHTML='';
+  let doneCount=0;
+  for(const a of ACH_DEFS){
+    const done=!!ach[a.id];
+    if(done) doneCount++;
+    const card=document.createElement('div');
+    card.className='achCard'+(done?' done':'');
+    card.innerHTML='<div class="achTop"><span>'+a.icon+' '+a.name+'</span><span class="achReward">'+(done?'✔ 已解鎖':'🪙 +'+a.reward)+'</span></div><div class="achDesc">'+a.desc+'</div>';
+    grid.appendChild(card);
+  }
+  if(cntTxt) cntTxt.textContent='已解鎖 '+doneCount+' / '+ACH_DEFS.length;
+}
+function addCoins(n){
+  if(!n) return;
+  coins+=n; store.set('dug_coins',coins);
+  if(stats) stats.coins=(stats.coins||0)+n;
+  const ct=$('coinsTitle'); if(ct) ct.textContent=coins;
+}
+function renderGarage(){
+  const ct=$('garageCoinsTxt'); if(ct) ct.textContent=coins;
+  const grid=$('upgGrid'); if(!grid) return;
+  grid.innerHTML='';
+  for(const u of UPG_DEFS){
+    const lv=upg[u.key]||0;
+    const isMax=lv>=u.max;
+    const cost=isMax?0:u.costs[lv];
+    const card=document.createElement('div');
+    card.className='upgCard';
+    const top=document.createElement('div');
+    top.className='upgTop';
+    top.innerHTML='<span>'+u.icon+' '+u.name+'</span><span class="upgLv">Lv.'+lv+'/'+u.max+'</span>';
+    const desc=document.createElement('div');
+    desc.className='upgDesc';
+    desc.textContent=u.desc(lv);
+    const btnEl=document.createElement('button');
+    btnEl.className='upgBuy';
+    btnEl.textContent=isMax?'✔ 已滿級':('升級 (🪙 '+cost+')');
+    btnEl.disabled=isMax || coins<cost;
+    btnEl.addEventListener('click',()=>{ensureAudio();sfx('click');buyUpgrade(u.key);});
+    card.appendChild(top); card.appendChild(desc); card.appendChild(btnEl);
+    grid.appendChild(card);
+  }
+}
+function buyUpgrade(key){
+  const def=UPG_DEFS.find(x=>x.key===key);
+  if(!def) return;
+  const lv=upg[key]||0;
+  if(lv>=def.max) return;
+  const cost=def.costs[lv];
+  if(coins<cost) return;
+  coins-=cost; upg[key]=lv+1;
+  store.set('dug_coins',coins); store.set('dug_upg',upg);
+  sfx('praise');
+  const ct=$('coinsTitle'); if(ct) ct.textContent=coins;
+  renderGarage();
+}
 let P,cars,dogs,shots,items,pops,order,stats,level,strikes,combo,countdown,shake,itemTimer,orderDelay,banner,lastTick,path,pathTimer,hintT;
 let trafficLights=[]; // 紅綠燈號誌
 let peds=[];          // 行人
 let redCooldown=0;    // 闖紅燈判定冷卻
 let lastStars=0, lastWasVip=false;
+let rainT=0, rainCooldown=22;
 const tutSeen=store.get('dug_tut_v1',{});
 let tutToast=null, tutQueue=[], tutLockT=0;
 
@@ -1319,23 +1475,27 @@ function devUnlockAll(){
   setDevStat('🔓 已解鎖全部 '+MAPS.length+' 個關卡！');
 }
 function devResetProgress(){
-  const keysToClear=['dug_unlock','dug_map','dug_best','dug_best_stage','dug_tut_v1'];
+  const keysToClear=['dug_unlock','dug_map','dug_best','dug_best_stage','dug_tut_v1','dug_coins','dug_upg','dug_life','dug_ach'];
   for(const m of MAPS){
     keysToClear.push('dug_clr_'+m.id,'dug_stars_'+m.id,'dug_best_'+m.id,'dug_story_seen_'+m.id);
   }
   for(const k of keysToClear){ try{localStorage.removeItem(k);}catch(e){} }
   for(const k in tutSeen) delete tutSeen[k];
-  unlockedMap=1; selectedMapIdx=0; best=0; bestStage=1;
+  for(const k in ach) delete ach[k];
+  life.orders=0; life.dogs=0; life.cleanStages=0; life.fragileOk=0; life.rainOk=0;
+  unlockedMap=1; selectedMapIdx=0; best=0; bestStage=1; coins=0;
+  upg.engine=0; upg.frame=0; upg.bag=0; upg.box=0;
+  const ct=$('coinsTitle'); if(ct) ct.textContent=coins;
   devGod=false; devGhost=false; devSpeed=false;
   syncDevBtns();
   if(typeof renderMapSel==='function') renderMapSel();
-  setDevStat('🗑️ 已重置所有進度與外掛狀態！');
+  setDevStat('🗑️ 已重置所有進度、金幣、升級與外掛狀態！');
 }
 function devRefill(){
   if(!P || !P.x){ setDevStat('⚠️ 請先進入關卡後再補滿！'); return; }
-  P.hp=100; P.ammo=8;
+  P.hp=getMaxHp(); P.ammo=getMaxAmmo();
   if(typeof updateAmmo==='function') updateAmmo();
-  setDevStat('🍗 已補滿體力 (100) 與雞腿 (8)！');
+  setDevStat('🍗 已補滿體力 ('+P.hp+') 與雞腿 ('+P.ammo+')！');
 }
 function devInstantWin(){
   if(G.state!=='play'&&G.state!=='pause'&&G.state!=='tut'){
@@ -1554,11 +1714,12 @@ function resetGame(){
     if(spawnX < bestV){ spawnAng = Math.PI/2; spawnFx = 0; spawnFy = 1; }
     else { spawnAng = -Math.PI/2; spawnFx = 0; spawnFy = -1; }
   }
-  P={x:spawnX,y:spawnY,r:14,angle:spawnAng,steer:0,fx:spawnFx,fy:spawnFy,hp:100,ammo:4,inv:3.5,moving:false,boost:0,stopT:0,wrongWayT:0}; // 開場給予 3.5 秒倒數無敵防禦與 4 支雞腿
+  P={x:spawnX,y:spawnY,r:14,angle:spawnAng,steer:0,fx:spawnFx,fy:spawnFy,hp:getMaxHp(),ammo:Math.min(getMaxAmmo(),4+(upg.box||0)),inv:3.5,moving:false,boost:0,stopT:0,wrongWayT:0}; // 開場給予 3.5 秒倒數無敵防禦與升級後雞腿／體力
   cars=[];dogs=[];shots=[];items=[];pops=[];
   level=1;strikes=0;combo=0;lastStars=0;lastWasVip=false;redCooldown=0;tutToast=null;tutQueue=[];tutLockT=0;
-  stats={score:0,delivered:0,orderStars:0,maxCombo:0,near:0,dogs:0,time:0};
+  stats={score:0,delivered:0,orderStars:0,maxCombo:0,near:0,dogs:0,time:0,violations:0,coins:0};
   order=null;orderDelay=0.2;countdown=3.2;shake=0;itemTimer=4;banner=null;lastTick=-1;path=[];pathTimer=0;hintT=(gameMode==='story'&&curMapIdx===0)?16:7;
+  rainT=0; rainCooldown=rand(18,30);
   initTrafficSystem();
   syncHazards();
   cam.x=clamp(P.x-W/ZOOM/2,0,Math.max(0,MAP.w-W/ZOOM));
@@ -1585,6 +1746,10 @@ function startPoliceChase(cop, popMsg, bannerSub){
   showBanner('🚨 警車追捕中！', bannerSub, '#f43f5e');
   pop(P.x, P.y-34, popMsg, '#ef4444', 20);
   triggerTut('police', '🚔 甩開警車秘訣：加速拉開距離或「過兩個路口」警車就會自動放棄！', '#38bdf8');
+}
+function recordViolation(){
+  stats.violations=(stats.violations||0)+1;
+  if(order) order.violated=true;
 }
 function checkWrongWay(dt){
   if(!P || !P.moving || P.stopT > 0){
@@ -1636,6 +1801,7 @@ function checkWrongWay(dt){
       triggerTut('wrongway', '⚠️ 持續逆向遇警車會被追！騎回【中央雙黃線】鑽車縫或超車就沒事！', '#fbbf24');
     }
     if(!devGhost && P.wrongWayT >= 1.65){
+      if(!P.wwCounted){ P.wwCounted=true; recordViolation(); }
       const alreadyChasing = cars.some(c=>c.type==='police' && c.chasing);
       if(!alreadyChasing){
         const cop = cars.find(c=>c.type==='police' && !c.chasing && (c.chaseCool||0)<=0 && dist(carPos(c), P) < 310);
@@ -1647,6 +1813,7 @@ function checkWrongWay(dt){
     }
   }else{
     P.wrongWayT = Math.max(0, (P.wrongWayT||0) - dt*3);
+    if(P.wrongWayT <= 0.1) P.wwCounted = false;
   }
 }
 function updateTrafficAndPeds(dt){
@@ -1687,6 +1854,7 @@ function updateTrafficAndPeds(dt){
           } else if(!devGhost && enterState==='red' && P.moving && redCooldown<=0){
             tl.pState='violated';
             redCooldown=0.6;
+            recordViolation();
             const anyChasing = cars.some(c=>c.type==='police' && c.chasing);
             const cop = !anyChasing ? cars.find(c=>c.type==='police' && !c.chasing && (c.chaseCool||0)<=0 && dist(carPos(c), P) < 350) : null;
 
@@ -1745,12 +1913,14 @@ function updateTrafficAndPeds(dt){
       const crossingPath = (Math.abs(P.y - ped.y) < 22) || (Math.abs(P.fy) > 0.45 && Math.abs(P.x - ped.x) < 30);
       if(crossingPath){
         if(dPed<20 && P.inv<=0){
+          recordViolation();
           damage(35, '💥 撞到路人！');
           stats.score=Math.max(0, stats.score-50);
           sfx('hit');
           pop(ped.x, ped.y-30, '💢 哎唷喂呀！', '#fca5a5', 18);
         } else if(dPed<36 && P.moving && !ped.warned){
           ped.warned=true;
+          recordViolation();
           stats.score=Math.max(0, stats.score-20);
           sfx('whistle');
           pop(P.x, P.y-30, '👮 未禮讓行人！-20分', '#f87171', 18);
@@ -1988,7 +2158,7 @@ function setBodyState(s){
   $('pauseBtn').style.display=s==='play'?'flex':'none';
   $('throwBtn').style.display=s==='play'?'flex':'none';
 }
-function showOnly(id){['title','mapSel','story','howto','pause','tutModal','devModal','over'].forEach(o=>$(o).classList.toggle('show',o===id));}
+function showOnly(id){['title','mapSel','story','howto','garageModal','achModal','pause','tutModal','devModal','over'].forEach(o=>$(o).classList.toggle('show',o===id));}
 let storyIdx=0, storyFromBtn=false;
 function getStorySteps(){
   const isF=char==='F';
@@ -2312,6 +2482,7 @@ function goTitle(){
   buildMap(selectedMapIdx);
   G.state='title'; resetGame(); setBodyState('title'); showOnly('title');
   $('bestTitle').textContent=best;
+  const ct=$('coinsTitle'); if(ct) ct.textContent=coins;
   $('unlockTxt').textContent=unlockedMap+'/'+MAPS.length;
   document.querySelectorAll('.char').forEach(b=>b.classList.toggle('sel',b.dataset.char===char));
   document.querySelectorAll('.modeBtn').forEach(b=>b.classList.toggle('sel',b.dataset.mode===gameMode));
@@ -2360,13 +2531,17 @@ function showEndCard(isWin, reason){
         const cl=(idx<unlockedMap-1)||store.get('dug_clr_'+m.id,false);
         return acc+Math.max(store.get('dug_stars_'+m.id,0),cl?1:0);
       },0);
-      const totEl=$('overStarTotal'), newEl=$('overStarNew');
+      const totEl=$('overStarTotal'), newEl=$('overStarNew'), cleanEl=$('overCleanBadge');
       if(totEl) totEl.textContent='⭐ 總星星收集：'+totalStars+' / '+(MAPS.length*3);
       if(newEl){
         const gained=winStarInfo.stageStars-winStarInfo.prevStars;
         if(gained>0){ newEl.textContent='+'+gained+' 新星突破！'; newEl.style.display='inline-block'; }
         else if(winStarInfo.stageStars===3){ newEl.textContent='👑 本關滿星制霸'; newEl.style.display='inline-block'; }
         else { newEl.style.display='none'; }
+      }
+      if(cleanEl){
+        if(winStarInfo.cleanStage){ cleanEl.textContent='🏅 模範騎士 零違規 +300'; cleanEl.style.display='inline-block'; }
+        else { cleanEl.style.display='none'; }
       }
       const nStars=winStarInfo.stageStars;
       setTimeout(()=>{
@@ -2396,6 +2571,9 @@ function showEndCard(isWin, reason){
   $('stTime').textContent=Math.floor(stats.time)+'s';
   $('bestOver').textContent=best;
   $('bestStageTxt').textContent=bestStage;
+  if(stats.coins>0){
+    $('overReason').textContent=reason+'　(本次賺取 +'+stats.coins+' 🪙)';
+  }
   $('nextStageBtn').style.display=(isWin && gameMode==='story' && curMapIdx<MAPS.length-1)?'inline-flex':'none';
   setBodyState('over');
   setTimeout(()=>{if(G.state==='over'){showOnly('over');if(Snd.music)Snd.music.gain.value=0.55;}},isWin?650:900);
@@ -2411,7 +2589,12 @@ function winStage(){
   const stageStars=(strikes===0 && avgOrderStars>=2.5)?3:((strikes<=1 && avgOrderStars>=1.7)?2:1);
   const prevStars=store.get('dug_stars_'+curMap.id,0);
   if(stageStars>prevStars) store.set('dug_stars_'+curMap.id,stageStars);
-  winStarInfo={stageStars, prevStars};
+  const cleanStage=(stats.violations||0)===0;
+  if(cleanStage){ stats.score+=300; life.cleanStages=(life.cleanStages||0)+1; saveLife(); }
+  const stageCoinBonus=50+(stageStars===3?30:0)+(cleanStage?30:0);
+  addCoins(stageCoinBonus);
+  checkAchievements();
+  winStarInfo={stageStars, prevStars, cleanStage};
   const starTxt='⭐'.repeat(stageStars)+'☆'.repeat(3-stageStars);
   let msg='本關評價 '+starTxt+' ・ 已完成 '+curMap.goalOrders+' 單！';
   if(curMapIdx+1<MAPS.length){
@@ -2441,12 +2624,14 @@ function calcOrderTime(distPx, isVip=false){
   const storyScale=curMap.timeMul * Math.max(0.86, 1 - stats.delivered*0.03);
   const stageScale=(gameMode==='story') ? storyScale : Math.min(curMap.timeMul, cfg.timeMul);
   const vipMul=isVip ? 0.78 : 1.0;
-  return Math.max(isVip?10:12, Math.ceil((rideSec+lightBuffer+3.6)*stageScale*vipMul));
+  const bagMul=1+(upg.bag||0)*0.07;
+  return Math.max(isVip?10:12, Math.ceil((rideSec+lightBuffer+3.6)*stageScale*vipMul*bagMul));
 }
 
 function newOrder(){
   // 嚴格觸發【金牌特急單】：需 連擊>=3 ＋ 上單滿分3星 ＋ 無差評 ＋ 不連續出現
   const isVip = (combo >= 3 && lastStars >= 3 && strikes === 0 && !lastWasVip);
+  const fragile = !isVip && stats.delivered >= 1 && Math.random() < 0.30;
   const minDist = isVip ? 900 : 600;
   let shop=pick(shops), cust=pick(customers);
   for(let i=0;i<40;i++){
@@ -2456,11 +2641,13 @@ function newOrder(){
   // 先計算「當前位置 -> 取餐店家」的合理時限，取餐後再重新計算送達顧客的時限
   const t=calcOrderTime(pathLen(P,shop.door), isVip);
 
-  order={shop,cust,stage:'pickup',time:t,total:t,isVip};
+  order={shop,cust,stage:'pickup',time:t,total:t,isVip,fragile,spilled:false,violated:false};
   lastTick=-1; pathTimer=0;
   sfx('order');
   if(isVip){
     pop(P.x,P.y-30,'⭐ 完美連勝！【金牌特急單】限時超趕 ×2.5倍獎金！','#fbbf24',21);
+  } else if(fragile){
+    pop(P.x,P.y-30,'🍲 易碎熱湯單！勿撞車享 ×1.6 獎金','#fdba74',19);
   } else {
     pop(P.x,P.y-30,'📲 新訂單！限時 '+t+' 秒取餐','#6ee7b7',18);
   }
@@ -2470,29 +2657,44 @@ function deliver(){
   const remainRatio=tl/order.total;
 
   // 三星外送評價判定
+  const maxHp=getMaxHp();
   let stars='⭐', starNum=1, starBonus=0, starMsg='壓線送達';
   if(remainRatio>=0.40){
     stars='⭐⭐⭐'; starNum=3; starBonus=80; starMsg='完美神速！';
-    P.hp=Math.min(100, P.hp+15); // 3星回血 15
+    P.hp=Math.min(maxHp, P.hp+15); // 3星回血 15
   } else if(remainRatio>=0.15){
     stars='⭐⭐'; starNum=2; starBonus=30; starMsg='準時抵達！';
-    P.hp=Math.min(100, P.hp+8);
+    P.hp=Math.min(maxHp, P.hp+8);
   } else {
-    P.hp=Math.min(100, P.hp+3);
+    P.hp=Math.min(maxHp, P.hp+3);
   }
 
+  const cleanOrder=!order.violated;
+  const cleanBonus=cleanOrder?50:0;
   const mult=1+0.2*Math.min(combo,10);
   const vipMult=order.isVip?2.5:1.0;
-  const pts=Math.round((100 + Math.ceil(tl)*12 + starBonus) * mult * vipMult);
+  const fragileMult=(order.fragile && !order.spilled)?1.6:1.0;
+  const rainMult=rainT>0?1.5:1.0;
+  const pts=Math.round((100 + Math.ceil(tl)*12 + starBonus + cleanBonus) * mult * vipMult * fragileMult * rainMult);
+  const earnedCoins=Math.max(8, Math.round(pts*0.12));
 
   lastStars=starNum; lastWasVip=!!order.isVip;
   stats.score+=pts; combo++; stats.maxCombo=Math.max(stats.maxCombo,combo); stats.delivered++; stats.orderStars=(stats.orderStars||0)+starNum;
-  if(P.ammo<8){
+  life.orders=(life.orders||0)+1;
+  if(fragileMult>1) life.fragileOk=(life.fragileOk||0)+1;
+  if(rainMult>1) life.rainOk=(life.rainOk||0)+1;
+  saveLife();
+  addCoins(earnedCoins);
+  checkAchievements();
+  if(P.ammo<getMaxAmmo()){
     P.ammo++; updateAmmo();
     pop(P.x,P.y-12,'🍗 +1 雞腿','#fdba74',15);
   }
   pop(P.x,P.y-36,'+'+pts+' '+stars,'#fde68a',24);
   pop(P.x,P.y-60,starMsg,'#6ee7b7',16);
+  if(cleanOrder) pop(P.x,P.y-124,'🏅 零違規 +'+Math.round(cleanBonus*mult*vipMult),'#7dd3fc',16);
+  if(fragileMult>1) pop(P.x,P.y-144,'🍲 熱湯完美沒灑！×1.6','#fdba74',16);
+  if(rainMult>1) pop(P.x,P.y-164,'🌧️ 雨天加給 ×1.5','#38bdf8',16);
 
   if(combo>1) pop(P.x,P.y-84,'連擊 ×'+combo,'#f472b6',18);
   sfx('deliver');
@@ -2522,7 +2724,7 @@ function levelUp(){
     });
   }
   syncHazards(); sfx('level');
-  P.hp=Math.min(100, P.hp+25); // 通關補血 25
+  P.hp=Math.min(getMaxHp(), P.hp+25); // 通關補血 25
   const cfg=STAGE_CONFIG[Math.min(STAGE_CONFIG.length-1,level-1)];
   showBanner('STAGE '+level+'・'+cfg.name, cfg.desc, '#6ee7b7');
   if(level>bestStage){ bestStage=level; store.set('dug_best_stage',bestStage); }
@@ -2536,8 +2738,14 @@ function orderFail(){
 }
 function damage(n,msg){
   if(devGod) return;
-  P.hp=Math.max(0,P.hp-n); P.inv=1.2; shake=0.35; combo=Math.max(0,combo);
-  pop(P.x,P.y-30,msg+' −'+n,'#fca5a5',18);
+  const rawDmg=Math.max(5, n-(upg.frame||0)*2);
+  const actualDmg=char==='M'?Math.max(4,Math.round(rawDmg*0.8)):rawDmg;
+  P.hp=Math.max(0,P.hp-actualDmg); P.inv=(char==='M'?1.6:1.2); shake=0.35; combo=Math.max(0,combo);
+  if(order && order.stage==='deliver' && order.fragile && !order.spilled){
+    order.spilled=true;
+    pop(P.x,P.y-52,'🍲 湯灑出來了！失去 ×1.6 加碼','#fca5a5',15);
+  }
+  pop(P.x,P.y-30,msg+' −'+actualDmg,'#fca5a5',18);
   if(P.hp<=0) gameOver('💀 體力耗盡，今天先收工');
 }
 function throwFood(){
@@ -3183,13 +3391,27 @@ function update(dt){
     followCam(dt); return;
   }
   stats.time+=dt; if(hintT>0) hintT-=dt;
+  if(rainT>0){
+    rainT-=dt;
+    if(rainT<=0){ rainT=0; showBanner('☀️ 雨停放晴','恢復晴朗路況','#fde68a'); }
+  }else{
+    rainCooldown-=dt;
+    if(rainCooldown<=0){
+      rainCooldown=rand(24,38);
+      if(Math.random()<0.65){
+        rainT=14;
+        showBanner('🌧️ 突發雨天尖峰！','小費 ×1.5 倍！注意濕滑路況','#38bdf8');
+      }
+    }
+  }
 
   // 玩家
   if(P.stopT>0) P.stopT=Math.max(0,P.stopT-dt);
   const v=inputVec();
   P.moving=(P.stopT<=0)&&!!(v.x||v.y);
   if(P.boost>0) P.boost=Math.max(0,P.boost-dt);
-  const curSpeed=devSpeed?390:(P.boost>0?295:210); // 能量飲料衝刺加速 +40%／外掛極速 390
+  const baseSp=getBaseSpeed();
+  const curSpeed=devSpeed?390:(P.boost>0?(baseSp+85):baseSp); // 能量飲料衝刺加速 +85／外掛極速 390
   if(P.moving){
     moveEnt(P,v.x*curSpeed*dt,v.y*curSpeed*dt,P.r,true);
     const newAng=Math.atan2(v.y,v.x);
@@ -3299,6 +3521,7 @@ function update(dt){
       for(const d of dogs){
         if(d.stun<=0&&Math.hypot(d.x-s.x,d.y-s.y)<28){
           d.stun=5; d.eat=5; d.chase=false; d.chaseDur=0; s.life=0; stats.score+=20; stats.dogs++;
+          life.dogs=(life.dogs||0)+1; saveLife(); checkAchievements();
           sfx('stun'); pop(d.x,d.y-24,'🍗 定住 +20','#fde68a',16); break;
         }
       }
@@ -3324,13 +3547,14 @@ function update(dt){
     if(dist(it,P)<30){
       it.life=0;
       if(it.type==='energy'){
-        P.boost=3.5; sfx('boost');
-        pop(it.x,it.y-20,'⚡ 能量爆發！加速 3.5 秒','#38bdf8',18);
+        const bDur=char==='F'?4.5:3.5;
+        P.boost=bDur; sfx('boost');
+        pop(it.x,it.y-20,'⚡ 能量爆發！加速 '+bDur+' 秒','#38bdf8',18);
       } else if(it.type==='leg'){
-        P.ammo=Math.min(8,P.ammo+2); updateAmmo(); sfx('item');
+        P.ammo=Math.min(getMaxAmmo(),P.ammo+2); updateAmmo(); sfx('item');
         pop(it.x,it.y-20,'🍗 雞腿 +2','#fde68a',16);
       } else {
-        P.hp=Math.min(100,P.hp+30); sfx('item');
+        P.hp=Math.min(getMaxHp(),P.hp+30); sfx('item');
         pop(it.x,it.y-20,'🍱 體力 +30','#6ee7b7',16);
       }
     }
@@ -5566,6 +5790,23 @@ function drawCharPreviews(now){
 }
 function hudPanel(x,y,w,h){ctx.fillStyle='rgba(10,15,30,.82)';rr(x,y,w,h,12);ctx.fill();ctx.strokeStyle='rgba(148,163,184,.45)';ctx.lineWidth=1.5;ctx.stroke();}
 function drawHUD(now){
+  if(rainT>0){
+    ctx.save();
+    ctx.fillStyle='rgba(15,23,42,0.16)';
+    ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle='rgba(125,211,252,0.38)';
+    ctx.lineWidth=1.4;
+    ctx.beginPath();
+    const off=(now*0.55)%48;
+    for(let rx=-40;rx<W+40;rx+=36){
+      for(let ry=((rx*7)%48)-48;ry<H+48;ry+=48){
+        const y0=ry+off;
+        ctx.moveTo(rx,y0); ctx.lineTo(rx-7,y0+16);
+      }
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
   const L=safe.l+10, T=safe.t+10, R=W-safe.r-10;
   ctx.textBaseline='middle';
   // 左：分數、體力、連擊
@@ -5575,8 +5816,9 @@ function drawHUD(now){
   ctx.fillStyle='#fde68a'; ctx.font='900 26px system-ui,sans-serif'; ctx.fillText(String(stats.score),L+48,T+17);
   ctx.fillStyle='#94a3b8'; ctx.font='bold 13.5px system-ui,sans-serif'; ctx.fillText('體力',L+10,T+42);
   const bw=lw-60; ctx.fillStyle='#1e293b'; rr(L+48,T+35,bw,14,7); ctx.fill();
-  const hpc=P.hp>50?'#22c55e':(P.hp>25?'#f59e0b':'#ef4444');
-  if(P.hp>0){ctx.fillStyle=hpc; rr(L+48,T+35,Math.max(10,bw*P.hp/100),14,7); ctx.fill();}
+  const maxHp=getMaxHp();
+  const hpc=P.hp>maxHp*0.5?'#22c55e':(P.hp>maxHp*0.25?'#f59e0b':'#ef4444');
+  if(P.hp>0){ctx.fillStyle=hpc; rr(L+48,T+35,Math.max(10,bw*P.hp/maxHp),14,7); ctx.fill();}
   ctx.fillStyle='#94a3b8'; ctx.font='bold 13.5px system-ui,sans-serif'; ctx.fillText('連擊',L+10,T+66);
   ctx.fillStyle=combo>0?'#f472b6':'#475569'; ctx.font='900 17px system-ui,sans-serif'; ctx.fillText('×'+combo+(combo>0?'  (加乘 '+(1+0.2*Math.min(combo,10)).toFixed(1)+')':''),L+48,T+66);
 
@@ -5605,7 +5847,7 @@ function drawHUD(now){
     const tgt=order.stage==='pickup'?order.shop:order.cust;
     const ratio=clamp(order.time/order.total,0,1);
     const isPick=(order.stage==='pickup');
-    const stepTag=order.isVip?(isPick?'⭐特急取餐→':'⭐特急送達→'):(isPick?'【1.取餐】':'【2.送達】📦');
+    const stepTag=order.isVip?(isPick?'⭐特急取餐→':'⭐特急送達→'):(order.fragile&&!order.spilled?(isPick?'🍲熱湯取餐→':'🍲勿撞送達→'):(isPick?'【1.取餐】':'【2.送達】📦'));
     ctx.fillStyle=order.isVip?'#fde047':(isPick?'#fbbf24':'#34d399'); ctx.font='900 15px system-ui,sans-serif';
     ctx.fillText(stepTag+tgt.icon+tgt.name,cxx+cw/2-24,T+17);
     ctx.textAlign='right';
@@ -5619,6 +5861,15 @@ function drawHUD(now){
   }else{
     ctx.fillStyle='#94a3b8'; ctx.font='bold 15.5px system-ui,sans-serif';
     ctx.fillText(countdown>0?'準備出發…':'📲 等待新訂單…',cxx+cw/2,T+25);
+  }
+  if(rainT>0){
+    ctx.save();
+    ctx.fillStyle='rgba(14,116,144,0.88)';
+    rrc(ctx,cxx+cw/2-68,T+54,136,22,11); ctx.fill();
+    ctx.strokeStyle='#38bdf8'; ctx.lineWidth=1.2; ctx.stroke();
+    ctx.fillStyle='#e0f2fe'; ctx.font='900 12px system-ui,sans-serif'; ctx.textAlign='center';
+    ctx.fillText('🌧️ 雨天尖峰 小費×1.5 ('+Math.ceil(rainT)+'s)',cxx+cw/2,T+65);
+    ctx.restore();
   }
 
   // 畫面外的目標箭頭
@@ -5854,6 +6105,10 @@ btn('storyBox',nextStory);
 btn('storyBack',()=>finishStory(true));
 btn('storySkip',()=>finishStory(true));
 btn('howBtn',()=>showOnly('howto'));
+btn('garageBtn',()=>{renderGarage();showOnly('garageModal');});
+btn('garageCloseBtn',()=>showOnly('title'));
+btn('achBtn',()=>{renderAch();showOnly('achModal');});
+btn('achCloseBtn',()=>showOnly('title'));
 btn('howClose',()=>showOnly('title'));
 btn('resumeBtn',resumeGame);
 $('tutOkBtn').addEventListener('click',()=>{if(tutLockT>0)return;ensureAudio();sfx('click');dismissTut();});
@@ -5873,6 +6128,7 @@ btn('devGodBtn',()=>{devGod=!devGod;syncDevBtns();setDevStat('🛡️ 無敵模�
 btn('devGhostBtn',()=>{devGhost=!devGhost;syncDevBtns();setDevStat('👻 透明模式已'+(devGhost?'開啟（警察、野狗、路人不會追或攔截）':'關閉'));});
 btn('devSpeedBtn',()=>{devSpeed=!devSpeed;syncDevBtns();setDevStat('⚡ 極速模式已'+(devSpeed?'開啟（移動速度大幅提升）':'關閉'));});
 btn('devRefillBtn',devRefill);
+btn('devCoinsBtn',()=>{addCoins(1000);if($('garageModal').classList.contains('show'))renderGarage();setDevStat('🪙 已發放 +1000 金幣（目前：'+coins+'）');});
 btn('devWinBtn',devInstantWin);
 btn('devCloseBtn',closeDevPanel);
 $('devModal').addEventListener('click',e=>{if(e.target===$('devModal')){ensureAudio();sfx('click');closeDevPanel();}});
