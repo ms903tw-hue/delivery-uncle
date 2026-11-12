@@ -2764,7 +2764,7 @@ function updateCars(dt){
       }
 
       // D. 保護同車道前方之外送員（停紅燈或低速減速保持 34px 安全淨空，絕不貼身撞上）
-      if(G.state === 'play' && P){
+      if(G.state === 'play' && P && !devGhost){
         const lateral = c.axis==='h' ? Math.abs(P.y - c.lane) : Math.abs(P.x - c.lane);
         const laneHitW = ((c.h || 26) / 2) + P.r + 8;
         if(lateral < laneHitW){
@@ -3154,7 +3154,7 @@ function update(dt){
   const inDeliveryBay = places.some(pl => dist(P, pl.door) < 62);
   for(const c of cars){
     const d=rectDist(P.x,P.y,carRect(c));
-    if(!devGod && d<P.r-1){
+    if(!devGod && !devGhost && d<P.r-1){
       if(P.inv<=0 && !((c.curSpeed||0) < 20 && inDeliveryBay)){
         const dmg = c.type==='bike' ? 12 : (c.type==='moto' ? 18 : 25);
         const hitMsg = c.type==='bike' ? '🚲 擦撞單車' : (c.type==='moto' ? '🛵 擦撞機車' : '💥 撞車');
