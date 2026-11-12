@@ -41,13 +41,15 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
 .gname{font-size:34px;font-weight:900;letter-spacing:2px;color:#fde68a;text-shadow:0 3px 0 #b45309,0 6px 14px rgba(0,0,0,.6);margin:4px 0 0}
 .gsub{font-size:15px;color:#6ee7b7;font-weight:800;margin:2px 0 8px;letter-spacing:1px}
 .best{display:inline-block;padding:4px 12px;border-radius:20px;background:#0b1222;border:1px solid #334155;color:#fbbf24;font-weight:800;font-size:14px}
-.chars{display:flex;gap:12px;justify-content:center;margin:10px 0 6px;flex-wrap:wrap}
-.char{width:186px;padding:9px 11px;border-radius:16px;border:2px solid #334155;background:linear-gradient(165deg,#131d33,#0b1222);color:#cbd5e1;font-weight:800;font-size:15px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px;transition:transform .12s,border-color .12s,background .12s,box-shadow .12s}
-.char canvas{width:152px;height:84px;border-radius:11px;background:radial-gradient(circle at 50% 55%,#1e293b,#0b1222);border:1.5px solid #26344b;display:block}
-.char .cn{font-size:15px;font-weight:900;color:#fff}
+.chars{display:flex;gap:14px;justify-content:center;margin:10px 0 6px;flex-wrap:wrap}
+.char{position:relative;width:212px;padding:10px 11px;border-radius:16px;border:2px solid #334155;background:linear-gradient(165deg,#17233d,#0b1222);color:#cbd5e1;font-weight:800;font-size:15px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:5px;transition:transform .14s,border-color .14s,background .14s,box-shadow .14s}
+.char:hover{border-color:#64748b;transform:translateY(-1px)}
+.char canvas{width:188px;height:98px;border-radius:12px;background:radial-gradient(circle at 35% 50%,#1e293b,#090f1d);border:1.5px solid #26344b;display:block}
+.char .cn{font-size:15px;font-weight:900;color:#fff;letter-spacing:.3px}
 .char .cd{font-size:11px;color:#94a3b8;font-weight:700}
-.char.sel{border-color:#fbbf24;background:linear-gradient(165deg,#332a12,#1c1608);color:#fff;box-shadow:0 0 0 3px rgba(251,191,36,.32),0 8px 20px rgba(251,191,36,.18);transform:translateY(-2px)}
-.char.sel canvas{border-color:rgba(251,191,36,.55)}
+.char.sel{border-color:#fbbf24;background:linear-gradient(165deg,#3b2e10,#1a1407);color:#fff;box-shadow:0 0 0 3px rgba(251,191,36,.34),0 10px 24px rgba(251,191,36,.22);transform:translateY(-2px)}
+.char.sel::after{content:'✓ 出勤';position:absolute;top:7px;right:9px;padding:2px 7px;border-radius:999px;background:linear-gradient(135deg,#fde047,#f59e0b);color:#1a1204;font-size:10px;font-weight:900;box-shadow:0 2px 6px rgba(0,0,0,.45)}
+.char.sel canvas{border-color:rgba(251,191,36,.65)}
 .char.sel .cn{color:#fde68a}
 .char.sel .cd{color:#fcd34d}
 .small{font-size:12px;color:#64748b;margin-top:6px}
@@ -128,12 +130,12 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
   </div>
   <div class="chars">
     <button class="char" data-char="M">
-      <canvas id="prevM" width="304" height="168"></canvas>
+      <canvas id="prevM" width="376" height="196"></canvas>
       <span class="cn">👨 阿豪大叔</span>
-      <span class="cd">黃帽八字鬍・藍勁速車</span>
+      <span class="cd">黃帽護目鏡・藍勁速車</span>
     </button>
     <button class="char" data-char="F">
-      <canvas id="prevF" width="304" height="168"></canvas>
+      <canvas id="prevF" width="376" height="196"></canvas>
       <span class="cn">👩 妮野可</span>
       <span class="cd">貓耳安全帽・飄逸馬尾粉車</span>
     </button>
@@ -705,9 +707,9 @@ const MAPS=[
     ],
     customers:[
       ['淡水渡船頭','⛴️','h',260,1020,'bottom'],['紅毛城園區','🏰','h',260,1490,'top'],
-      ['情人拱橋口','🌉','v',220,880,'right'],['金色水岸旁','🌅','h',550,490,'top'],
+      ['情人拱橋口','🌉','v',220,945,'right'],['金色水岸旁','🌅','h',550,490,'top'],
       ['紅樹林木棧','🌿','h',550,1490,'top'],['港區警察所','🚓','h',1050,490,'bottom'],
-      ['海關老碼頭','⚓','h',1340,750,'bottom'],['真理鐘樓前','🔔','v',1280,405,'left']
+      ['海關老碼頭','⚓','h',1340,750,'bottom'],['真理鐘樓前','🔔','v',1700,1265,'left']
     ]
   },
   {
@@ -744,7 +746,7 @@ const MAPS=[
     size:{w:1960,h:1440}, half:56,
     hSegs:[[260,0,1280],[610,620,1790],[960,170,1280],[1300,620,1960]],
     vSegs:[[170,0,960],[620,260,1300],[1280,0,960],[1790,610,1440]],
-    lights:[[620,260],[1280,610],[620,960],[1280,960]],
+    lights:[[620,260],[620,610],[1280,610],[620,960]],
     seed:20261188, hues:['#5c3d2e','#78350f','#4a3728','#3f4f3c','#6b4423'],
     roadblocks:[{x:564,y:745,w:112,h:80,label:'🚂 鐵道平交'}],
     river:null, bridges:[], coast:null,
@@ -782,7 +784,7 @@ const MAPS=[
       ['安平紅古堡','🏰','h',270,1440,'bottom'],['大天后廟口','⛩️','h',580,920,'top'],
       ['億載金城門','🧱','v',160,930,'right'],['安平老樹屋','🌳','h',930,920,'bottom'],
       ['德記洋行館','🏛️','v',1700,600,'left'],['運河遊船站','⛵','h',1280,410,'top'],
-      ['延平老街口','🏮','v',1180,425,'left'],['古蹟修復處','📜','h',1280,1440,'top']
+      ['延平老街口','🏮','v',1700,1105,'left'],['古蹟修復處','📜','h',1280,1440,'top']
     ]
   },
   {
@@ -798,13 +800,13 @@ const MAPS=[
     seed:20261191, hues:['#0f172a','#1e3a5f','#164e63','#312e81','#1e293b'],
     roadblocks:[], river:{y:755,h:130}, bridges:[180,990,1800], coast:null,
     shops:[
-      ['鹽埕鴨肉飯','🦆','h',270,585,'top'],['港都木瓜奶','🥛','h',560,1395,'bottom'],
+      ['鹽埕鴨肉飯','🦆','h',270,390,'top'],['港都木瓜奶','🥛','h',560,1395,'bottom'],
       ['駁二現烤卷','🦑','h',1060,585,'top'],['六合海鮮粥','🍲','h',1060,1205,'bottom'],
       ['旗津黑輪攤','🍢','h',1350,585,'top']
     ],
     customers:[
       ['85大樓廣場','🏢','h',270,1395,'bottom'],['流行音樂館','🎵','h',560,795,'top'],
-      ['大港旋轉橋','🌉','v',990,820,'right'],['駁二藝術庫','🎨','h',1060,1610,'top'],
+      ['大港旋轉橋','🌉','v',990,960,'right'],['駁二藝術庫','🎨','h',1060,1610,'top'],
       ['愛河之心亭','💙','v',180,415,'right'],['香蕉碼頭邊','🍌','h',1350,585,'bottom'],
       ['西子灣哨所','⚓','v',1800,415,'left'],['港灣貨櫃站','🚛','v',1420,1240,'right']
     ]
@@ -953,7 +955,7 @@ const MAPS=[
       ['101觀景塔','🏙️','h',540,1240,'bottom'],['信義金融樓','🏢','h',280,1485,'top'],
       ['新創總部館','🚀','v',180,530,'right'],['國際會展城','🏛️','v',1920,1030,'left'],
       ['星光百貨館','🛍️','h',1020,865,'top'],['都會大飯店','🏨','h',1280,615,'top'],
-      ['雲端資料中心','🖥️','v',1420,780,'right'],['跨年主廣場','🎆','h',1280,615,'bottom']
+      ['雲端資料中心','🖥️','h',780,1670,'bottom'],['跨年主廣場','🎆','h',1280,615,'bottom']
     ]
   }
 ];
@@ -1212,12 +1214,26 @@ let trafficLights=[]; // 紅綠燈號誌
 let peds=[];          // 行人
 let redCooldown=0;    // 闖紅燈判定冷卻
 let lastStars=0, lastWasVip=false;
-let tutDogShown=false;
+const tutSeen=store.get('dug_tut_v1',{});
+let tutToast=null, tutQueue=[];
+function triggerTut(key,text,color){
+  if(tutSeen[key]) return false;
+  tutSeen[key]=1;
+  store.set('dug_tut_v1',tutSeen);
+  const item={text,color:color||'#fde68a',t:4.6,maxT:4.6};
+  if(!tutToast) tutToast=item;
+  else if(tutQueue.length<2) tutQueue.push(item);
+  return true;
+}
 const cam={x:0,y:0};
 const joy={id:null,ox:0,oy:0,x:0,y:0};
 const keys={};
-const CAR_TYPES=['taxi','truck','sedan','speed'];
+const CAR_TYPES=['taxi','truck','sedan','speed','moto','bike'];
 const CAR_COLORS=['#38bdf8','#f87171','#a78bfa','#34d399','#fbbf24','#f472b6','#e5e7eb'];
+const MOTO_COLORS=['#64748b','#e2e8f0','#334155','#0f766e','#b45309','#475569'];
+const MOTO_HELMETS=['#f8fafc','#94a3b8','#1e293b','#cbd5e1','#475569'];
+const BIKE_COLORS=['#10b981','#0ea5e9','#f59e0b','#ec4899','#8b5cf6','#14b8a6'];
+const BIKE_SHIRTS=['#fef3c7','#bae6fd','#fbcfe8','#d1fae5','#fde68a','#e0e7ff'];
 
 // 號誌週期：橫綠 4.6s -> 橫黃 1.1s -> 全紅清空 0.4s -> 縱綠 4.6s -> 縱黃 1.1s -> 全紅清空 0.4s（提高綠燈比例、減少連吃紅燈）
 const TL_CYCLE=12.2;
@@ -1240,7 +1256,7 @@ function getIntersections(){
     const armL=hs.x0<vx-HALF-20, armR=hs.x1>vx+HALF+20;
     const armU=vs.y0<hy-HALF-20, armD=vs.y1>hy+HALF+20;
     const arms=(armL?1:0)+(armR?1:0)+(armU?1:0)+(armD?1:0);
-    res.push({x:vx,y:hy,hs,vs,arms});
+    res.push({x:vx,y:hy,hs,vs,arms,armL,armR,armU,armD});
   }
   return res;
 }
@@ -1332,7 +1348,7 @@ function resetGame(){
   const spawnY = places[0].door.y;
   P={x:spawnX,y:spawnY,r:14,angle:0,steer:0,fx:1,fy:0,hp:100,ammo:4,inv:3.5,moving:false,boost:0,stopT:0,wrongWayT:0}; // 開場給予 3.5 秒倒數無敵防禦與 4 支雞腿
   cars=[];dogs=[];shots=[];items=[];pops=[];
-  level=1;strikes=0;combo=0;lastStars=0;lastWasVip=false;redCooldown=0;tutDogShown=false;
+  level=1;strikes=0;combo=0;lastStars=0;lastWasVip=false;redCooldown=0;tutToast=null;tutQueue=[];
   stats={score:0,delivered:0,maxCombo:0,near:0,dogs:0,time:0};
   order=null;orderDelay=0.2;countdown=3.2;shake=0;itemTimer=4;banner=null;lastTick=-1;path=[];pathTimer=0;hintT=(gameMode==='story'&&curMapIdx===0)?16:7;
   initTrafficSystem();
@@ -1360,6 +1376,7 @@ function startPoliceChase(cop, popMsg, bannerSub){
   shake = 0.25;
   showBanner('🚨 警車追捕中！', bannerSub, '#f43f5e');
   pop(P.x, P.y-34, popMsg, '#ef4444', 20);
+  triggerTut('police', '🚔 甩開警車秘訣：加速拉開距離或「過兩個路口」警車就會自動放棄！', '#38bdf8');
 }
 function checkWrongWay(dt){
   if(!P || !P.moving || P.stopT > 0){
@@ -1407,6 +1424,9 @@ function checkWrongWay(dt){
   }
   if(wrongDir){
     P.wrongWayT = Math.min(2.0, (P.wrongWayT||0) + dt);
+    if(P.wrongWayT >= 0.65){
+      triggerTut('wrongway', '⚠️ 持續逆向遇警車會被追！騎回【中央雙黃線】鑽車縫或超車就沒事！', '#fbbf24');
+    }
     if(P.wrongWayT >= 1.65){
       const alreadyChasing = cars.some(c=>c.type==='police' && c.chasing);
       if(!alreadyChasing){
@@ -1437,6 +1457,16 @@ function updateTrafficAndPeds(dt){
       const inBox = Math.abs(dx) < HALF + 12 && Math.abs(dy) < HALF + 12;
       if(!inBox){
         tl.pState=null;
+        if(!tl.blink && P.moving){
+          const mvAxis = Math.abs(P.fx) >= Math.abs(P.fy) ? 'h' : 'v';
+          const mvSig = mvAxis==='h' ? tl.hState : tl.vState;
+          const mvDir = mvAxis==='h' ? P.fx : P.fy;
+          const alongDelta = mvAxis==='h' ? (tl.x - P.x) : (tl.y - P.y);
+          const latDelta = mvAxis==='h' ? Math.abs(dy) : Math.abs(dx);
+          if(mvSig==='red' && latDelta < HALF + 14 && mvDir * alongDelta > 0 && Math.abs(alongDelta) > HALF + 16 && Math.abs(alongDelta) < HALF + 145){
+            triggerTut('red', '🚦 前方紅燈！停在停止線後方等綠燈；閃黃燈與無號誌路口可謹慎通過', '#fca5a5');
+          }
+        }
       }else{
         const inCore = Math.abs(dx) < HALF - 2 && Math.abs(dy) < HALF - 2;
         const moveAxis = (P.moving && (Math.abs(P.fx) > 0.2 || Math.abs(P.fy) > 0.2))
@@ -1503,6 +1533,7 @@ function updateTrafficAndPeds(dt){
     // 與玩家互動判定（僅在實際遊戲中，且玩家真正轉向／切入斑馬線區域時才判定禮讓與撞擊，避免平行綠燈直行誤判）
     const dPed=dist(ped, P);
     if(G.state==='play' && countdown<=0 && ped.isCrossing){
+      if(dPed < 115) triggerTut('ped', '🚶 行人過斑馬線！在路口前停等禮讓可獲【+15 分】獎勵！', '#6ee7b7');
       const crossingPath = (Math.abs(P.y - ped.y) < 22) || (Math.abs(P.fy) > 0.45 && Math.abs(P.x - ped.x) < 30);
       if(crossingPath){
         if(dPed<20 && P.inv<=0){
@@ -1544,7 +1575,7 @@ function makeCarWithType(forcedType){
   const picked=pickRoadSeg();
   const axis=picked.axis, seg=picked.seg, c=picked.center;
   const side=Math.random()<0.5?-1:1;
-  const laneOff=Math.min(30, Math.round(HALF*0.46));
+  let laneOff=Math.min(30, Math.round(HALF*0.46));
   const isSpeeder=Math.random()<(curMap.speedRatio + (gameMode==='endless'?(level-1)*0.04:0));
 
   let cType=forcedType || 'sedan';
@@ -1552,9 +1583,13 @@ function makeCarWithType(forcedType){
     const ambCount=cars.filter(x=>x.type==='ambulance').length;
     const copCount=cars.filter(x=>x.type==='police').length;
     const maxCop=(curMap.maxCops || (gameMode==='endless' && level>=4 ? 2 : 1));
+    const bikeProb=['gaomei','taitung','shifen','nightmarket'].includes(curMap.theme)?0.19:0.13;
+    const motoProb=['tainan','kaohsiung','nightmarket','techpark'].includes(curMap.theme)?0.27:0.21;
     if(isSpeeder) cType='speed';
     else if(copCount<maxCop && Math.random()<(maxCop>=2?0.22:0.14)) cType='police'; // 巡邏警車（限制同場最多 1～2 輛）
     else if(ambCount<1 && Math.random()<0.08) cType='ambulance';   // 119救護車（同場最多 1 輛）
+    else if(Math.random()<bikeProb) cType='bike';        // 慢車道腳踏車騎士
+    else if(Math.random()<motoProb) cType='moto';        // 通勤機車騎士
     else if(Math.random()<0.34) cType='taxi';        // 台灣小黃
     else if(Math.random()<(curMap.theme==='kaohsiung'?0.52:0.32)) cType='truck'; // 港區三噸半貨卡比例提高
   }
@@ -1563,6 +1598,7 @@ function makeCarWithType(forcedType){
   let w=48, h=26;
   const lvScale=gameMode==='endless'?(level-1)*14:0;
   let baseSp=(75+lvScale+rand(0,45))*curMap.speedMul;
+  let helmetColor='#f8fafc', shirtColor='#e2e8f0', hasBasket=false;
 
   if(cType==='speed'){
     cColor='#f43f5e'; baseSp*=1.55;
@@ -1574,6 +1610,22 @@ function makeCarWithType(forcedType){
     cColor='#facc15';
   } else if(cType==='truck'){
     cColor='#2563eb'; w=56; h=28;
+  } else if(cType==='moto'){
+    cColor=pick(MOTO_COLORS);
+    helmetColor=pick(MOTO_HELMETS);
+    shirtColor=pick(['#1e293b','#334155','#3f3f46','#475569']);
+    w=30; h=14;
+    laneOff=clamp(Math.min(34, Math.round(HALF*0.48))+pick([-5,0,5]), 16, HALF-16);
+    baseSp=(125+Math.min(28,lvScale*0.45)+rand(0,42))*Math.max(0.92,curMap.speedMul*0.94);
+    baseSp=Math.min(205, baseSp);
+  } else if(cType==='bike'){
+    cColor=pick(BIKE_COLORS);
+    shirtColor=pick(BIKE_SHIRTS);
+    helmetColor=pick(['#f8fafc','#38bdf8','#facc15','#fb7185','#34d399']);
+    hasBasket=Math.random()<0.45;
+    w=26; h=12;
+    laneOff=Math.round(HALF-13); // 靠外側慢車道邊緣行駛，方便四輪車輛內側超車
+    baseSp=clamp((65+rand(0,22))*clamp(curMap.speedMul, 0.9, 1.1), 58, 92);
   }
 
   const car={
@@ -1589,6 +1641,7 @@ function makeCarWithType(forcedType){
     hornCooldown:0,
     type:cType,
     color:cColor,
+    helmetColor, shirtColor, hasBasket,
     w, h,
     speeder:cType==='speed',
     close:false,nm:false,
@@ -1599,11 +1652,21 @@ function makeCarWithType(forcedType){
   };
 
   const p0=picked.s0+35, p1=picked.s1-35;
-  for(let i=0;i<50;i++){
+  const ints=getIntersections();
+  let safeFallbackPos=null;
+  for(let i=0;i<60;i++){
     car.pos=rand(p0, Math.max(p0+10, p1));
     const cp=carPos(car);
-    if(onRoad(cp.x,cp.y,18) && (!P||rectDist(P.x,P.y,carRect(car))>420)) break;
+    const inInter=ints.some(it=>Math.abs(cp.x-it.x)<HALF+68 && Math.abs(cp.y-it.y)<HALF+68);
+    if(!inInter && onRoad(cp.x,cp.y,14)){
+      if(safeFallbackPos===null) safeFallbackPos=car.pos;
+      if((!P||rectDist(P.x,P.y,carRect(car))>420) && !cars.some(o=>rectDist(cp.x,cp.y,carRect(o))<72)){
+        safeFallbackPos=car.pos;
+        break;
+      }
+    }
   }
+  if(safeFallbackPos!==null) car.pos=safeFallbackPos;
   return car;
 }
 
@@ -1630,14 +1693,21 @@ function syncHazards(){
   const isNight=curMap.lamp || (gameMode==='endless'&&level>=5);
   const deliv=stats?stats.delivered:0;
   const carN=gameMode==='story'
-    ? Math.min(32, curMap.carBase + deliv*2)
-    : Math.min(34, curMap.carBase + (level-1)*3);
+    ? Math.min(35, curMap.carBase + 3 + deliv*2)
+    : Math.min(38, curMap.carBase + 3 + (level-1)*3);
   if(cars.length===0){
     cars.push(makeCarWithType('police'));
     cars.push(makeCarWithType('ambulance'));
   }
   while(cars.length<carN) cars.push(makeCar());
   cars.forEach(c=>{
+    if(c.type==='bike'){ c.speed=clamp(c.speed, 58, 92); return; }
+    if(c.type==='moto'){
+      const mSp=(125+(gameMode==='endless'?(level-1)*6:deliv*4)+rand(0,22))*Math.max(0.92,curMap.speedMul*0.94);
+      c.speed=Math.min(205, Math.max(c.speed, mSp));
+      return;
+    }
+    if(c.type==='police' && !c.chasing) return;
     const lvAdd=gameMode==='endless'?(level-1)*15:(deliv*10);
     const base=(75+lvAdd+rand(0,40))*curMap.speedMul;
     const sp=c.speeder?base*1.55:(isNight?base*1.25:base);
@@ -1733,41 +1803,52 @@ function getStorySteps(){
     {ava:charAva, speaker:charName, text:'傳說中的台灣環台外送車神最終戰！衝過 101 大圓環——！'}
   ];
 }
-function renderCharPortrait(cv, gender){
-  const c=cv.getContext('2d'), F=gender==='F';
-  c.setTransform(2,0,0,2,0,0);
-  c.clearRect(0,0,54,54);
+function drawPortraitArt(c, gender, now){
+  const F=gender==='F';
+  const t=now||0;
   const bg=c.createRadialGradient(27,20,4,27,27,36);
-  bg.addColorStop(0,F?'#4c1d4b':'#1e3a5f');
-  bg.addColorStop(1,'#0f172a');
+  bg.addColorStop(0,F?'#581c4c':'#1e3a5f');
+  bg.addColorStop(1,'#0b1222');
   c.fillStyle=bg; c.fillRect(0,0,54,54);
 
-  // 馬尾在背景後方（妮野可）
+  // 背景柔光暈環
+  c.fillStyle=F?'rgba(244,114,182,0.16)':'rgba(56,189,248,0.16)';
+  c.beginPath(); c.arc(27,26,21,0,Math.PI*2); c.fill();
+
+  // 馬尾在背景後方（妮野可，微幅飄逸動態）
   if(F){
+    const sway=Math.sin(t/340)*1.6;
     c.fillStyle='#581c87'; c.strokeStyle='#1e1b4b'; c.lineWidth=1.2;
-    c.beginPath(); c.moveTo(36,16); c.quadraticCurveTo(49,18,47,36); c.quadraticCurveTo(41,38,37,26); c.closePath(); c.fill(); c.stroke();
+    c.beginPath(); c.moveTo(36,16); c.quadraticCurveTo(49+sway,18,47+sway*1.2,37); c.quadraticCurveTo(41,38,37,26); c.closePath(); c.fill(); c.stroke();
     c.fillStyle='#c084fc';
-    c.beginPath(); c.moveTo(39,19); c.quadraticCurveTo(45,22,44,32); c.quadraticCurveTo(41,26,38,21); c.closePath(); c.fill();
-    c.fillStyle='#fde047'; c.beginPath(); c.arc(38,16,3,0,Math.PI*2); c.fill();
+    c.beginPath(); c.moveTo(39,19); c.quadraticCurveTo(45+sway,22,44+sway,32); c.quadraticCurveTo(41,26,38,21); c.closePath(); c.fill();
+    c.fillStyle='#fde047'; c.beginPath(); c.arc(38,16,3.1,0,Math.PI*2); c.fill();
   }
 
   // 肩膀與外套
   if(F){
     c.fillStyle='#fff1f2'; c.strokeStyle='#1e293b'; c.lineWidth=1.4;
-    c.beginPath(); c.moveTo(8,54); c.quadraticCurveTo(10,39,27,39); c.quadraticCurveTo(44,39,46,54); c.closePath(); c.fill(); c.stroke();
+    c.beginPath(); c.moveTo(7,54); c.quadraticCurveTo(9,38.5,27,38.5); c.quadraticCurveTo(45,38.5,47,54); c.closePath(); c.fill(); c.stroke();
     c.fillStyle='#10b981';
-    c.fillRect(16,41,4.5,13); c.fillRect(33.5,41,4.5,13);
+    c.fillRect(15.5,41,4.5,13); c.fillRect(34,41,4.5,13);
     c.fillStyle='#f43f5e';
-    c.beginPath(); c.moveTo(21,40); c.lineTo(27,46); c.lineTo(33,40); c.closePath(); c.fill();
+    c.beginPath(); c.moveTo(20,39.5); c.lineTo(27,47); c.lineTo(34,39.5); c.closePath(); c.fill();
+    c.fillStyle='#fde047'; c.beginPath(); c.arc(27,47.5,2,0,Math.PI*2); c.fill();
   } else {
     c.fillStyle='#1e3a8a'; c.strokeStyle='#0f172a'; c.lineWidth=1.4;
-    c.beginPath(); c.moveTo(6,54); c.quadraticCurveTo(8,38,27,38); c.quadraticCurveTo(46,38,48,54); c.closePath(); c.fill(); c.stroke();
+    c.beginPath(); c.moveTo(5,54); c.quadraticCurveTo(8,37.5,27,37.5); c.quadraticCurveTo(46,37.5,49,54); c.closePath(); c.fill(); c.stroke();
     c.fillStyle='#facc15';
     c.beginPath(); c.moveTo(13,40); c.lineTo(22,40); c.lineTo(24,54); c.lineTo(12,54); c.closePath(); c.fill();
     c.beginPath(); c.moveTo(32,40); c.lineTo(41,40); c.lineTo(42,54); c.lineTo(30,54); c.closePath(); c.fill();
     c.fillStyle='#f8fafc';
-    c.fillRect(14,45,7,2); c.fillRect(33,45,7,2);
+    c.fillRect(14,45,7,2.2); c.fillRect(33,45,7,2.2);
+    c.strokeStyle='#94a3b8'; c.lineWidth=1.3;
+    c.beginPath(); c.moveTo(27,41); c.lineTo(27,54); c.stroke();
   }
+
+  // 下巴與頸部立體陰影
+  c.fillStyle='rgba(0,0,0,0.22)';
+  c.beginPath(); c.ellipse(27,39.5,7.5,3,0,0,Math.PI*2); c.fill();
 
   // 臉部
   const sg=c.createRadialGradient(25,25,2,27,27,14);
@@ -1777,62 +1858,70 @@ function renderCharPortrait(cv, gender){
   c.beginPath(); c.arc(27,27,12.5,0,Math.PI*2); c.fill(); c.stroke();
 
   if(F){
-    // 劉海與雙眼
+    // 劉海與閃亮雙眼
     c.fillStyle='#6b21a8';
     c.beginPath(); c.moveTo(14,24); c.quadraticCurveTo(18,15,27,16); c.quadraticCurveTo(36,15,40,24);
     c.quadraticCurveTo(33,19,27,22); c.quadraticCurveTo(21,19,14,24); c.closePath(); c.fill();
     c.fillStyle='#fb7185';
-    c.beginPath(); c.ellipse(19.5,30,2.6,1.5,0,0,Math.PI*2); c.ellipse(34.5,30,2.6,1.5,0,0,Math.PI*2); c.fill();
+    c.beginPath(); c.ellipse(19.2,30.2,2.7,1.5,0,0,Math.PI*2); c.ellipse(34.8,30.2,2.7,1.5,0,0,Math.PI*2); c.fill();
     c.fillStyle='#1e1b4b';
-    c.beginPath(); c.arc(22,27,2.1,0,Math.PI*2); c.arc(32,27,2.1,0,Math.PI*2); c.fill();
+    c.beginPath(); c.arc(22,27,2.2,0,Math.PI*2); c.arc(32,27,2.2,0,Math.PI*2); c.fill();
     c.fillStyle='#fff';
-    c.beginPath(); c.arc(22.7,26.2,0.8,0,Math.PI*2); c.arc(32.7,26.2,0.8,0,Math.PI*2); c.fill();
+    c.beginPath(); c.arc(22.8,26.1,0.85,0,Math.PI*2); c.arc(32.8,26.1,0.85,0,Math.PI*2); c.fill();
+    c.fillStyle='rgba(244,114,182,0.85)';
+    c.beginPath(); c.arc(21.4,28.1,0.6,0,Math.PI*2); c.arc(31.4,28.1,0.6,0,Math.PI*2); c.fill();
     c.strokeStyle='#be185d'; c.lineWidth=1.3; c.lineCap='round';
-    c.beginPath(); c.arc(27,31.2,2.4,0.15*Math.PI,0.85*Math.PI); c.stroke();
+    c.beginPath(); c.arc(27,31.2,2.5,0.15*Math.PI,0.85*Math.PI); c.stroke();
 
-    // 貓耳安全帽
+    // 貓耳安全帽＋高光鏡片
     const hg=c.createLinearGradient(13,6,41,22);
     hg.addColorStop(0,'#fbcfe8'); hg.addColorStop(0.55,'#f472b6'); hg.addColorStop(1,'#db2777');
     c.fillStyle=hg; c.strokeStyle='#500724'; c.lineWidth=1.3;
     c.beginPath(); c.arc(27,23,14.2,Math.PI*1.04,Math.PI*1.96); c.quadraticCurveTo(27,16,12.8,21.5); c.closePath(); c.fill(); c.stroke();
-    // 貓耳
-    [[-1,17,12,8],[1,37,42,8]].forEach(([s,x0,x1,yTip])=>{
+    [[-1,17,12,8],[1,37,42,8]].forEach(([s,x0,x1])=>{
       c.fillStyle='#f472b6'; c.strokeStyle='#500724'; c.lineWidth=1.2;
       c.beginPath(); c.moveTo(x0,14); c.lineTo(x1,5); c.lineTo(x0+s*7,11); c.closePath(); c.fill(); c.stroke();
       c.fillStyle='#fda4af';
       c.beginPath(); c.moveTo(x0+s*1.2,13); c.lineTo(x1+s*0.5,7); c.lineTo(x0+s*5.2,11.2); c.closePath(); c.fill();
     });
-    // 透明護目鏡片高光
+    c.strokeStyle='rgba(255,255,255,0.6)'; c.lineWidth=1.6; c.lineCap='round';
+    c.beginPath(); c.arc(27,22,11.2,Math.PI*1.22,Math.PI*1.58); c.stroke();
     c.strokeStyle='rgba(224,242,254,0.85)'; c.lineWidth=1.8;
     c.beginPath(); c.arc(27,23,13.5,Math.PI*1.12,Math.PI*1.88); c.stroke();
   } else {
-    // 濃眉、眼睛、八字鬍與笑臉
-    c.strokeStyle='#1e293b'; c.lineWidth=2; c.lineCap='round';
+    // 濃眉、眼睛、八字鬍與自信笑容
+    c.strokeStyle='#1e293b'; c.lineWidth=2.1; c.lineCap='round';
     c.beginPath(); c.moveTo(19,23.5); c.lineTo(24,24.5); c.moveTo(35,23.5); c.lineTo(30,24.5); c.stroke();
     c.fillStyle='#0f172a';
-    c.beginPath(); c.arc(22,26.8,1.9,0,Math.PI*2); c.arc(32,26.8,1.9,0,Math.PI*2); c.fill();
+    c.beginPath(); c.arc(22,26.8,1.95,0,Math.PI*2); c.arc(32,26.8,1.95,0,Math.PI*2); c.fill();
     c.fillStyle='#fff';
-    c.beginPath(); c.arc(22.6,26.1,0.7,0,Math.PI*2); c.arc(32.6,26.1,0.7,0,Math.PI*2); c.fill();
-    // 招牌八字鬍
+    c.beginPath(); c.arc(22.6,26.1,0.75,0,Math.PI*2); c.arc(32.6,26.1,0.75,0,Math.PI*2); c.fill();
     c.fillStyle='#1f2937';
     c.beginPath();
-    c.moveTo(27,30.2); c.quadraticCurveTo(21,29.2,17.5,33.5); c.quadraticCurveTo(21,34.5,27,32.5);
-    c.quadraticCurveTo(33,34.5,36.5,33.5); c.quadraticCurveTo(33,29.2,27,30.2); c.fill();
-    c.strokeStyle='#fff'; c.lineWidth=1.4;
-    c.beginPath(); c.arc(27,34.2,2.8,0.1*Math.PI,0.9*Math.PI); c.stroke();
+    c.moveTo(27,30.2); c.quadraticCurveTo(21,29.2,17.2,33.5); c.quadraticCurveTo(21,34.7,27,32.5);
+    c.quadraticCurveTo(33,34.7,36.8,33.5); c.quadraticCurveTo(33,29.2,27,30.2); c.fill();
+    c.strokeStyle='#fff'; c.lineWidth=1.45;
+    c.beginPath(); c.arc(27,34.2,2.9,0.1*Math.PI,0.9*Math.PI); c.stroke();
 
-    // 工程黃安全帽 + 藍條紋 + 護目鏡
+    // 工程黃安全帽 + 藍條紋 + 飛行員護目鏡 + 反光
     const hg=c.createLinearGradient(13,6,41,22);
-    hg.addColorStop(0,'#fef08a'); hg.addColorStop(0.55,'#facc15'); hg.addColorStop(1,'#ca8a04');
+    hg.addColorStop(0,'#fef9c3'); hg.addColorStop(0.5,'#facc15'); hg.addColorStop(1,'#ca8a04');
     c.fillStyle=hg; c.strokeStyle='#422006'; c.lineWidth=1.3;
     c.beginPath(); c.arc(27,23,14.4,Math.PI*1.03,Math.PI*1.97); c.quadraticCurveTo(27,16,12.6,21.5); c.closePath(); c.fill(); c.stroke();
     c.fillStyle='#1e3a8a'; c.fillRect(24.5,8.8,5,8.5);
-    // 護目鏡
+    c.strokeStyle='rgba(255,255,255,0.65)'; c.lineWidth=1.4; c.lineCap='round';
+    c.beginPath(); c.arc(27,22,11.4,Math.PI*1.18,Math.PI*1.45); c.stroke();
     c.fillStyle='#334155'; rrc(c,15,15,10,6.5,2.5); c.fill(); rrc(c,29,15,10,6.5,2.5); c.fill();
     c.fillStyle='#38bdf8'; rrc(c,16.2,16.1,7.6,4.3,1.8); c.fill(); rrc(c,30.2,16.1,7.6,4.3,1.8); c.fill();
-    c.strokeStyle='rgba(255,255,255,0.7)'; c.lineWidth=1.1;
+    c.strokeStyle='rgba(255,255,255,0.75)'; c.lineWidth=1.1;
     c.beginPath(); c.moveTo(17.5,19.5); c.lineTo(20.5,16.8); c.moveTo(31.5,19.5); c.lineTo(34.5,16.8); c.stroke();
   }
+}
+function renderCharPortrait(cv, gender){
+  const c=cv.getContext('2d');
+  c.setTransform(2,0,0,2,0,0);
+  c.clearRect(0,0,54,54);
+  drawPortraitArt(c, gender, performance.now());
 }
 function renderStory(){
   const steps=getStorySteps(), st=steps[storyIdx];
@@ -2066,11 +2155,11 @@ function levelUp(){
   level++;
   const isNight=curMap.lamp || (gameMode==='endless' && level>=4);
   if(isNight){
-    for(const tl of trafficLights){
-      tl.blink=((tl.ri + tl.ci) % 2 === 1);
+    trafficLights.forEach((tl,idx)=>{
+      tl.blink=(idx % 2 === 1);
       const st=tlStates(tl);
       tl.hState=st.h; tl.vState=st.v; tl.hRem=st.hRem; tl.vRem=st.vRem;
-    }
+    });
   }
   syncHazards(); sfx('level');
   P.hp=Math.min(100, P.hp+25); // 通關補血 25
@@ -2215,29 +2304,51 @@ function updateCars(dt){
           }
         }
 
+        let ignoreRed = false;
         if(tl && dToLine >= -6 && dToLine < 150){
           if(c.speeder && c.redChoiceTl !== tl){
             c.redChoiceTl = tl;
             c.willRunRed = Math.random() < 0.72; // 超速跑車高機率搶黃／闖紅燈
           }
-          const ignoreRed = c.speeder && c.willRunRed;
+          ignoreRed = c.speeder && c.willRunRed;
           // 1) 紅燈停等；黃燈提前煞車（距離停止線 > 4px 皆煞車停下）
           if(!ignoreRed && (sig==='red' || (sig==='yellow' && dToLine > 4))){
             applyYield(dToLine);
-          } else if(!ignoreRed && sig==='green' && dToLine >= -4 && dToLine < 65){
-            // 2) 剛轉綠燈時確認交叉方向路口內無殘留車輛才起步
-            let crossInBox = false;
-            for(const o of cars){
-              if(o===c || o.axis===c.axis) continue;
-              const ocp = carPos(o);
-              if(Math.abs(ocp.x - inter.x) < HALF + 16 && Math.abs(ocp.y - inter.y) < HALF + 16){
-                crossInBox = true; break;
-              }
-            }
-            if(crossInBox) applyYield(dToLine);
           }
         } else if(tl && c.redChoiceTl === tl && dToLine < -HALF){
           c.redChoiceTl = null;
+        }
+
+        // 2) 綠燈起步、閃黃／無號誌路口（含L型轉角）：淨空交會區並依路權互相禮讓，避免路口互撞
+        const checkCrossYield = (!tl || sig==='blink' || (!ignoreRed && sig==='green'));
+        if(checkCrossYield && dToLine >= -4 && dToLine < 82){
+          const boxPad = HALF + 26;
+          const isUnsigOrBlink = !tl || sig==='blink';
+          const interScore = (v, dV) => -Math.round(dV * 10) + (v.type!=='bike' ? 120 : 0) + (v.axis==='h' ? 5 : 0);
+          let needCrossYield = false;
+          for(const o of cars){
+            if(o===c || o.axis===c.axis) continue;
+            const rO = carRect(o);
+            // 2a) 交叉來車已在路口盒內尚未清空 → 停在停止線前禮讓
+            if(rO.x < inter.x + boxPad && rO.x + rO.w > inter.x - boxPad &&
+               rO.y < inter.y + boxPad && rO.y + rO.h > inter.y - boxPad){
+              needCrossYield = true; break;
+            }
+            // 2b) 無號誌／閃黃路口（或緊急車輛接近）：同時抵達時依優先權決定誰先過
+            if((o.axis==='h' ? o.roadCenter===inter.y : o.roadCenter===inter.x)){
+              const oInterPos = o.axis==='h' ? inter.x : inter.y;
+              const oFront = o.pos + o.dir * ((o.w || 48) / 2);
+              const oStopEdge = oInterPos - o.dir * (HALF + 28);
+              const oDToLine = (oStopEdge - oFront) * o.dir;
+              if(oDToLine >= -4 && oDToLine < 64 && (o.curSpeed > 15 || oDToLine < 18)){
+                const oEmerg = (o.type==='ambulance') || (o.type==='police' && o.chasing);
+                if(oEmerg || (isUnsigOrBlink && interScore(o, oDToLine) > interScore(c, dToLine))){
+                  needCrossYield = true; break;
+                }
+              }
+            }
+          }
+          if(needCrossYield) applyYield(dToLine);
         }
 
         // 3) 欲左轉時，若對向直行車或外送員交會則踩煞車禮讓
@@ -2271,6 +2382,16 @@ function updateCars(dt){
           }
         }
 
+        // 3b) 欲右轉時，若外側慢車道有同向直行單車／機車並行，先減速禮讓通過再轉入
+        if(c.turnTl && c.turnTl.x===inter.x && c.turnTl.y===inter.y && c.turnSide === 'R' && (!tl || sig==='green' || sig==='blink')){
+          const tgt = turnTarget(c, inter, 'R');
+          const dToPivot = (tgt.pivotPos - c.pos) * c.dir;
+          if(dToPivot > 2 && dToPivot < 72){
+            const bikeConflict = cars.some(o => o!==c && o.axis===c.axis && o.roadCenter===c.roadCenter && o.dir===c.dir && (o.laneOff||0)>(c.laneOff||0)+6 && Math.abs(o.pos - tgt.pivotPos) < 42);
+            if(bikeConflict) applyYield(dToPivot - 14);
+          }
+        }
+
         if(c.turnTl && c.turnTl.x===inter.x && c.turnTl.y===inter.y && dToLine < -HALF - 44){
           c.turnTl = null; c.turnSide = null;
         }
@@ -2289,9 +2410,26 @@ function updateCars(dt){
         }
       }
 
-      // C. 同車道前車偵測（排隊保持明顯安全車距，不貼尾不重疊）
+      // C. 同車道前車偵測（排隊保持明顯安全車距，不貼尾不重疊）＋路口內橫向阻擋防撞
+      const cHalfW = (c.h || 26) / 2;
       for(const o of cars){
-        if(o===c || o.axis!==c.axis || o.roadCenter!==c.roadCenter || o.dir!==c.dir) continue;
+        if(o===c) continue;
+        if(o.axis!==c.axis){
+          // 若交叉方向車輛正好擋在正前方車道上（例如轉彎或剛進路口），預留安全距離煞停防撞
+          const rO = carRect(o);
+          const latHit = c.axis==='h'
+            ? (rO.y < c.lane + cHalfW + 3 && rO.y + rO.h > c.lane - cHalfW - 3)
+            : (rO.x < c.lane + cHalfW + 3 && rO.x + rO.w > c.lane - cHalfW - 3);
+          if(latHit){
+            const oNear = c.axis==='h' ? (c.dir>0 ? rO.x : rO.x+rO.w) : (c.dir>0 ? rO.y : rO.y+rO.h);
+            const dGap = (oNear - front) * c.dir;
+            if(dGap >= -2 && dGap < 58){
+              applyYield(Math.max(0, dGap - 8));
+            }
+          }
+          continue;
+        }
+        if(o.roadCenter!==c.roadCenter || o.dir!==c.dir) continue;
         if(Math.abs(o.lane - c.lane) > 12) continue;
         const oRear = o.pos - c.dir * ((o.w || 48) / 2);
         const gap = (oRear - front) * c.dir;
@@ -2323,7 +2461,7 @@ function updateCars(dt){
               if(!atRed){
                 c.hornCooldown = 4.5;
                 const cpNow = carPos(c);
-                pop(cpNow.x, cpNow.y - 24, '📣 嗶嗶～', '#fde047', 14);
+                pop(cpNow.x, cpNow.y - 24, c.type==='bike' ? '🔔 叮鈴～' : '📣 嗶嗶～', c.type==='bike' ? '#a7f3d0' : '#fde047', 14);
               }
             }
           }
@@ -2364,7 +2502,14 @@ function updateCars(dt){
       const crossed = (c.dir > 0) ? (prevPos <= tgt.pivotPos && c.pos >= tgt.pivotPos) : (prevPos >= tgt.pivotPos && c.pos <= tgt.pivotPos);
       if(crossed || Math.abs(c.pos - tgt.pivotPos) < 4){
         const oldLane = c.lane;
-        const cornerBusy = cars.some(o => o!==c && o.axis===tgt.newAxis && o.roadCenter===tgt.newCenter && o.dir===tgt.newDir && Math.abs(o.pos - oldLane) < 50);
+        const nw=c.w||48, nh=c.h||26;
+        const nRect=tgt.newAxis==='h'?{x:oldLane-nw/2,y:tgt.newLane-nh/2,w:nw,h:nh}:{x:tgt.newLane-nh/2,y:oldLane-nw/2,w:nh,h:nw};
+        const cornerBusy = cars.some(o => {
+          if(o===c) return false;
+          if(o.axis===tgt.newAxis && o.roadCenter===tgt.newCenter && o.dir===tgt.newDir && Math.abs(o.pos - oldLane) < 50) return true;
+          const rO=carRect(o);
+          return nRect.x < rO.x + rO.w + 4 && nRect.x + nRect.w + 4 > rO.x && nRect.y < rO.y + rO.h + 4 && nRect.y + nRect.h + 4 > rO.y;
+        });
         if(!cornerBusy){
           c.axis = tgt.newAxis;
           c.roadCenter = tgt.newCenter;
@@ -2573,6 +2718,7 @@ function updateCars(dt){
       if(dToP < 330 && !c.warnedPlayer){
         c.warnedPlayer = true;
         pop(cp.x, cp.y-25, '🚑 救護車緊急出勤！請靠邊禮讓！', '#f43f5e', 18);
+        triggerTut('amb', '🚑 救護車來了！閃到路邊或中線禮讓通過，可獲【+25 分】獎勵！', '#fda4af');
       }
 
       // 檢查玩家是否在救護車同車道前方擋道
@@ -2616,6 +2762,7 @@ function update(dt){
   updateTrafficAndPeds(dt);
   if(shake>0) shake-=dt;
   if(banner){banner.t-=dt;if(banner.t<=0)banner=null;}
+  if(tutToast){tutToast.t-=dt;if(tutToast.t<=0)tutToast=tutQueue.shift()||null;}
   for(const p of pops){p.t-=dt;p.y-=34*dt;} pops=pops.filter(p=>p.t>0);
 
   if(countdown>0){
@@ -2657,11 +2804,14 @@ function update(dt){
     const d=rectDist(P.x,P.y,carRect(c));
     if(d<P.r-1){
       if(P.inv<=0 && !((c.curSpeed||0) < 20 && inDeliveryBay)){
-        damage(25,'💥 撞車');
+        const dmg = c.type==='bike' ? 12 : (c.type==='moto' ? 18 : 25);
+        const hitMsg = c.type==='bike' ? '🚲 擦撞單車' : (c.type==='moto' ? '🛵 擦撞機車' : '💥 撞車');
+        const push = c.type==='bike' ? 28 : (c.type==='moto' ? 36 : 42);
+        damage(dmg, hitMsg);
         if(G.state!=='play') return;
         sfx('hit');
-        if(c.axis==='h'){const s=Math.sign(P.y-c.lane)||1; moveEnt(P,0,s*42,P.r,false);}
-        else {const s=Math.sign(P.x-c.lane)||1; moveEnt(P,s*42,0,P.r,false);}
+        if(c.axis==='h'){const s=Math.sign(P.y-c.lane)||1; moveEnt(P,0,s*push,P.r,false);}
+        else {const s=Math.sign(P.x-c.lane)||1; moveEnt(P,s*push,0,P.r,false);}
       }
       c.close=false; c.nm=true;
     }else if(d<P.r+20){
@@ -2702,9 +2852,10 @@ function update(dt){
         d.chaseDur=0;
       }
     }
-    if(d.chase&&!tutDogShown&&gameMode==='story'&&curMapIdx===0){
-      tutDogShown=true;
-      pop(P.x,P.y-38,'💡 野狗追來了！'+(isTouch?'點右下 🍗':'按空白鍵')+' 丟雞腿定住牠！','#fde047',17);
+    if(d.chase){
+      if(triggerTut('dog','🐕 野狗聞香追來了！'+(isTouch?'點右下 🍗':'按空白鍵')+'丟雞腿讓牠吃飽跑走！','#fde047')){
+        pop(P.x,P.y-38,'💡 野狗追來了！'+(isTouch?'點右下 🍗':'按空白鍵')+' 丟雞腿定住牠！','#fde047',17);
+      }
     }
     const sp=d.chase?Math.min(165,95+level*7):55;
     if(d.chase && pd>1){
@@ -2779,7 +2930,9 @@ function update(dt){
   else{
     order.time-=dt;
     const tgt=order.stage==='pickup'?order.shop:order.cust;
-    if(dist(P,tgt.door)<54){
+    const dDoor=dist(P,tgt.door);
+    if(dDoor<120) triggerTut('bay','🛵 橘黃虛線框是【外送臨停區】：紅燈車陣會自動淨空，停進這裡最安全！','#fde047');
+    if(dDoor<54){
       if(order.stage==='pickup'){
         order.stage='deliver'; sfx('pickup'); pathTimer=0; lastTick=-1;
         const deliverTime=calcOrderTime(pathLen(P,order.cust.door), order.isVip);
@@ -3608,41 +3761,60 @@ function drawWorld(now){
     }
   }
 
-  // 4. 十字路口（斑馬線 + 黃色網狀禁停區 + 紅綠燈號誌燈）
-  for(const tl of trafficLights){
-    if(!inView(tl.x-HALF-70,tl.y-HALF-70,HALF*2+140,HALF*2+140)) continue;
+  // 4. 所有三叉／十字路口（斑馬線 + 黃色網狀禁停區 + 紅綠燈號誌停止線／無號誌閃黃停讓標線）
+  const tlLookup=new Map();
+  for(const tl of trafficLights) tlLookup.set(tl.x+','+tl.y, tl);
+  const sigCol=s=>s==='red'?'rgba(239,68,68,0.92)':(s==='yellow'?'rgba(245,158,11,0.90)':'rgba(34,197,94,0.68)');
+  for(const it of getIntersections()){
+    if(it.arms<3) continue;
+    if(!inView(it.x-HALF-70,it.y-HALF-70,HALF*2+140,HALF*2+140)) continue;
+    const tl=tlLookup.get(it.x+','+it.y)||null;
 
     // 路口底色
     ctx.fillStyle='#222936';
-    ctx.fillRect(tl.x-HALF,tl.y-HALF,HALF*2,HALF*2);
+    ctx.fillRect(it.x-HALF,it.y-HALF,HALF*2,HALF*2);
 
-    // 斑馬線（四面路口白線）
+    // 斑馬線（僅繪製於實際相通路臂，T字路口不畫向牆面）
     ctx.fillStyle='rgba(255,255,255,0.75)';
     for(let i=-HALF+8;i<HALF-8;i+=14){
-      ctx.fillRect(tl.x+i,tl.y-HALF-15,8,13);
-      ctx.fillRect(tl.x+i,tl.y+HALF+2,8,13);
-      ctx.fillRect(tl.x-HALF-15,tl.y+i,13,8);
-      ctx.fillRect(tl.x+HALF+2,tl.y+i,13,8);
+      if(it.armU) ctx.fillRect(it.x+i,it.y-HALF-15,8,13);
+      if(it.armD) ctx.fillRect(it.x+i,it.y+HALF+2,8,13);
+      if(it.armL) ctx.fillRect(it.x-HALF-15,it.y+i,13,8);
+      if(it.armR) ctx.fillRect(it.x+HALF+2,it.y+i,13,8);
     }
 
     // 中央黃色網狀線
     ctx.strokeStyle='rgba(245,158,11,0.22)';
     ctx.lineWidth=2;
-    ctx.strokeRect(tl.x-28,tl.y-28,56,56);
+    ctx.strokeRect(it.x-28,it.y-28,56,56);
     ctx.beginPath();
-    ctx.moveTo(tl.x-28,tl.y-28); ctx.lineTo(tl.x+28,tl.y+28);
-    ctx.moveTo(tl.x+28,tl.y-28); ctx.lineTo(tl.x-28,tl.y+28);
+    ctx.moveTo(it.x-28,it.y-28); ctx.lineTo(it.x+28,it.y+28);
+    ctx.moveTo(it.x+28,it.y-28); ctx.lineTo(it.x-28,it.y+28);
     ctx.stroke();
 
-    // 4.1 路口雙向停止線與機車停等區（橫向依 hState、縱向依 vState 分別顯示綠／黃／紅）
-    const sigCol=s=>s==='red'?'rgba(239,68,68,0.92)':(s==='yellow'?'rgba(245,158,11,0.90)':'rgba(34,197,94,0.68)');
-    ctx.lineWidth = 2.8;
-    ctx.strokeStyle = sigCol(tl.vState);
-    ctx.strokeRect(tl.x-HALF+2, tl.y-HALF-28, HALF*2-4, 10);
-    ctx.strokeRect(tl.x-HALF+2, tl.y+HALF+18, HALF*2-4, 10);
-    ctx.strokeStyle = sigCol(tl.hState);
-    ctx.strokeRect(tl.x-HALF-28, tl.y-HALF+2, 10, HALF*2-4);
-    ctx.strokeRect(tl.x+HALF+18, tl.y-HALF+2, 10, HALF*2-4);
+    if(tl){
+      // 4.1 有號誌路口停止線與停等區（橫向依 hState、縱向依 vState 分別顯示綠／黃／紅）
+      ctx.lineWidth = 2.8;
+      ctx.strokeStyle = sigCol(tl.vState);
+      if(it.armU) ctx.strokeRect(it.x-HALF+2, it.y-HALF-28, HALF*2-4, 10);
+      if(it.armD) ctx.strokeRect(it.x-HALF+2, it.y+HALF+18, HALF*2-4, 10);
+      ctx.strokeStyle = sigCol(tl.hState);
+      if(it.armL) ctx.strokeRect(it.x-HALF-28, it.y-HALF+2, 10, HALF*2-4);
+      if(it.armR) ctx.strokeRect(it.x+HALF+18, it.y-HALF+2, 10, HALF*2-4);
+    } else {
+      // 4.2 無紅綠燈路口白色讓行停止線與「慢」字提示
+      ctx.save();
+      ctx.strokeStyle='rgba(226,232,240,0.62)';
+      ctx.lineWidth=2.2;
+      ctx.setLineDash([7,5]);
+      ctx.beginPath();
+      if(it.armU){ ctx.moveTo(it.x-HALF+4, it.y-HALF-22); ctx.lineTo(it.x-2, it.y-HALF-22); }
+      if(it.armD){ ctx.moveTo(it.x+2, it.y+HALF+22); ctx.lineTo(it.x+HALF-4, it.y+HALF+22); }
+      if(it.armL){ ctx.moveTo(it.x-HALF-22, it.y+2); ctx.lineTo(it.x-HALF-22, it.y+HALF-4); }
+      if(it.armR){ ctx.moveTo(it.x+HALF+22, it.y-HALF+4); ctx.lineTo(it.x+HALF+22, it.y-2); }
+      ctx.stroke();
+      ctx.restore();
+    }
   }
 
   // 4.5 施工 / 夜市攤販封閉路障
@@ -3888,11 +4060,104 @@ function drawWorld(now){
     ctx.restore();
   }
 
-  // 8. 車輛（精緻車款：小黃計程車、藍色發財貨車、流線轎車、超速跑車）
+  // 8. 車輛（精緻車款：腳踏車、通勤機車、小黃計程車、藍色發財貨車、流線轎車、超速跑車）
+  const drawTwoWheelerNPC=(c, r)=>{
+    const cx=r.x+r.w/2, cy=r.y+r.h/2;
+    const ang=c.axis==='h'?(c.dir>0?0:Math.PI):(c.dir>0?Math.PI/2:-Math.PI/2);
+    const moving=(c.curSpeed||0)>8;
+    const lightsOn=!!(curMap.lamp||level>=4);
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(ang);
+
+    // 地面陰影
+    ctx.fillStyle='rgba(0,0,0,0.34)';
+    ctx.beginPath(); ctx.ellipse(-1, 2, c.type==='moto'?15.5:13.5, c.type==='moto'?6.8:5.5, 0, 0, Math.PI*2); ctx.fill();
+
+    // 夜間／黃昏頭燈光束（比玩家機車窄且淡，不混淆主角）
+    if(lightsOn){
+      const beamL=c.type==='moto'?44:30;
+      const g=ctx.createLinearGradient(11,0,11+beamL,0);
+      g.addColorStop(0, c.type==='moto'?'rgba(254,240,138,0.34)':'rgba(254,249,195,0.24)');
+      g.addColorStop(1,'rgba(254,240,138,0)');
+      ctx.fillStyle=g;
+      ctx.beginPath(); ctx.moveTo(10,-2.5); ctx.lineTo(10+beamL,-10); ctx.lineTo(10+beamL,10); ctx.lineTo(10,2.5); ctx.closePath(); ctx.fill();
+    }
+
+    if(c.type==='bike'){
+      const pedal=moving?Math.sin(now/105+c.pos*0.14):0;
+      // 前後細輪胎
+      ctx.fillStyle='#0f172a';
+      rrc(ctx,-12.5,-1.5,7.5,3,1.5); ctx.fill();
+      rrc(ctx,5,-1.5,7.5,3,1.5); ctx.fill();
+      // 腳踏車車架＋前籃
+      ctx.strokeStyle=c.color; ctx.lineWidth=2.1; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(-8.5,0); ctx.lineTo(7,0); ctx.stroke();
+      ctx.strokeStyle='#cbd5e1'; ctx.lineWidth=1.8;
+      ctx.beginPath(); ctx.moveTo(5.5,-5.2); ctx.lineTo(5.5,5.2); ctx.stroke(); // 把手
+      if(c.hasBasket){
+        ctx.fillStyle='#d6d3d1'; rrc(ctx,7.5,-3,3.5,6,1); ctx.fill();
+      }
+      // 踩踏雙腳微動
+      ctx.fillStyle='#1e293b';
+      ctx.beginPath();
+      ctx.ellipse(-2+pedal*2.4, -3.5, 2.5, 1.3, 0, 0, Math.PI*2);
+      ctx.ellipse(-2-pedal*2.4, 3.5, 2.5, 1.3, 0, 0, Math.PI*2);
+      ctx.fill();
+      // 騎士上半身與雙臂
+      ctx.fillStyle=c.shirtColor||'#e2e8f0';
+      ctx.beginPath(); ctx.ellipse(-2,0,4.8,4.6,0,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle=c.shirtColor||'#e2e8f0'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(0,-3.2); ctx.lineTo(5.5,-4.4); ctx.moveTo(0,3.2); ctx.lineTo(5.5,4.4); ctx.stroke();
+      // 單車安全帽
+      ctx.fillStyle=c.helmetColor||'#38bdf8'; ctx.strokeStyle='#0f172a'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.arc(0.5,0,3.8,0,Math.PI*2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle='rgba(15,23,42,0.5)'; ctx.fillRect(0.2,-2.2,2.2,1.1); ctx.fillRect(0.2,1.1,2.2,1.1);
+      // 前燈與尾燈反光片
+      ctx.fillStyle='#fef08a'; ctx.fillRect(10.5,-1.2,2,2.4);
+      ctx.fillStyle=c.braking?'#ff1e42':'#ef4444'; ctx.fillRect(-12.5,-1.2,2,2.4);
+    } else {
+      // 通勤機車（低調配色、無外送箱，與玩家清楚區分）
+      // 排氣管＋前後輪
+      ctx.fillStyle='#475569'; rrc(ctx,-13,4.2,8,2.2,1); ctx.fill();
+      ctx.fillStyle='#090d16';
+      rrc(ctx,-14,-2.2,7,4.4,2); ctx.fill();
+      rrc(ctx,7,-2,7,4,2); ctx.fill();
+      // 機車流線車殼（無外送保溫箱，僅後扶手）
+      ctx.fillStyle=c.color; ctx.strokeStyle='#0f172a'; ctx.lineWidth=1.1;
+      rrc(ctx,-13,-5.8,24.5,11.6,4.5); ctx.fill(); ctx.stroke();
+      ctx.strokeStyle='#cbd5e1'; ctx.lineWidth=1.4;
+      ctx.beginPath(); ctx.moveTo(-11,-3.5); ctx.quadraticCurveTo(-13.8,0,-11,3.5); ctx.stroke();
+      // 後照鏡與車把
+      ctx.strokeStyle='#94a3b8'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.moveTo(6.5,-6.8); ctx.lineTo(6.5,6.8); ctx.stroke();
+      ctx.fillStyle='#0f172a'; ctx.fillRect(5.6,-7.6,2.2,1.6); ctx.fillRect(5.6,6,2.2,1.6);
+      // 坐墊＋通勤騎士（無發光箱）
+      ctx.fillStyle='#1e293b'; rrc(ctx,-9,-4,10,8,3); ctx.fill();
+      ctx.fillStyle=c.shirtColor||'#334155';
+      ctx.beginPath(); ctx.ellipse(-2.5,0,5.2,5.1,0,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle=c.shirtColor||'#334155'; ctx.lineWidth=2.3;
+      ctx.beginPath(); ctx.moveTo(-0.5,-3.6); ctx.lineTo(6.5,-4.8); ctx.moveTo(-0.5,3.6); ctx.lineTo(6.5,4.8); ctx.stroke();
+      // 安全帽與護目鏡條
+      ctx.fillStyle=c.helmetColor||'#f8fafc'; ctx.strokeStyle='#0f172a'; ctx.lineWidth=1.1;
+      ctx.beginPath(); ctx.arc(0.5,0,4.5,0,Math.PI*2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle='#0f172a'; ctx.fillRect(3.2,-2.6,2.2,5.2);
+      // 單顆頭燈、煞車尾燈與轉向燈
+      ctx.fillStyle='#fef08a'; rrc(ctx,11.8,-2,2.2,4,1); ctx.fill();
+      ctx.fillStyle=c.braking?'#ff1e42':'#ef4444';
+      rrc(ctx,c.braking?-14.2:-13.6,-2.5,c.braking?2.8:2,5,0.8); ctx.fill();
+      if(c.turnTl && (c.turnSide==='L'||c.turnSide==='R') && Math.floor(now/180)%2===0){
+        const by=c.turnSide==='L'?-6.5:4.1;
+        ctx.fillStyle='#fbbf24'; ctx.fillRect(8.5,by,2.6,2.4); ctx.fillRect(-12,by,2.6,2.4);
+      }
+    }
+    ctx.restore();
+  };
   for(const c of cars){
     const r=carRect(c);
     if(c.axis==='v' && r.y+r.h<skyH+2) continue; // 尚在北向隧道內不露頭
     if(!inView(r.x-20,r.y-20,r.w+40,r.h+40)) continue;
+    if(c.type==='bike'||c.type==='moto'){ drawTwoWheelerNPC(c, r); continue; }
     const isHoriz=c.axis==='h';
 
     // 車輛地面陰影
@@ -4334,6 +4599,19 @@ function drawWorld(now){
     drawDualTag(lx, ly - 30);
     drawDualTag(tl.x - HALF - 16, tl.y + HALF + 16);
   }
+  // 9.5b 無紅綠燈次要／T字路口：角落精簡閃黃警示燈（提醒注意來車，不罰闖紅燈）
+  const tlBeaconMap=new Map();
+  for(const tl of trafficLights) tlBeaconMap.set(tl.x+','+tl.y, tl);
+  for(const it of getIntersections()){
+    if(it.arms<3 || tlBeaconMap.has(it.x+','+it.y)) continue;
+    if(!inView(it.x-HALF-40,it.y-HALF-40,HALF*2+80,HALF*2+80)) continue;
+    const bx=it.x+HALF+8, by=it.y-HALF-8;
+    ctx.fillStyle='#0f172a'; ctx.fillRect(bx-2, by+4, 4, 12);
+    ctx.fillStyle='#1e293b'; ctx.strokeStyle='#f59e0b'; ctx.lineWidth=1.4;
+    ctx.beginPath(); ctx.arc(bx, by, 7.5, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle=flashOn?'#fbbf24':'#92400e';
+    ctx.beginPath(); ctx.arc(bx, by, 4.5, 0, Math.PI*2); ctx.fill();
+  }
   // 飄字
   ctx.textAlign='center'; ctx.textBaseline='middle';
   for(const p of pops){
@@ -4769,36 +5047,78 @@ function drawCharPreviews(now){
   [['prevM','M'],['prevF','F']].forEach(([id,g])=>{
     const el=$(id); if(!el) return;
     const c=el.getContext('2d');
-    const lw=152, lh=84;
+    const lw=188, lh=98, isSel=(g===char), isF=(g==='F');
     c.setTransform(2,0,0,2,0,0);
     c.clearRect(0,0,lw,lh);
-    // 柏油路面與路緣線
-    const bg=c.createLinearGradient(0,0,0,lh);
-    bg.addColorStop(0,'#0f172a'); bg.addColorStop(0.5,'#1e293b'); bg.addColorStop(1,'#0f172a');
+
+    // 1. 夜色都會背景與遠景光點
+    const bg=c.createLinearGradient(0,0,lw,lh);
+    bg.addColorStop(0,'#080f1e');
+    bg.addColorStop(0.55,isF?'#231336':'#11223d');
+    bg.addColorStop(1,'#0b1322');
     c.fillStyle=bg; c.fillRect(0,0,lw,lh);
+    // 淡淡城市遠景窗光
+    c.fillStyle=isF?'rgba(244,114,182,0.12)':'rgba(56,189,248,0.12)';
+    for(let bx=76;bx<lw-8;bx+=18){
+      const bh=16+((bx*13)%18);
+      c.fillRect(bx, lh-26-bh, 12, bh);
+    }
+
+    // 2. 下半部動態柏油道路＋滾動黃線
+    c.fillStyle='rgba(15,23,42,0.75)';
+    c.fillRect(0,lh-32,lw,32);
     c.fillStyle='rgba(148,163,184,0.28)';
-    c.fillRect(0,5,lw,1.5); c.fillRect(0,lh-6.5,lw,1.5);
-    // 動態道路虛線
-    c.strokeStyle='#f59e0b'; c.lineWidth=2.4; c.setLineDash([12,10]);
-    c.lineDashOffset=(now/16)%22;
-    c.beginPath(); c.moveTo(0,lh/2); c.lineTo(lw,lh/2); c.stroke(); c.setLineDash([]);
+    c.fillRect(0,lh-32,lw,1.4);
+    c.strokeStyle='#f59e0b'; c.lineWidth=2.2; c.setLineDash([12,10]);
+    c.lineDashOffset=(now/15)%22;
+    c.beginPath(); c.moveTo(0,lh-15); c.lineTo(lw,lh-15); c.stroke(); c.setLineDash([]);
+
     // 速度風線
-    c.strokeStyle='rgba(148,163,184,0.22)'; c.lineWidth=1.2; c.lineCap='round';
-    [15,24,61,70].forEach((sy,idx)=>{
-      const sx=lw-((now*0.18+idx*39)%(lw+36));
+    c.strokeStyle=isSel?'rgba(253,224,71,0.32)':'rgba(148,163,184,0.20)';
+    c.lineWidth=1.2; c.lineCap='round';
+    [18,32,54,78].forEach((sy,idx)=>{
+      const sx=lw-((now*0.20+idx*47)%(lw+36));
       c.beginPath(); c.moveTo(sx,sy); c.lineTo(sx+22,sy); c.stroke();
     });
-    // 角色聚光燈
-    const spot=c.createRadialGradient(lw/2+4,lh/2,6,lw/2+4,lh/2,58);
-    spot.addColorStop(0,g==='M'?'rgba(56,189,248,0.22)':'rgba(244,114,182,0.22)');
+
+    // 3. 右側：聚光燈＋機車LED頭燈光束＋實機外送車動態巡航
+    const bikeX=132, bikeY=56;
+    const cruiseLean=Math.sin(now/780+(isF?1.5:0))*0.24;
+    const spot=c.createRadialGradient(bikeX,bikeY,6,bikeX,bikeY,54);
+    spot.addColorStop(0,isF?'rgba(244,114,182,0.28)':'rgba(56,189,248,0.28)');
     spot.addColorStop(1,'rgba(0,0,0,0)');
-    c.fillStyle=spot; c.fillRect(0,0,lw,lh);
+    c.fillStyle=spot; c.fillRect(60,0,lw-60,lh);
+
+    // 頭燈光錐
     c.save();
-    const cruiseLean=Math.sin(now/780+(g==='F'?1.5:0))*0.22;
-    c.translate(lw/2+4,lh/2+cruiseLean*3);
-    c.rotate(cruiseLean*0.08);
-    renderRider(c,g,now,true,g===char,1.54,false,cruiseLean);
+    c.translate(bikeX, bikeY+cruiseLean*3);
+    c.rotate(-0.14+cruiseLean*0.09);
+    const cone=c.createLinearGradient(16,0,62,0);
+    cone.addColorStop(0,'rgba(254,240,138,0.38)');
+    cone.addColorStop(1,'rgba(254,240,138,0)');
+    c.fillStyle=cone;
+    c.beginPath(); c.moveTo(18,-4); c.lineTo(64,-20); c.lineTo(64,20); c.lineTo(18,4); c.closePath(); c.fill();
+    renderRider(c,g,now,true,isSel,1.42,isSel,cruiseLean);
     c.restore();
+
+    // 4. 左側：清楚可愛／帥氣的角色正面頭像徽章（看得出五官、貓耳／八字鬍護目鏡）
+    const ax=38, ay=49, ar=29;
+    const bob=Math.sin(now/560+(isF?1.2:0))*1.2;
+    c.fillStyle='rgba(0,0,0,0.42)';
+    c.beginPath(); c.arc(ax+2,ay+bob+3,ar+1,0,Math.PI*2); c.fill();
+    c.save();
+    c.beginPath(); c.arc(ax,ay+bob,ar,0,Math.PI*2); c.clip();
+    c.translate(ax-ar, ay+bob-ar);
+    c.scale((ar*2)/54, (ar*2)/54);
+    drawPortraitArt(c,g,now);
+    c.restore();
+    // 外發光圓框
+    c.strokeStyle=isSel?'#fde047':(isF?'#f472b6':'#38bdf8');
+    c.lineWidth=isSel?2.6:2.0;
+    c.beginPath(); c.arc(ax,ay+bob,ar,0,Math.PI*2); c.stroke();
+    // 內圈高光點綴
+    c.strokeStyle='rgba(255,255,255,0.45)'; c.lineWidth=1;
+    c.beginPath(); c.arc(ax,ay+bob,ar-2,Math.PI*1.15,Math.PI*1.65); c.stroke();
   });
 }
 function hudPanel(x,y,w,h){ctx.fillStyle='rgba(10,15,30,.82)';rr(x,y,w,h,12);ctx.fill();ctx.strokeStyle='rgba(148,163,184,.45)';ctx.lineWidth=1.5;ctx.stroke();}
@@ -4911,6 +5231,20 @@ function drawHUD(now){
     ctx.beginPath(); ctx.arc(joy.ox,joy.oy,55,0,Math.PI*2); ctx.fill(); ctx.stroke();
     const dx=joy.x-joy.ox, dy=joy.y-joy.oy, l=Math.hypot(dx,dy), c=Math.min(55,l);
     ctx.fillStyle='rgba(245,158,11,.9)'; ctx.beginPath(); ctx.arc(joy.ox+(l?dx/l*c:0),joy.oy+(l?dy/l*c:0),24,0,Math.PI*2); ctx.fill();
+  }else if(tutToast&&countdown<=0){
+    const a=Math.min(1, tutToast.t/0.6, (tutToast.maxT-tutToast.t)*4+0.1);
+    ctx.save();
+    ctx.globalAlpha=clamp(a,0,1); ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.font='bold 14px system-ui,sans-serif';
+    const rawW=ctx.measureText(tutToast.text).width+30;
+    const maxW=Math.max(240, W-24);
+    const sc=rawW>maxW ? maxW/rawW : 1;
+    ctx.translate(W/2, H-safe.b-103);
+    ctx.scale(sc, sc);
+    hudPanel(-rawW/2,-18,rawW,36);
+    ctx.strokeStyle=tutToast.color; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.fillStyle=tutToast.color; ctx.fillText(tutToast.text,0,0);
+    ctx.restore();
   }else if(hintT>0&&countdown<=0){
     ctx.globalAlpha=Math.min(1,hintT); ctx.textAlign='center'; ctx.font='bold 15px system-ui,sans-serif';
     let msg=isTouch?'👆 按住畫面任一處拖曳＝移動　右下按鈕＝丟雞腿':'⌨️ WASD／方向鍵移動・空白鍵丟雞腿（滑鼠拖曳也可移動）';
