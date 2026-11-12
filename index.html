@@ -243,8 +243,9 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
     <button class="devBtn danger" id="devResetBtn">🗑️ 重置進度</button>
     <button class="devBtn" id="devGodBtn">🛡️ 無敵模式：關</button>
     <button class="devBtn" id="devGhostBtn">👻 透明不被追：關</button>
+    <button class="devBtn" id="devSpeedBtn">⚡ 極速模式：關</button>
     <button class="devBtn" id="devRefillBtn">🍗 補滿雞腿／體力</button>
-    <button class="devBtn warn" id="devWinBtn">⚡ 一鍵過關</button>
+    <button class="devBtn warn" id="devWinBtn" style="grid-column:span 2;">🏁 一鍵過關</button>
   </div>
   <button class="btn primary" id="devCloseBtn">✖ 關閉</button>
 </div></div>
@@ -985,7 +986,7 @@ const MAPS=[
     mechTag:'🏙️101大圓環・🎆跨年煙火飆速',
     goalOrders:7, dogBase:5, carBase:18, maxCops:3, speedMul:1.45, timeMul:0.72, speedRatio:0.44, energyRatio:0.48,
     sky:'rgba(30,27,75,0.34)', lamp:true, ground:'#090e1c',
-    size:{w:2100,h:1480}, half:66,
+    size:{w:2100,h:1480}, half:84, fourLane:true,
     hSegs:[[280,0,2100],[540,680,1420],[780,180,680],[780,1420,1920],[1020,680,1420],[1280,0,2100]],
     vSegs:[[180,0,1480],[680,540,1020],[1050,0,540],[1050,1020,1480],[1420,540,1020],[1920,0,1480]],
     lights:[[180,280],[1050,280],[1920,280],[1050,540],[1050,1020],[1050,1280]],
@@ -1262,13 +1263,13 @@ let lastStars=0, lastWasVip=false;
 const tutSeen=store.get('dug_tut_v1',{});
 let tutToast=null, tutQueue=[], tutLockT=0;
 
-let devGod=false, devGhost=false, devTapCount=0, devTapTimer=null, devReturnOverlay='title';
+let devGod=false, devGhost=false, devSpeed=false, devTapCount=0, devTapTimer=null, devReturnOverlay='title';
 function setDevStat(msg){
   const el=$('devStat');
   if(el) el.textContent=msg;
 }
 function syncDevBtns(){
-  const g=$('devGodBtn'), gh=$('devGhostBtn');
+  const g=$('devGodBtn'), gh=$('devGhostBtn'), sp=$('devSpeedBtn');
   if(g){
     g.textContent='🛡️ 無敵模式：'+(devGod?'開':'關');
     g.classList.toggle('on',devGod);
@@ -1276,6 +1277,10 @@ function syncDevBtns(){
   if(gh){
     gh.textContent='👻 透明不被追：'+(devGhost?'開':'關');
     gh.classList.toggle('on',devGhost);
+  }
+  if(sp){
+    sp.textContent='⚡ 極速模式：'+(devSpeed?'開':'關');
+    sp.classList.toggle('on',devSpeed);
   }
 }
 function openDevPanel(){
@@ -1306,7 +1311,7 @@ function devResetProgress(){
   for(const k of keysToClear){ try{localStorage.removeItem(k);}catch(e){} }
   for(const k in tutSeen) delete tutSeen[k];
   unlockedMap=1; selectedMapIdx=0; best=0; bestStage=1;
-  devGod=false; devGhost=false;
+  devGod=false; devGhost=false; devSpeed=false;
   syncDevBtns();
   if(typeof renderMapSel==='function') renderMapSel();
   setDevStat('🗑️ 已重置所有進度與外掛狀態！');
@@ -1512,10 +1517,29 @@ const STAGE_CONFIG=[
 
 function resetGame(){
   buildMap(selectedMapIdx);
-  // 出生點設置在安全停車起點（店家或建築門口旁）
+  // 出生點設置在安全停車起點（店家或建築門口旁），並朝向該側順向車道方向
   const spawnX = places[0].door.x;
   const spawnY = places[0].door.y;
-  P={x:spawnX,y:spawnY,r:14,angle:0,steer:0,fx:1,fy:0,hp:100,ammo:4,inv:3.5,moving:false,boost:0,stopT:0,wrongWayT:0}; // 開場給予 3.5 秒倒數無敵防禦與 4 支雞腿
+  let spawnAng = 0, spawnFx = 1, spawnFy = 0;
+  let bestH = null, bestHd = 1e9, bestV = null, bestVd = 1e9;
+  for(const hy of HROADS){
+    if(!findSegAt('h',hy,spawnX)) continue;
+    const d = Math.abs(spawnY - hy);
+    if(d < bestHd){ bestHd = d; bestH = hy; }
+  }
+  for(const vx of VROADS){
+    if(!findSegAt('v',vx,spawnY)) continue;
+    const d = Math.abs(spawnX - vx);
+    if(d < bestVd){ bestVd = d; bestV = vx; }
+  }
+  if(bestH !== null && bestHd <= bestVd){
+    if(spawnY < bestH){ spawnAng = Math.PI; spawnFx = -1; spawnFy = 0; }
+    else { spawnAng = 0; spawnFx = 1; spawnFy = 0; }
+  } else if(bestV !== null){
+    if(spawnX < bestV){ spawnAng = Math.PI/2; spawnFx = 0; spawnFy = 1; }
+    else { spawnAng = -Math.PI/2; spawnFx = 0; spawnFy = -1; }
+  }
+  P={x:spawnX,y:spawnY,r:14,angle:spawnAng,steer:0,fx:spawnFx,fy:spawnFy,hp:100,ammo:4,inv:3.5,moving:false,boost:0,stopT:0,wrongWayT:0}; // 開場給予 3.5 秒倒數無敵防禦與 4 支雞腿
   cars=[];dogs=[];shots=[];items=[];pops=[];
   level=1;strikes=0;combo=0;lastStars=0;lastWasVip=false;redCooldown=0;tutToast=null;tutQueue=[];tutLockT=0;
   stats={score:0,delivered:0,orderStars:0,maxCombo:0,near:0,dogs:0,time:0};
@@ -1744,7 +1768,8 @@ function makeCarWithType(forcedType){
   const picked=pickRoadSeg();
   const axis=picked.axis, seg=picked.seg, c=picked.center;
   const side=Math.random()<0.5?-1:1;
-  let laneOff=Math.min(30, Math.round(HALF*0.46));
+  const innerOff=Math.round(HALF*0.27), outerOff=Math.round(HALF*0.71);
+  let laneOff=curMap.fourLane ? pick([innerOff, outerOff]) : Math.min(30, Math.round(HALF*0.46));
   const isSpeeder=Math.random()<(curMap.speedRatio + (gameMode==='endless'?(level-1)*0.04:0));
 
   let cType=forcedType || 'sedan';
@@ -1771,20 +1796,24 @@ function makeCarWithType(forcedType){
 
   if(cType==='speed'){
     cColor='#f43f5e'; baseSp*=1.55;
+    if(curMap.fourLane) laneOff=innerOff;
   } else if(cType==='police'){
     cColor='#020617'; w=50; h=26; baseSp=105*Math.max(1,curMap.speedMul*0.92); // 巡邏速
+    if(curMap.fourLane && Math.random()<0.75) laneOff=innerOff;
   } else if(cType==='ambulance'){
     cColor='#ffffff'; w=58; h=28; baseSp=195; // 緊急出勤速
+    if(curMap.fourLane) laneOff=innerOff;
   } else if(cType==='taxi'){
     cColor='#facc15';
   } else if(cType==='truck'){
     cColor='#2563eb'; w=56; h=28;
+    if(curMap.fourLane && Math.random()<0.8) laneOff=outerOff;
   } else if(cType==='moto'){
     cColor=pick(MOTO_COLORS);
     helmetColor=pick(MOTO_HELMETS);
     shirtColor=pick(['#1e293b','#334155','#3f3f46','#475569']);
     w=30; h=14;
-    laneOff=clamp(Math.min(34, Math.round(HALF*0.48))+pick([-5,0,5]), 16, HALF-16);
+    laneOff=curMap.fourLane ? pick([innerOff, outerOff, HALF-16]) : clamp(Math.min(34, Math.round(HALF*0.48))+pick([-5,0,5]), 16, HALF-16);
     baseSp=(125+Math.min(28,lvScale*0.45)+rand(0,42))*Math.max(0.92,curMap.speedMul*0.94);
     baseSp=Math.min(205, baseSp);
   } else if(cType==='bike'){
@@ -1868,6 +1897,7 @@ function makeCarWithType(forcedType){
         const cp=carPos(car), cr=carRect(car);
         const inInter=ints.some(it=>Math.abs(cp.x-it.x)<HALF+34 && Math.abs(cp.y-it.y)<HALF+34);
         if(inInter || !onRoad(cp.x,cp.y,14)) continue;
+        if(P && Math.hypot(cp.x-P.x, cp.y-P.y) < 220) continue;
         if(safeFallbackPos===null) safeFallbackPos={spick:segPick, pos:candPos};
         const clearCars=!cars.some(o=>{
           const rO=carRect(o);
@@ -2480,7 +2510,7 @@ function moveEnt(e,dx,dy,r,assist){
 }
 function nudge(e,axis,d,r){
   const m=Math.abs(d)+1;
-  for(let s=4;s<=30;s+=4) for(const sg of [-1,1]){
+  for(let s=4;s<=44;s+=4) for(const sg of [-1,1]){
     if(axis==='x'){ if(onRoad(e.x+d,e.y+sg*s,r)){const st=sg*Math.min(m,s); if(onRoad(e.x,e.y+st,r)){e.y+=st;return;}} }
     else { if(onRoad(e.x+sg*s,e.y+d,r)){const st=sg*Math.min(m,s); if(onRoad(e.x+st,e.y,r)){e.x+=st;return;}} }
   }
@@ -2501,6 +2531,9 @@ function inputVec(){
 }
 
 /* ===================== 主更新 ===================== */
+function carTargetAngle(c){
+  return c.axis==='h'?(c.dir>0?0:Math.PI):(c.dir>0?Math.PI/2:-Math.PI/2);
+}
 function updateCars(dt){
   const activePlay = (G.state === 'play' && countdown <= 0);
   const intersections = getIntersections();
@@ -2817,6 +2850,7 @@ function updateCars(dt){
           c.pos = oldLane;
           c.len = c.axis==='h' ? MAP.w : MAP.h;
           c.seg = findSegAt(c.axis, c.roadCenter, c.pos) || c.seg;
+          c.curSpeed = Math.min(c.curSpeed, 95);
           c.turnTl = null;
           c.turnSide = null;
           c.turnCool = 1.2;
@@ -2888,7 +2922,15 @@ function updateCars(dt){
         c.curSpeed = c.speed * 0.52;
         c.turnTl = null;
         c.turnSide = null;
+        c.visAngle = carTargetAngle(c);
       }
+    }
+
+    const tgtAng = carTargetAngle(c);
+    if(c.visAngle===undefined) c.visAngle = tgtAng;
+    else {
+      const da = Math.atan2(Math.sin(tgtAng - c.visAngle), Math.cos(tgtAng - c.visAngle));
+      c.visAngle += da * Math.min(1, dt * 10);
     }
 
     let cp = carPos(c);
@@ -3094,13 +3136,14 @@ function update(dt){
   const v=inputVec();
   P.moving=(P.stopT<=0)&&!!(v.x||v.y);
   if(P.boost>0) P.boost=Math.max(0,P.boost-dt);
-  const curSpeed=P.boost>0?295:210; // 能量飲料衝刺加速 +40%
+  const curSpeed=devSpeed?390:(P.boost>0?295:210); // 能量飲料衝刺加速 +40%／外掛極速 390
   if(P.moving){
     moveEnt(P,v.x*curSpeed*dt,v.y*curSpeed*dt,P.r,true);
     const newAng=Math.atan2(v.y,v.x);
     const da=Math.atan2(Math.sin(newAng-P.angle),Math.cos(newAng-P.angle));
     P.steer=clamp((P.steer||0)*(1-Math.min(1,dt*10))+da*4.2,-1,1);
-    P.angle=newAng; const L=Math.hypot(v.x,v.y); P.fx=v.x/L; P.fy=v.y/L;
+    P.angle+=da*Math.min(1,dt*15);
+    const L=Math.hypot(v.x,v.y); P.fx=v.x/L; P.fy=v.y/L;
   } else {
     P.steer=(P.steer||0)*Math.max(0,1-dt*8);
   }
@@ -4011,6 +4054,26 @@ function drawWorld(now){
     }
   }
 
+  // 四線道同向內外車道白色分隔虛線
+  if(curMap.fourLane){
+    const divOff=Math.round(HALF*0.50);
+    ctx.strokeStyle='rgba(241,245,249,0.55)'; ctx.lineWidth=2; ctx.setLineDash([14,18]);
+    ctx.beginPath();
+    for(const s of H_SEGS){
+      const lx0=s.c0<=0?0:s.c0, lx1=s.c1>=MAP.w?MAP.w:s.c1;
+      ctx.moveTo(lx0,s.y-divOff); ctx.lineTo(lx1,s.y-divOff);
+      ctx.moveTo(lx0,s.y+divOff); ctx.lineTo(lx1,s.y+divOff);
+    }
+    for(const s of V_SEGS) for(const [y0,y1] of vSegRuns(s,true)){
+      const ly0=s.c0>0&&y0===s.y0?s.c0:y0, ly1=s.c1<MAP.h&&y1===s.y1?s.c1:y1;
+      if(ly1>ly0){
+        ctx.moveTo(s.x-divOff,ly0); ctx.lineTo(s.x-divOff,ly1);
+        ctx.moveTo(s.x+divOff,ly0); ctx.lineTo(s.x+divOff,ly1);
+      }
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+
   // 中央分向雙黃線（清晰亮黃色）
   ctx.strokeStyle='#fbbf24'; ctx.lineWidth=3; ctx.setLineDash([18,16]);
   ctx.beginPath();
@@ -4019,7 +4082,7 @@ function drawWorld(now){
   ctx.stroke(); ctx.setLineDash([]);
 
   // 3.5 車道行進方向箭頭（右行制：只避開真實垂直交會路口，確保各線段雙向箭頭清晰）
-  const laneOff=Math.min(30,Math.round(HALF*0.46));
+  const laneOffs=curMap.fourLane?[Math.round(HALF*0.27),Math.round(HALF*0.71)]:[Math.min(30,Math.round(HALF*0.46))];
   const drawLaneArrow=(ax,ay,ang)=>{
     if(!inView(ax-24,ay-24,48,48) || !onRoad(ax,ay,10)) return;
     if(Math.abs(Math.cos(ang))>0.5){
@@ -4038,15 +4101,19 @@ function drawWorld(now){
   for(const hs of H_SEGS){
     const ax0=Math.max(70, hs.x0+45), ax1=Math.min(MAP.w-60, hs.x1-45);
     for(let ax=ax0;ax<=ax1;ax+=140){
-      drawLaneArrow(ax, hs.y+laneOff, 0);
-      drawLaneArrow(ax, hs.y-laneOff, Math.PI);
+      for(const lo of laneOffs){
+        drawLaneArrow(ax, hs.y+lo, 0);
+        drawLaneArrow(ax, hs.y-lo, Math.PI);
+      }
     }
   }
   for(const vs of V_SEGS){
     for(const [y0,y1] of vSegRuns(vs,true)){
       for(let ay=y0+60;ay<=y1-60;ay+=140){
-        drawLaneArrow(vs.x+laneOff, ay, -Math.PI/2);
-        drawLaneArrow(vs.x-laneOff, ay, Math.PI/2);
+        for(const lo of laneOffs){
+          drawLaneArrow(vs.x+lo, ay, -Math.PI/2);
+          drawLaneArrow(vs.x-lo, ay, Math.PI/2);
+        }
       }
     }
   }
@@ -4473,7 +4540,14 @@ function drawWorld(now){
     const r=carRect(c);
     if(c.axis==='v' && r.y+r.h<skyH+2) continue; // 尚在北向隧道內不露頭
     if(!inView(r.x-20,r.y-20,r.w+40,r.h+40)) continue;
-    if(c.type==='bike'||c.type==='moto'){ drawTwoWheelerNPC(c, r); continue; }
+    const tgtAng=carTargetAngle(c);
+    const rotDelta=c.visAngle!==undefined?Math.atan2(Math.sin(c.visAngle-tgtAng),Math.cos(c.visAngle-tgtAng)):0;
+    const rotated=Math.abs(rotDelta)>0.015;
+    if(rotated){
+      const cx0=r.x+r.w/2, cy0=r.y+r.h/2;
+      ctx.save(); ctx.translate(cx0,cy0); ctx.rotate(rotDelta); ctx.translate(-cx0,-cy0);
+    }
+    if(c.type==='bike'||c.type==='moto'){ drawTwoWheelerNPC(c, r); if(rotated) ctx.restore(); continue; }
     const isHoriz=c.axis==='h';
 
     // 車輛地面陰影
@@ -4639,6 +4713,7 @@ function drawWorld(now){
         ctx.fillRect(bx, c.dir>0?r.y:r.y+r.h-4, 4, 4);
       }
     }
+    if(rotated) ctx.restore();
   }
   // 野狗（追擊時增加強烈警戒紅光圈、暴走驚嘆號、連線警戒預警）
   for(const d of dogs){
@@ -5332,7 +5407,7 @@ function drawPlayer(now){
   ctx.save();
   ctx.translate(P.x,P.y);
   ctx.rotate(P.angle);
-  renderRider(ctx,char,now,P.moving,!!(order&&order.stage==='deliver'),1.18,P.boost>0,P.steer||0);
+  renderRider(ctx,char,now,P.moving,!!(order&&order.stage==='deliver'),1.18,P.boost>0||devSpeed,P.steer||0);
   ctx.restore();
   if(P.stopT>0){
     ctx.save();
@@ -5743,6 +5818,7 @@ btn('devUnlockBtn',devUnlockAll);
 btn('devResetBtn',devResetProgress);
 btn('devGodBtn',()=>{devGod=!devGod;syncDevBtns();setDevStat('🛡️ 無敵模式已'+(devGod?'開啟（不扣血、訂單不逾時）':'關閉'));});
 btn('devGhostBtn',()=>{devGhost=!devGhost;syncDevBtns();setDevStat('👻 透明模式已'+(devGhost?'開啟（警察、野狗、路人不會追或攔截）':'關閉'));});
+btn('devSpeedBtn',()=>{devSpeed=!devSpeed;syncDevBtns();setDevStat('⚡ 極速模式已'+(devSpeed?'開啟（移動速度大幅提升）':'關閉'));});
 btn('devRefillBtn',devRefill);
 btn('devWinBtn',devInstantWin);
 btn('devCloseBtn',closeDevPanel);
