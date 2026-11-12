@@ -114,6 +114,17 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
 .tutMsg{background:#0b1222;border:1.5px solid #334155;border-radius:12px;padding:12px 14px;font-size:15px;line-height:1.65;color:#f1f5f9;font-weight:700;text-align:left;margin-bottom:12px}
 .tutHint{font-size:12px;color:#94a3b8;margin-top:4px}
 
+.verTap{cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+#devModal{background:rgba(5,8,20,.65);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);z-index:70}
+#devModal .card{max-width:460px;border-color:#38bdf8;background:linear-gradient(165deg,#0f172a,#1e293b);padding:16px 20px}
+.devGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.devBtn{padding:10px 8px;border-radius:10px;border:1.5px solid #475569;background:#0f172a;color:#e2e8f0;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;touch-action:manipulation}
+.devBtn:active{transform:scale(.97)}
+.devBtn.on{border-color:#22c55e;background:#14532d;color:#bbf7d0}
+.devBtn.warn{border-color:#f59e0b;color:#fde68a}
+.devBtn.danger{border-color:#ef4444;color:#fecaca}
+.devStat{font-size:12px;color:#7dd3fc;min-height:18px;margin:4px 0 8px;font-weight:700}
+
 #rotate{z-index:90;background:#0b1020;flex-direction:column;text-align:center}
 #rotate .ph{font-size:60px;animation:rot 1.6s ease-in-out infinite}
 @keyframes rot{0%,30%{transform:rotate(0)}60%,100%{transform:rotate(-90deg)}}
@@ -155,7 +166,7 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
     <button class="btn" id="howBtn">📖 玩法說明</button>
     <button class="btn" id="storyBtn" style="min-width:auto;padding:11px 14px">📜 故事</button>
   </div>
-  <div class="small">單機遊戲・不需網路・建議橫向遊玩 <span style="display:inline-block;margin-left:6px;padding:2px 6px;border-radius:6px;background:#1e293b;border:1px solid #475569;color:#38bdf8;font-weight:bold;">v1.4.0</span></div>
+  <div class="small">單機遊戲・不需網路・建議橫向遊玩 <span class="verTap" style="display:inline-block;margin-left:6px;padding:2px 6px;border-radius:6px;background:#1e293b;border:1px solid #475569;color:#38bdf8;font-weight:bold;">v1.4.0</span></div>
 </div></div>
 
 <!-- 開頭派單故事 -->
@@ -208,7 +219,7 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
 <!-- 暫停 -->
 <div class="overlay" id="pause"><div class="card">
   <h2>⏸ 暫停中</h2>
-  <p>休息一下，訂單計時已暫停。</p><div style="font-size:12px;color:#64748b;margin-bottom:8px;">版本 v1.4.0</div>
+  <p>休息一下，訂單計時已暫停。</p><div style="font-size:12px;color:#64748b;margin-bottom:8px;">版本 <span class="verTap">v1.4.0</span></div>
   <button class="btn primary" id="resumeBtn">▶ 繼續</button>
   <button class="btn" id="restartBtn">🔄 重新開始</button>
   <button class="btn" id="homeBtn1">🏠 回主畫面</button>
@@ -221,6 +232,21 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
   <div class="tutMsg" id="tutMsg"></div>
   <button class="btn primary" id="tutOkBtn">▶ 我知道了，繼續外送</button>
   <div class="tutHint">訂單計時與車流已暫停・按空白鍵 / Enter 或點擊繼續</div>
+</div></div>
+
+<!-- 開發人員秘密外掛面板 -->
+<div class="overlay" id="devModal"><div class="card">
+  <div class="tutTag" style="border-color:#38bdf8;color:#7dd3fc;">🛠️ DEV TOOLS · 秘密外掛面板</div>
+  <div class="devStat" id="devStat">連點 5 下版本號開啟・測試專用</div>
+  <div class="devGrid">
+    <button class="devBtn warn" id="devUnlockBtn">🔓 解鎖全部關卡</button>
+    <button class="devBtn danger" id="devResetBtn">🗑️ 重置進度</button>
+    <button class="devBtn" id="devGodBtn">🛡️ 無敵模式：關</button>
+    <button class="devBtn" id="devGhostBtn">👻 透明不被追：關</button>
+    <button class="devBtn" id="devRefillBtn">🍗 補滿雞腿／體力</button>
+    <button class="devBtn warn" id="devWinBtn">⚡ 一鍵過關</button>
+  </div>
+  <button class="btn primary" id="devCloseBtn">✖ 關閉</button>
 </div></div>
 
 <!-- 結束畫面 -->
@@ -1235,6 +1261,83 @@ let redCooldown=0;    // 闖紅燈判定冷卻
 let lastStars=0, lastWasVip=false;
 const tutSeen=store.get('dug_tut_v1',{});
 let tutToast=null, tutQueue=[], tutLockT=0;
+
+let devGod=false, devGhost=false, devTapCount=0, devTapTimer=null, devReturnOverlay='title';
+function setDevStat(msg){
+  const el=$('devStat');
+  if(el) el.textContent=msg;
+}
+function syncDevBtns(){
+  const g=$('devGodBtn'), gh=$('devGhostBtn');
+  if(g){
+    g.textContent='🛡️ 無敵模式：'+(devGod?'開':'關');
+    g.classList.toggle('on',devGod);
+  }
+  if(gh){
+    gh.textContent='👻 透明不被追：'+(devGhost?'開':'關');
+    gh.classList.toggle('on',devGhost);
+  }
+}
+function openDevPanel(){
+  devTapCount=0;
+  clearTimeout(devTapTimer);
+  if(G.state==='pause') devReturnOverlay='pause';
+  else if(G.state==='tut') devReturnOverlay='tutModal';
+  else if(G.state==='over') devReturnOverlay='over';
+  else devReturnOverlay='title';
+  syncDevBtns();
+  setDevStat('🛠️ 已開啟秘密外掛面板（測試專用）');
+  showOnly('devModal');
+}
+function closeDevPanel(){
+  showOnly(devReturnOverlay||'title');
+}
+function devUnlockAll(){
+  unlockedMap=MAPS.length;
+  store.set('dug_unlock',unlockedMap);
+  if(typeof renderMapSel==='function') renderMapSel();
+  setDevStat('🔓 已解鎖全部 '+MAPS.length+' 個關卡！');
+}
+function devResetProgress(){
+  const keysToClear=['dug_unlock','dug_map','dug_best','dug_best_stage','dug_tut_v1'];
+  for(const m of MAPS){
+    keysToClear.push('dug_clr_'+m.id,'dug_stars_'+m.id,'dug_best_'+m.id,'dug_story_seen_'+m.id);
+  }
+  for(const k of keysToClear){ try{localStorage.removeItem(k);}catch(e){} }
+  for(const k in tutSeen) delete tutSeen[k];
+  unlockedMap=1; selectedMapIdx=0; best=0; bestStage=1;
+  devGod=false; devGhost=false;
+  syncDevBtns();
+  if(typeof renderMapSel==='function') renderMapSel();
+  setDevStat('🗑️ 已重置所有進度與外掛狀態！');
+}
+function devRefill(){
+  if(!P || !P.x){ setDevStat('⚠️ 請先進入關卡後再補滿！'); return; }
+  P.hp=100; P.ammo=8;
+  if(typeof updateAmmo==='function') updateAmmo();
+  setDevStat('🍗 已補滿體力 (100) 與雞腿 (8)！');
+}
+function devInstantWin(){
+  if(G.state!=='play'&&G.state!=='pause'&&G.state!=='tut'){
+    setDevStat('⚠️ 請先進入關卡中再使用一鍵過關！');
+    return;
+  }
+  if(gameMode==='story'){
+    showOnly(null);
+    G.state='play';
+    setBodyState('play');
+    if(Snd.music) Snd.music.gain.value=0.6;
+    stats.delivered=curMap.goalOrders;
+    winStage();
+  }else{
+    showOnly(null);
+    G.state='play';
+    setBodyState('play');
+    if(Snd.music) Snd.music.gain.value=0.6;
+    stats.delivered+=3;
+    levelUp();
+  }
+}
 const TUT_TITLES={
   bay:'🛵 認識「外送臨停區」',
   red:'🚦 紅綠燈與路口停等規則',
@@ -1493,7 +1596,7 @@ function checkWrongWay(dt){
     if(P.wrongWayT >= 0.65){
       triggerTut('wrongway', '⚠️ 持續逆向遇警車會被追！騎回【中央雙黃線】鑽車縫或超車就沒事！', '#fbbf24');
     }
-    if(P.wrongWayT >= 1.65){
+    if(!devGhost && P.wrongWayT >= 1.65){
       const alreadyChasing = cars.some(c=>c.type==='police' && c.chasing);
       if(!alreadyChasing){
         const cop = cars.find(c=>c.type==='police' && !c.chasing && (c.chaseCool||0)<=0 && dist(carPos(c), P) < 310);
@@ -1542,7 +1645,7 @@ function updateTrafficAndPeds(dt){
         if(tl.pState===null && inCore){
           if(tl.blink || enterState==='blink' || enterState==='green' || enterState==='yellow'){
             tl.pState='ok';
-          } else if(enterState==='red' && P.moving && redCooldown<=0){
+          } else if(!devGhost && enterState==='red' && P.moving && redCooldown<=0){
             tl.pState='violated';
             redCooldown=0.6;
             const anyChasing = cars.some(c=>c.type==='police' && c.chasing);
@@ -1598,7 +1701,7 @@ function updateTrafficAndPeds(dt){
 
     // 與玩家互動判定（僅在實際遊戲中，且玩家真正轉向／切入斑馬線區域時才判定禮讓與撞擊，避免平行綠燈直行誤判）
     const dPed=dist(ped, P);
-    if(G.state==='play' && countdown<=0 && ped.isCrossing){
+    if(!devGhost && G.state==='play' && countdown<=0 && ped.isCrossing){
       if(dPed < 115) triggerTut('ped', '🚶 行人過斑馬線！在路口前停等禮讓可獲【+15 分】獎勵！', '#6ee7b7');
       const crossingPath = (Math.abs(P.y - ped.y) < 22) || (Math.abs(P.fy) > 0.45 && Math.abs(P.x - ped.x) < 30);
       if(crossingPath){
@@ -1840,7 +1943,7 @@ function setBodyState(s){
   $('pauseBtn').style.display=s==='play'?'flex':'none';
   $('throwBtn').style.display=s==='play'?'flex':'none';
 }
-function showOnly(id){['title','mapSel','story','howto','pause','tutModal','over'].forEach(o=>$(o).classList.toggle('show',o===id));}
+function showOnly(id){['title','mapSel','story','howto','pause','tutModal','devModal','over'].forEach(o=>$(o).classList.toggle('show',o===id));}
 let storyIdx=0, storyFromBtn=false;
 function getStorySteps(){
   const isF=char==='F';
@@ -2342,12 +2445,14 @@ function levelUp(){
   if(level>bestStage){ bestStage=level; store.set('dug_best_stage',bestStage); }
 }
 function orderFail(){
+  if(devGod){ if(order) order.time=order.total||20; return; }
   strikes++; combo=0; lastStars=0; lastWasVip=false; sfx('fail'); shake=0.25;
   order=null; orderDelay=1.4; path=[];
   showBanner('⏰ 訂單逾時！','差評 +1（'+strikes+'/3）','#fca5a5');
   if(strikes>=3) gameOver('😭 累積 3 個差評，被平台停權了');
 }
 function damage(n,msg){
+  if(devGod) return;
   P.hp=Math.max(0,P.hp-n); P.inv=1.2; shake=0.35; combo=Math.max(0,combo);
   pop(P.x,P.y-30,msg+' −'+n,'#fca5a5',18);
   if(P.hp<=0) gameOver('💀 體力耗盡，今天先收工');
@@ -3006,7 +3111,7 @@ function update(dt){
   const inDeliveryBay = places.some(pl => dist(P, pl.door) < 62);
   for(const c of cars){
     const d=rectDist(P.x,P.y,carRect(c));
-    if(d<P.r-1){
+    if(!devGod && d<P.r-1){
       if(P.inv<=0 && !((c.curSpeed||0) < 20 && inDeliveryBay)){
         const dmg = c.type==='bike' ? 12 : (c.type==='moto' ? 18 : 25);
         const hitMsg = c.type==='bike' ? '🚲 擦撞單車' : (c.type==='moto' ? '🛵 擦撞機車' : '💥 撞車');
@@ -3043,7 +3148,14 @@ function update(dt){
       continue;
     }
     const pd=dist(d,P);
-    if(d.calm>0){
+    if(devGhost){
+      for(const c of cars){
+        if(c.type==='police' && c.chasing){
+          c.chasing=false; c.chaseTimer=0; c.chasedCrossings=0; c.lastCrossKey=null; c.chaseCool=4.5; c.speed=105;
+        }
+      }
+    }
+    if(d.calm>0 || devGhost){
       d.chase=false; d.chaseDur=0;
     } else {
       d.chase=(pd<220);
@@ -3075,7 +3187,7 @@ function update(dt){
         const dirs=[[1,0],[-1,0],[0,1],[0,-1]]; const k=pick(dirs); d.dx=k[0]; d.dy=k[1];
       }
     }
-    if(pd<24&&P.inv<=0&&d.calm<=0){
+    if(!devGhost && !devGod && pd<24&&P.inv<=0&&d.calm<=0){
       damage(15,'🐕 被咬');
       if(G.state!=='play') return;
       sfx('bite'); d.stun=1.5; d.eat=0; d.chase=false; d.chaseDur=0; d.calm=9;
@@ -3132,7 +3244,7 @@ function update(dt){
   // 訂單
   if(!order){orderDelay-=dt;if(orderDelay<=0)newOrder();}
   else{
-    order.time-=dt;
+    if(!devGod) order.time-=dt;
     const tgt=order.stage==='pickup'?order.shop:order.cust;
     const dDoor=dist(P,tgt.door);
     if(dDoor<120) triggerTut('bay','🛵 橘黃虛線框是【外送臨停區】：紅燈車陣會自動淨空，停進這裡最安全！','#fde047');
@@ -4632,7 +4744,16 @@ function drawWorld(now){
   ctx.font='22px system-ui,sans-serif';
   for(const s of shots){ctx.save();ctx.translate(s.x,s.y);ctx.rotate(s.rot);ctx.fillText('🍗',0,0);ctx.restore();}
   // 玩家
-  if(!(P.inv>0&&Math.floor(now/90)%2)) drawPlayer(now);
+  if(!(P.inv>0&&Math.floor(now/90)%2)){
+    ctx.save();
+    if(devGhost) ctx.globalAlpha=0.52;
+    if(devGod){
+      ctx.strokeStyle='rgba(250,204,21,0.75)'; ctx.lineWidth=2.5;
+      ctx.beginPath(); ctx.arc(P.x,P.y,22,0,Math.PI*2); ctx.stroke();
+    }
+    drawPlayer(now);
+    ctx.restore();
+  }
   // 9.3 台灣景點動態環境裝飾（九份/大稻埕紅燈籠、高美大風車、阿里山櫻花雪、信義夜空煙火）
   if(lanternPts.length){
     for(const [lx,ly] of lanternPts){
@@ -5609,6 +5730,23 @@ btn('howClose',()=>showOnly('title'));
 btn('resumeBtn',resumeGame);
 $('tutOkBtn').addEventListener('click',()=>{if(tutLockT>0)return;ensureAudio();sfx('click');dismissTut();});
 $('tutModal').addEventListener('click',e=>{if(e.target===$('tutModal')&&tutLockT<=0){ensureAudio();sfx('click');dismissTut();}});
+document.querySelectorAll('.verTap').forEach(el=>el.addEventListener('click',()=>{
+  devTapCount++;
+  clearTimeout(devTapTimer);
+  devTapTimer=setTimeout(()=>{devTapCount=0;},1500);
+  if(devTapCount>=5){
+    ensureAudio(); sfx('click');
+    openDevPanel();
+  }
+}));
+btn('devUnlockBtn',devUnlockAll);
+btn('devResetBtn',devResetProgress);
+btn('devGodBtn',()=>{devGod=!devGod;syncDevBtns();setDevStat('🛡️ 無敵模式已'+(devGod?'開啟（不扣血、訂單不逾時）':'關閉'));});
+btn('devGhostBtn',()=>{devGhost=!devGhost;syncDevBtns();setDevStat('👻 透明模式已'+(devGhost?'開啟（警察、野狗、路人不會追或攔截）':'關閉'));});
+btn('devRefillBtn',devRefill);
+btn('devWinBtn',devInstantWin);
+btn('devCloseBtn',closeDevPanel);
+$('devModal').addEventListener('click',e=>{if(e.target===$('devModal')){ensureAudio();sfx('click');closeDevPanel();}});
 btn('restartBtn',startGame);
 btn('homeBtn1',goTitle);
 btn('nextStageBtn',()=>{
