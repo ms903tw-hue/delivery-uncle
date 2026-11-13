@@ -132,7 +132,7 @@ body.title #titleBtnsTop .hudBtn{position:static}
 .starColl{font-size:13px;font-weight:900;color:#fde68a;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center}
 .starNew{padding:2px 8px;border-radius:999px;background:linear-gradient(135deg,#fde047,#f59e0b);color:#1a1204;font-size:12px;font-weight:900}
 .bigScore{font-size:48px;font-weight:900;color:#fde68a;line-height:1.1;margin:4px 0}
-.newRec{display:none;color:#1a1204;background:#fbbf24;border-radius:10px;padding:2px 10px;font-weight:900;font-size:13px;animation:pulse .8s infinite alternate}
+.newRec{display:none;color:#1a1204;background:linear-gradient(135deg,#fde047,#f59e0b);border:1.5px solid #fef08a;border-radius:999px;padding:3px 14px;font-weight:900;font-size:13.5px;box-shadow:0 0 16px rgba(251,191,36,.65);animation:pulse .75s infinite alternate}
 @keyframes pulse{from{transform:scale(1)}to{transform:scale(1.08)}}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
 .stat{background:#0b1222;border:1px solid #334155;border-radius:10px;padding:6px 4px}
@@ -382,6 +382,7 @@ body.title #titleBtnsTop .hudBtn{position:static}
     <button class="devBtn" id="devRefillBtn">🍗 補滿雞腿／體力</button>
     <button class="devBtn warn" id="devCoinsBtn">🪙 +1000 金幣</button>
     <button class="devBtn warn" id="devWinBtn">🏁 一鍵過關</button>
+    <button class="devBtn" id="devEventBtn" style="border-color:#f59e0b;color:#fde047;grid-column:span 2;">🎉 觸發本關特殊事件</button>
   </div>
   <button class="btn primary" id="devCloseBtn">✖ 關閉</button>
 </div></div>
@@ -585,10 +586,89 @@ function playSirenBurst(kind, volMul=1){
   }
 }
 
+function playCheerSound(volMul=1){
+  const c=Snd.ctx; if(!c||muted) return;
+  const t=c.currentTime;
+  const vMul=clamp(volMul,0.2,1.5);
+
+  // 1. 勝利大號角和弦步進 (Triumphant Fanfare Arpeggio: C5 -> E5 -> G5 -> C6 -> E6 -> G6)
+  const fanfare = [
+    { f: 523, d: 0.12, off: 0.00, v: 0.18 },
+    { f: 659, d: 0.12, off: 0.08, v: 0.20 },
+    { f: 784, d: 0.14, off: 0.16, v: 0.22 },
+    { f: 1046, d: 0.22, off: 0.24, v: 0.25 },
+    { f: 1318, d: 0.45, off: 0.36, v: 0.24 },
+    { f: 1568, d: 0.70, off: 0.44, v: 0.28 }
+  ];
+  fanfare.forEach(n=>{
+    tone(n.f, n.d, { type: 'triangle', vol: n.v * vMul, t: t + n.off });
+    tone(n.f * 1.003, n.d, { type: 'sine', vol: n.v * 0.7 * vMul, t: t + n.off });
+  });
+
+  // 2. 歡樂喝采吹口哨聲 (Whistle glissando: 快速向上滑音)
+  const wOsc=c.createOscillator(), wGain=c.createGain();
+  wOsc.type='sine';
+  wOsc.frequency.setValueAtTime(1200, t + 0.18);
+  wOsc.frequency.exponentialRampToValueAtTime(2600, t + 0.42);
+  wOsc.frequency.exponentialRampToValueAtTime(2100, t + 0.62);
+  wGain.gain.setValueAtTime(0.0001, t + 0.18);
+  wGain.gain.linearRampToValueAtTime(0.18 * vMul, t + 0.26);
+  wGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.65);
+  wOsc.connect(wGain); wGain.connect(Snd.sfx);
+  wOsc.start(t + 0.18); wOsc.stop(t + 0.67);
+
+  // 3. 熱烈歡呼聲 (Crowd "Woo-hoo! Yaaay!" Vocal Formants)
+  const voices = [
+    { startF: 420, endF: 780, startT: 0.15, dur: 0.95, v: 0.15 },
+    { startF: 540, endF: 960, startT: 0.20, dur: 0.90, v: 0.14 },
+    { startF: 660, endF: 1180, startT: 0.24, dur: 0.85, v: 0.12 },
+    { startF: 350, endF: 620, startT: 0.18, dur: 1.00, v: 0.13 }
+  ];
+  voices.forEach(v=>{
+    const vOsc=c.createOscillator(), vFilter=c.createBiquadFilter(), vGain=c.createGain();
+    vOsc.type='sawtooth';
+    vFilter.type='bandpass';
+    vFilter.Q.value=3.2;
+    vFilter.frequency.setValueAtTime(v.startF * 1.5, t + v.startT);
+    vFilter.frequency.exponentialRampToValueAtTime(v.endF * 1.8, t + v.startT + v.dur * 0.7);
+
+    vOsc.frequency.setValueAtTime(v.startF, t + v.startT);
+    vOsc.frequency.exponentialRampToValueAtTime(v.endF, t + v.startT + v.dur * 0.6);
+    vOsc.frequency.linearRampToValueAtTime(v.endF * 0.9, t + v.startT + v.dur);
+
+    vGain.gain.setValueAtTime(0.0001, t + v.startT);
+    vGain.gain.linearRampToValueAtTime(v.v * vMul, t + v.startT + 0.14);
+    vGain.gain.exponentialRampToValueAtTime(0.0001, t + v.startT + v.dur);
+
+    vOsc.connect(vFilter); vFilter.connect(vGain); vGain.connect(Snd.sfx);
+    vOsc.start(t + v.startT); vOsc.stop(t + v.startT + v.dur + 0.04);
+  });
+
+  // 4. 群眾掌聲與喝采浪潮 (Crowd Applause / Clapping & Noise Roar)
+  const appDur=1.8;
+  const clapSrc=c.createBufferSource(); clapSrc.buffer=Snd.noiseBuf;
+  const clapFlt=c.createBiquadFilter(), clapGain=c.createGain();
+  clapFlt.type='bandpass';
+  clapFlt.frequency.setValueAtTime(1400, t + 0.2);
+  clapFlt.Q.value=1.1;
+  clapGain.gain.setValueAtTime(0.0001, t + 0.2);
+  clapGain.gain.linearRampToValueAtTime(0.22 * vMul, t + 0.55);
+  clapGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.2 + appDur);
+  clapSrc.connect(clapFlt); clapFlt.connect(clapGain); clapGain.connect(Snd.sfx);
+  clapSrc.start(t + 0.2); clapSrc.stop(t + 0.2 + appDur + 0.05);
+
+  // 掌聲快速拍打碎脈衝 (Clapping transients)
+  for(let i=0; i<16; i++){
+    const ct = t + 0.35 + Math.random()*1.1;
+    noise(0.035, { vol: (0.08 + Math.random()*0.08) * vMul, lp: 2800, hp: 800, t: ct });
+  }
+}
+
 function sfx(name, volMul=1){
   if(!Snd.ctx||muted) return;
   const t=Snd.ctx.currentTime;
   switch(name){
+    case 'cheer': playCheerSound(volMul); break;
     case 'click': tone(700,0.06,{vol:0.08}); break;
     case 'order': tone(880,0.08,{type:'sine',vol:0.18}); tone(1175,0.12,{type:'sine',vol:0.18,t:t+0.09}); break;
     case 'pickup': tone(523,0.08,{type:'triangle',vol:0.22}); tone(784,0.14,{type:'triangle',vol:0.22,t:t+0.08}); break;
@@ -1980,6 +2060,7 @@ function resetGame(){
   stats={score:0,delivered:0,orderStars:0,maxCombo:0,near:0,dogs:0,time:0,violations:0,coins:0};
   order=null;orderDelay=0.2;countdown=3.2;shake=0;itemTimer=4;banner=null;lastTick=-1;path=[];pathTimer=0;hintT=(gameMode==='story'&&curMapIdx===0)?16:7;
   rainT=0; rainCooldown=rand(18,30);
+  initStageEvent();
   initTrafficSystem();
   syncHazards();
   cam.x=clamp(P.x-W/ZOOM/2,0,Math.max(0,MAP.w-W/ZOOM));
@@ -2823,11 +2904,15 @@ function openExitPrompt(){
 let winStarInfo=null;
 function showEndCard(isWin, reason){
   G.state='over'; joy.id=null;
-  if(isWin){ sfx('level'); } else { sfx('over'); shake=0.4; }
-  const isNew=stats.score>best;
+  const prevBest=best;
+  const isNew=stats.score>prevBest;
   if(isNew){best=stats.score;store.set('dug_best',best);}
-  const mBest=store.get('dug_best_'+curMap.id,0);
-  if(stats.score>mBest) store.set('dug_best_'+curMap.id,stats.score);
+  const prevMapBest=store.get('dug_best_'+curMap.id,0);
+  const isStageNew=stats.score>prevMapBest;
+  if(isStageNew) store.set('dug_best_'+curMap.id,stats.score);
+  const hasRecord=isNew || isStageNew;
+
+  if(isWin){ sfx('level'); } else { sfx('over'); shake=0.4; }
 
   $('overTitle').textContent=isWin?'🎉 區域制霸・過關！':'🏁 今日收工';
   $('overTitle').style.color=isWin?'#6ee7b7':'#fbbf24';
@@ -2874,7 +2959,18 @@ function showEndCard(isWin, reason){
   }
   winStarInfo=null;
   $('overScore').textContent=stats.score;
-  $('newRec').style.display=isNew?'inline-block':'none';
+  const newRecEl=$('newRec');
+  if(newRecEl){
+    if(isNew){
+      newRecEl.textContent='👑 創全域最高紀錄！';
+      newRecEl.style.display='inline-block';
+    }else if(isStageNew){
+      newRecEl.textContent='🎉 刷新關卡最高紀錄！';
+      newRecEl.style.display='inline-block';
+    }else{
+      newRecEl.style.display='none';
+    }
+  }
   $('stDel').textContent=stats.delivered;
   $('stCombo').textContent=stats.maxCombo;
   $('stLv').textContent=gameMode==='story'?((curMapIdx+1)+'/'+MAPS.length):level;
@@ -2889,7 +2985,15 @@ function showEndCard(isWin, reason){
   }
   $('nextStageBtn').style.display=(isWin && gameMode==='story' && curMapIdx<MAPS.length-1)?'inline-flex':'none';
   setBodyState('over');
-  setTimeout(()=>{if(G.state==='over'){showOnly('over');if(Snd.music)Snd.music.gain.value=0.55;}},isWin?650:900);
+  setTimeout(()=>{
+    if(G.state==='over'){
+      showOnly('over');
+      if(Snd.music) Snd.music.gain.value=0.55;
+      if(hasRecord){
+        sfx('cheer');
+      }
+    }
+  },isWin?650:900);
 }
 function gameOver(reason){
   if(G.state!=='play') return;
@@ -2922,7 +3026,7 @@ function winStage(){
   }
   showEndCard(true, msg);
 }
-function showBanner(text,sub,color){banner={text,sub:sub||'',color:color||'#fde68a',t:1.5};}
+function showBanner(text,sub,color,dur=2.0){banner={text,sub:sub||'',color:color||'#fde68a',t:dur,maxT:dur};}
 function pop(x,y,text,color,size){pops.push({x,y,text,color:color||'#fff',t:1.1,size:size||20});}
 function updateAmmo(){
   $('ammoTxt').textContent='×'+(P?P.ammo:0);
@@ -2969,6 +3073,13 @@ const GENERAL_NOTES = [
   '送達傳簡訊即可，感恩！'
 ];
 const ORDER_NOTES = GENERAL_NOTES.concat(DRINK_NOTES, SOUP_NOTES);
+
+function getOrderTarget(){
+  if(!order) return null;
+  if(order.stage === 'pickup') return order.shop;
+  if(order.stacked && !order.stacked.delivered) return order.stacked.cust;
+  return order.cust;
+}
 
 function newOrder(){
   // 嚴格觸發【金牌特急單】：需 連擊>=3 ＋ 上單滿分3星 ＋ 無差評 ＋ 不連續出現
@@ -3067,7 +3178,18 @@ function deliver(){
       '👍「大熱天跑外送不容易，辛苦囉！」'
     ]);
   }
-  const totalEarnedCoins = earnedCoins + tipCoins;
+  let stageEventCoins = 0;
+  if(stageEvent && stageEvent.active){
+    if(stageEvent.type === 'nightmarket'){
+      stageEventCoins = 40;
+    } else if(stageEvent.type === 'techpark'){
+      stageEventCoins = 80;
+      pts += 400;
+    } else if(stageEvent.type === 'harbor'){
+      stageEventCoins = 60;
+    }
+  }
+  const totalEarnedCoins = earnedCoins + tipCoins + stageEventCoins;
 
   lastStars=starNum; lastWasVip=!!order.isVip;
   stats.score+=pts; combo++; stats.maxCombo=Math.max(stats.maxCombo,combo); stats.delivered++; stats.orderStars=(stats.orderStars||0)+starNum;
@@ -3087,10 +3209,11 @@ function deliver(){
   const headSum = `+${pts}分 ${stars} 🪙+${totalEarnedCoins}` + (tipCoins ? ` (含小費🪙${tipCoins})` : '');
   pop(P.x, P.y-34, headSum, '#fde68a', 22);
 
-  // 順路雙拼夾單額外獎金結算
-  if(order.stacked){
+  // 順路夾單額外獎金結算（若尚未在送達時加過，在此防呆補齊）
+  if(order.stacked && order.stacked.delivered && !order.stacked.rewardGiven){
+    order.stacked.rewardGiven = true;
     addCoins(order.stacked.bonusCoins);
-    stats.score+=order.stacked.bonusPts;
+    stats.score += order.stacked.bonusPts;
   }
 
   // 顧客 NPC 漫畫對白泡泡（在顧客頭上停留 2.6 秒）
@@ -3108,7 +3231,12 @@ function deliver(){
   else if(order.specialType==='soup' && !order.spilled) bonuses.push('🍲 熱湯完整 ×1.6');
   if(rainMult>1) bonuses.push('🌧️ 雨天 ×1.5');
   if(vipMult>1) bonuses.push('⭐ 特急 ×2.5');
-  if(order.stacked) bonuses.push('🍱 雙拼 +'+order.stacked.bonusCoins+'🪙');
+  if(order.stacked && order.stacked.delivered) bonuses.push('🍱 順路接單送達 +'+order.stacked.bonusCoins+'🪙');
+  if(stageEvent && stageEvent.active){
+    if(stageEvent.type === 'nightmarket') bonuses.push('🌫️ 九份山城濃霧打賞 +40🪙');
+    else if(stageEvent.type === 'techpark') bonuses.push('🎆 101跨年倒數 VIP 狂歡大賞 +80🪙 +400分');
+    else if(stageEvent.type === 'harbor') bonuses.push('🎸 淡水河岸急送阿給 +60🪙');
+  }
   if(tipCoins>0) bonuses.push('💵 顧客小費 +'+tipCoins+'🪙');
   if(combo>1) bonuses.push('🔥 連擊 ×'+combo);
 
@@ -3603,6 +3731,18 @@ function updateCars(dt){
     c.curSpeed += (targetSpeed - c.curSpeed) * Math.min(1, dt * accelRate);
     const actualStep = Math.min(maxStep, c.curSpeed * dt);
     c.braking = mustYieldStop || (c.curSpeed < c.speed * 0.65);
+    if((c.curSpeed || 0) < 8){
+      c.stallT = (c.stallT || 0) + dt;
+      if(c.stallT > 5.5){
+        c.turnTl = null;
+        c.turnSide = null;
+        c.turnBlockT = 0;
+        c.turnCool = 10.0;
+        c.waitCrossT = 10.0;
+      }
+    } else {
+      c.stallT = 0;
+    }
 
     c.pos += c.dir * actualStep;
     // 執行轉彎切換車道（到達新車道中心軸線時無縫轉向）
@@ -3649,11 +3789,11 @@ function updateCars(dt){
           c.braking = true;
           c.curSpeed = Math.min(c.curSpeed, 20);
           c.turnBlockT = (c.turnBlockT || 0) + dt;
-          if(c.turnBlockT > 4.2){
+          if(c.turnBlockT > 3.2){
             c.turnTl = null;
             c.turnSide = null;
             c.turnBlockT = 0;
-            c.turnCool = 2.0;
+            c.turnCool = 10.0;
           }
         }
       }
@@ -3941,6 +4081,842 @@ function updateCars(dt){
     }
   }
 }
+
+/* ===================== 12 大關卡專屬特殊事件系統 ===================== */
+let stageEvent = null;
+let stageEventTimer = 14;
+
+function initStageEvent(){
+  stageEvent = null;
+  stageEventTimer = rand(12, 16);
+}
+
+function triggerStageEvent(forcedType, isInstant = false){
+  if(G.state !== 'play' && !isInstant) return;
+  const evtType = forcedType || curMap.id;
+
+  switch(evtType){
+    case 'oldtown': { // 1. 台北大稻埕：霞海城隍廟前進香神轎遶境
+      const ry = (HROADS[1] || HROADS[0] || 720);
+      stageEvent = {
+        type: 'oldtown', active: true, joined: false, t: 30, maxT: 30,
+        x: 680, y: ry,
+        roadY: ry, sedanX: 680, dir: 1, speed: 55, blessed: false,
+        locName: '【大稻埕霞海廟前】',
+        title: '⛩️ 廟會遶境',
+        promptDesc: '城隍爺進香神轎隊伍通過！靠近光圈護駕可獲神明祈福體力全滿！',
+        joinedMsg: '城隍老爺庇佑平安！體力全滿＋平安符加分 +60分！'
+      };
+      break;
+    }
+    case 'harbor': { // 2. 新北淡水：金色水岸街頭藝人彈唱 ＆ 阿給加急單
+      const bDoor = (places.find(p => p.kind==='cust') || places[0])?.door || {x: 650, y: 270};
+      stageEvent = {
+        type: 'harbor', active: true, joined: false, t: 30, maxT: 30,
+        x: bDoor.x + 36, y: bDoor.y - 18,
+        bx: bDoor.x + 36, by: bDoor.y - 18, tipped: false,
+        locName: '【金色水岸木棧道】',
+        title: '🎸 街頭藝人彈唱',
+        promptDesc: '街頭藝人彈唱《淡水暮色》！靠近光圈打賞獲金幣與急送加碼！',
+        joinedMsg: '打賞街頭藝人！🪙+30 金幣＋急送阿給加碼雙倍小費！'
+      };
+      break;
+    }
+    case 'gaomei': { // 3. 台中高美：風車木棧道海口疾風挑戰
+      const gx = (VROADS[0] || 320) + 40, gy = (HROADS[0] || 270) + HALF + 20;
+      stageEvent = {
+        type: 'gaomei', active: true, joined: false, t: 28, maxT: 28,
+        x: gx, y: gy,
+        windForce: 28, rewarded: false, stayOnRoadT: 0,
+        locName: '【風車木棧道路口】',
+        title: '💨 海口疾風挑戰',
+        promptDesc: '高美外環強烈側風挑戰！靠近光圈加入頂風疾馳拿 +80分！',
+        joinedMsg: '加入疾風挑戰！穩住龍頭頂風前進！'
+      };
+      break;
+    }
+    case 'alishan': { // 4. 嘉義阿里山：櫻花鐵道平交道森林小火車
+      const trainY = (HROADS[1] || 720);
+      stageEvent = {
+        type: 'alishan', active: true, joined: false, t: 30, maxT: 30,
+        x: 650, y: trainY - HALF - 16,
+        trainX: -320, trainY: trainY, dir: 1, barrierDown: true, healed: false,
+        locName: '【櫻花平交道路口】',
+        title: '🚂 森林小火車',
+        promptDesc: '森林小火車即將駛過！平交道前停等賞櫻體力大回復！',
+        joinedMsg: '停等平交道賞櫻！心靈放鬆體力大回復 +60分！'
+      };
+      break;
+    }
+    case 'tainan': { // 5. 台南安平：天后宮廟埕流水席 ＆ 熱情阿嬤
+      const tPl = (places[1] || places[0])?.door || {x: 400, y: 400};
+      stageEvent = {
+        type: 'tainan', active: true, joined: false, t: 30, maxT: 30,
+        x: tPl.x + 38, y: tPl.y,
+        visited: false,
+        locName: '【安平天后宮廟埕】',
+        title: '🍲 巷弄流水席',
+        promptDesc: '熱情阿嬤流水席開席！靠近光圈吃油飯拿雞腿+3與紅包！',
+        joinedMsg: '阿嬤塞滿油飯雞腿！雞腿+3 體力滿 🪙+30 紅包！'
+      };
+      break;
+    }
+    case 'kaohsiung': { // 6. 高雄愛河：大橋輕軌穿梭交會
+      const trackX = (VROADS[1] || 650);
+      const trackY = (HROADS[1] || 720) - HALF - 20;
+      stageEvent = {
+        type: 'kaohsiung', active: true, joined: false, t: 30, maxT: 30,
+        x: trackX, y: trackY,
+        tramY: -340, trackX: trackX, dir: 1, dodged: false,
+        locName: '【愛河大橋輕軌路口】',
+        title: '🚊 輕軌穿梭交會',
+        promptDesc: '愛河輕軌電車即將橫越！靠近路口挑戰與電車交錯拿 +70分！',
+        joinedMsg: '成功交會輕軌！港灣疾馳加分 +70分！'
+      };
+      break;
+    }
+    case 'kenting': { // 7. 屏東墾丁：南灣海濱大道彩虹極速衝刺
+      const kPl = (places[1] || places[0])?.door || {x: 500, y: 500};
+      stageEvent = {
+        type: 'kenting', active: true, joined: false, t: 28, maxT: 28,
+        x: kPl.x + 36, y: kPl.y - 20,
+        rainT: 6.5, rainbowAlpha: 0, boosted: false,
+        locName: '【南灣海濱大道】',
+        title: '🌈 彩虹極速衝刺',
+        promptDesc: '墾丁午後暴雨放晴！靠近海濱光圈領取彩虹極速衝刺無敵！',
+        joinedMsg: '領取彩虹衝刺！極速無敵大爆走！'
+      };
+      break;
+    }
+    case 'taitung': { // 8. 台東鹿野：高台大草皮巨型熱氣球空投福袋
+      const tx = MAP.w / 2, ty = (HROADS[1] || 720) - HALF - 24;
+      stageEvent = {
+        type: 'taitung', active: true, joined: false, t: 30, maxT: 30,
+        x: tx, y: ty,
+        balloonX: tx, balloonY: ty - 12,
+        gifts: [], dropped: false,
+        locName: '【鹿野高台大草皮】',
+        title: '🎈 熱氣球空投福袋',
+        promptDesc: '鹿野巨型熱氣球升空！靠近光圈撿拾 3 個幸運外送福袋！',
+        joinedMsg: '熱氣球空投開啟！快撿拾草皮上的金幣福袋！'
+      };
+      break;
+    }
+    case 'taroko': { // 9. 花蓮太魯閣：長春祠路段護欄調皮台灣獼猴
+      const rx = (VROADS[0] || 400) + 120, ry = (HROADS[0] || 270) - HALF - 16;
+      stageEvent = {
+        type: 'taroko', active: true, joined: false, t: 30, maxT: 30,
+        x: rx, y: ry,
+        hazardX: rx, hazardY: ry + HALF + 16, monkeyX: rx, monkeyY: ry, monkeyFed: false,
+        locName: '【長春祠路段護欄】',
+        title: '🐒 護欄調皮獼猴',
+        promptDesc: '調皮台灣獼猴出沒！靠近光圈餵食獼猴 1 隻雞腿幫引開野狗！',
+        joinedMsg: '靠近獼猴光圈！朝護欄丟 1 隻雞腿讓野狗全數退散！'
+      };
+      break;
+    }
+    case 'shifen': { // 10. 新北平溪：十分老街鐵道萬家天燈祈福
+      const sPl = places[0]?.door || {x: 300, y: 300};
+      const lanterns = [];
+      for(let i=0; i<24; i++){
+        lanterns.push({
+          x: 60 + Math.random() * (MAP.w - 120),
+          y: 300 + Math.random() * (MAP.h - 350),
+          sp: 24 + Math.random() * 25,
+          drift: Math.random() * Math.PI * 2,
+          scale: 0.7 + Math.random() * 0.5
+        });
+      }
+      stageEvent = {
+        type: 'shifen', active: true, joined: false, t: 30, maxT: 30,
+        x: sPl.x + 36, y: sPl.y,
+        lanterns, blessed: false,
+        locName: '【十分老街放天燈區】',
+        title: '🏮 萬家天燈祈福',
+        promptDesc: '千盞天燈祈福升空！騎進光圈獲 15 秒延時與金光護體！',
+        joinedMsg: '千盞天燈祈福加持！時限延長 +15s 金光護體！'
+      };
+      break;
+    }
+    case 'nightmarket': { // 11. 新北九份：老街石階觀景台山城濃霧夜行
+      const nPl = (places[1] || places[0])?.door || {x: 500, y: 500};
+      stageEvent = {
+        type: 'nightmarket', active: true, joined: false, t: 30, maxT: 30,
+        x: nPl.x + 34, y: nPl.y,
+        fogDensity: 0.65,
+        locName: '【九份山城觀景台】',
+        title: '🌫️ 山城濃霧夜行',
+        promptDesc: '九份山城濃霧瀰漫！騎進光圈開啟濃霧夜行小費翻倍！',
+        joinedMsg: '開啟山城濃霧夜行！本次送達小費大翻倍！'
+      };
+      break;
+    }
+    case 'techpark': { // 12. 台北信義：101 摩天大樓噴泉廣場跨年倒數煙火
+      const tx = (curMap.centerPlaza ? 740 : MAP.w / 2);
+      const ty = (HROADS[1] || 720) - HALF - 20;
+      stageEvent = {
+        type: 'techpark', active: true, joined: false, t: 30, maxT: 30,
+        x: tx, y: ty,
+        fireworks: [],
+        locName: '【101 噴泉廣場】',
+        title: '🎆 101 跨年煙火',
+        promptDesc: '跨年煙火即將綻放！騎進廣場觀賞領取豪宅 VIP 狂歡大賞！',
+        joinedMsg: '跨年煙火璀璨綻放！獲得狂歡加分 +80 🪙+50！'
+      };
+      break;
+    }
+  }
+
+  if(stageEvent){
+    sfx('item');
+    showBanner('📍 特殊事件：' + stageEvent.locName, stageEvent.promptDesc, '#fde047', 4.0);
+  }
+}
+
+function updateStageEvent(dt){
+  if(!stageEvent || !stageEvent.active) return;
+  stageEvent.t -= dt;
+  if(stageEvent.t <= 0){
+    stageEvent = null;
+    stageEventTimer = 38 + Math.random() * 12;
+    return;
+  }
+
+  const ev = stageEvent;
+
+  // 自願路邊互動判定：當玩家靠近事件座標時，自願加入事件
+  if(!ev.joined && P){
+    const dJoin = Math.hypot(P.x - ev.x, P.y - ev.y);
+    if(dJoin < 65){
+      ev.joined = true;
+      sfx('praise');
+      showBanner('🎉 成功加入特殊事件！', ev.joinedMsg || ev.title, '#34d399', 3.5);
+      pop(ev.x, ev.y - 36, '🎪 加入特殊事件！', '#34d399', 24);
+
+      // 加入時立即觸發特定階段獎勵
+      if(ev.type === 'tainan' && !ev.visited){
+        ev.visited = true;
+        P.ammo = Math.min(getMaxAmmo(), P.ammo + 3);
+        updateAmmo();
+        P.hp = getMaxHp();
+        addCoins(30);
+        stats.score += 50;
+        pop(P.x, P.y - 48, '🍗 阿嬤塞油飯！雞腿+3 體力滿 🪙+30', '#fb923c', 21);
+      } else if(ev.type === 'harbor' && !ev.tipped){
+        ev.tipped = true;
+        addCoins(30);
+        stats.score += 40;
+        if(order){
+          order.isVip = true;
+          order.bonusCoins = (order.bonusCoins || 0) + 60;
+        }
+        pop(P.x, P.y - 48, '🎸 打賞街頭藝人！🪙+30 金幣＋急送阿給加碼雙倍！', '#38bdf8', 20);
+      } else if(ev.type === 'shifen' && !ev.blessed){
+        ev.blessed = true;
+        P.inv = 6.0;
+        if(order) order.time += 15;
+        stats.score += 60;
+        pop(P.x, P.y - 48, '🏮 天燈祈福！時限延長 +15s 金光護體！', '#f59e0b', 22);
+      } else if(ev.type === 'oldtown' && !ev.blessed){
+        ev.blessed = true;
+        P.hp = getMaxHp();
+        stats.score += 60;
+        pop(P.x, P.y - 48, '🏮 城隍爺庇佑！體力補滿＋平安符加分 +60分', '#fde047', 20);
+      } else if(ev.type === 'kenting' && !ev.boosted){
+        ev.boosted = true;
+        ev.phase = 'rainbow';
+        P.boost = 5.5;
+        P.inv = 5.5;
+        sfx('boost');
+        pop(P.x, P.y - 48, '🌈 雨過天晴！彩虹極速衝刺爆走！', '#fde047', 22);
+      } else if(ev.type === 'techpark'){
+        stats.score += 80;
+        addCoins(50);
+        pop(P.x, P.y - 48, '🎆 101跨年倒數！VIP 狂歡加分 +80 🪙+50！', '#ec4899', 22);
+      }
+    }
+  }
+
+  // 僅在玩家加入後，推進事件動態邏輯與挑戰判定
+  if(ev.joined){
+    switch(ev.type){
+      case 'oldtown': { // 1. 大稻埕遶境神轎移動
+        ev.sedanX = (ev.sedanX || ev.x) + ev.speed * ev.dir * dt;
+        if(ev.sedanX > MAP.w + 140) ev.sedanX = -140;
+        break;
+      }
+      case 'gaomei': { // 3. 高美海口側風
+        if(P && onRoad(P.x, P.y, 10)){
+          P.x += ev.windForce * dt;
+          ev.stayOnRoadT = (ev.stayOnRoadT || 0) + dt;
+          if(!ev.rewarded && ev.stayOnRoadT > 4.5){
+            ev.rewarded = true;
+            stats.score += 80;
+            sfx('praise');
+            pop(P.x, P.y - 36, '🌊 海風征服者！控車加分 +80分', '#67e8f9', 20);
+          }
+        }
+        break;
+      }
+      case 'alishan': { // 4. 阿里山森林小火車平交道
+        ev.trainX += 130 * dt;
+        if(ev.trainX > MAP.w + 320) ev.trainX = -320;
+        if(P && !ev.healed){
+          const dCrossing = Math.hypot(P.x - ev.x, P.y - ev.trainY);
+          if(dCrossing < 125 && Math.abs(P.vx||0) < 22 && Math.abs(P.vy||0) < 22){
+            ev.healed = true;
+            P.hp = Math.min(getMaxHp(), P.hp + 45);
+            stats.score += 60;
+            sfx('praise');
+            pop(P.x, P.y - 36, '🌸 心靈放鬆・體力大回復！+60分', '#f472b6', 20);
+          }
+        }
+        break;
+      }
+      case 'kaohsiung': { // 6. 高雄輕軌
+        ev.tramY += 125 * dt;
+        if(ev.tramY > MAP.h + 340) ev.tramY = -340;
+        if(P && !ev.dodged){
+          const dTram = Math.hypot(P.x - ev.trackX, P.y - ev.tramY);
+          if(dTram < 95 && dTram > 35){
+            ev.dodged = true;
+            stats.score += 70;
+            sfx('praise');
+            pop(P.x, P.y - 36, '⚡ 完美交會！港灣穿梭 +70分', '#34d399', 20);
+          }
+        }
+        break;
+      }
+      case 'taitung': { // 8. 鹿野熱氣球空投福袋
+        if(!ev.dropped){
+          ev.dropped = true;
+          for(let i=0; i<3; i++){
+            ev.gifts.push({
+              x: ev.x + (i - 1) * 38,
+              y: ev.y + 20 + (i % 2 === 0 ? 10 : -10),
+              taken: false
+            });
+          }
+          sfx('pickup');
+        }
+        if(ev.gifts && P){
+          for(const g of ev.gifts){
+            if(!g.taken && Math.hypot(P.x - g.x, P.y - g.y) < 38){
+              g.taken = true;
+              addCoins(40);
+              stats.score += 50;
+              sfx('pickup');
+              pop(P.x, P.y - 34, '🎁 拾獲外送福袋！🪙 +40 金幣！', '#fde047', 20);
+            }
+          }
+        }
+        break;
+      }
+      case 'taroko': { // 9. 太魯閣獼猴
+        if(!ev.monkeyFed && shots.length){
+          for(const s of shots){
+            if(Math.hypot(s.x - ev.monkeyX, s.y - ev.monkeyY) < 45){
+              ev.monkeyFed = true;
+              s.x = -9999;
+              stats.score += 100;
+              for(const d of dogs){ d.calm = 14; d.chase = false; }
+              sfx('praise');
+              pop(ev.monkeyX, ev.monkeyY - 32, '🐒 獼猴開心地吃雞腿！野狗全數退散！+100分', '#eab308', 21);
+              break;
+            }
+          }
+        }
+        break;
+      }
+      case 'techpark': { // 12. 信義跨年煙火
+        if(Math.random() < 0.32){
+          ev.fireworks.push({
+            x: ev.x + (Math.random() - 0.5) * 320,
+            y: ev.y - 120 + (Math.random() - 0.5) * 160,
+            color: ['#f43f5e','#fbbf24','#34d399','#38bdf8','#ec4899'][Math.floor(Math.random() * 5)],
+            r: 18 + Math.random() * 24,
+            t: 0.9, maxT: 0.9
+          });
+        }
+        if(ev.fireworks){
+          for(const fw of ev.fireworks) fw.t -= dt;
+          ev.fireworks = ev.fireworks.filter(fw => fw.t > 0);
+        }
+        break;
+      }
+    }
+  }
+}
+
+function drawStageEventWorld(now){
+  if(!stageEvent || !stageEvent.active) return;
+  const ev = stageEvent;
+  ctx.save();
+
+  // 若尚未自願加入，在路邊地標處繪製發光互動光圈與「🎪 靠近加入」標籤
+  if(!ev.joined){
+    if(inView(ev.x - 70, ev.y - 70, 140, 140)){
+      const ringPulse = Math.sin(now * 0.006) * 4;
+      const ringR = 46 + ringPulse;
+
+      ctx.save();
+      ctx.translate(ev.x, ev.y);
+
+      // 地面發光光暈
+      const grad = ctx.createRadialGradient(0, 0, 10, 0, 0, ringR + 18);
+      grad.addColorStop(0, 'rgba(245, 158, 11, 0.42)');
+      grad.addColorStop(0.7, 'rgba(245, 158, 11, 0.16)');
+      grad.addColorStop(1, 'rgba(245, 158, 11, 0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath(); ctx.arc(0, 0, ringR + 18, 0, Math.PI * 2); ctx.fill();
+
+      // 主互動光圈
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 2.8;
+      ctx.beginPath(); ctx.arc(0, 0, ringR, 0, Math.PI * 2); ctx.stroke();
+
+      // 旋轉動態虛線光圈
+      ctx.save();
+      ctx.rotate(now * 0.002);
+      ctx.setLineDash([8, 6]);
+      ctx.strokeStyle = '#fde047';
+      ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.arc(0, 0, ringR * 0.74, 0, Math.PI * 2); ctx.stroke();
+      ctx.restore();
+
+      // 飄浮加入標籤 Badge
+      const bobY = Math.sin(now * 0.008) * 4;
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+      rrc(ctx, -70, -48 + bobY, 140, 26, 13);
+      ctx.fill();
+      ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 1.8; ctx.stroke();
+
+      ctx.fillStyle = '#fde047';
+      ctx.font = '900 12px system-ui, sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('🎪 靠近光圈加入 (' + Math.ceil(ev.t) + 's)', 0, -35 + bobY);
+
+      ctx.restore();
+    }
+  }
+
+  switch(ev.type){
+    case 'oldtown': { // 1. 大稻埕：廟會神轎進香隊伍
+      const sx = ev.joined ? (ev.sedanX || ev.x) : ev.x, sy = ev.roadY;
+      if(inView(sx - 120, sy - 50, 240, 100)){
+        ctx.save();
+        ctx.translate(sx, sy);
+        // 前導鑼手
+        const heraldBob = Math.sin(now * 0.008) * 3;
+        ctx.fillStyle = '#f59e0b';
+        rrc(ctx, 36, -8 + heraldBob, 12, 16, 4); ctx.fill();
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath(); ctx.arc(42, -14 + heraldBob, 4.5, 0, Math.PI*2); ctx.fill();
+        // 銅鑼
+        ctx.fillStyle = '#fbbf24'; ctx.strokeStyle = '#78350f'; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.arc(48, -4 + heraldBob, 7, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#78350f'; ctx.font = '900 8px system-ui,sans-serif'; ctx.textAlign = 'center'; ctx.fillText('鑼', 48, -1.5 + heraldBob);
+
+        // 神轎本體
+        const sedanBob = Math.sin(now * 0.006) * 2;
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(-34, -12 + sedanBob, 68, 3.5);
+        ctx.fillRect(-34, 9 + sedanBob, 68, 3.5);
+
+        // 轎夫 4 人
+        const bearerPos = [[-24, -18], [-24, 15], [20, -18], [20, 15]];
+        bearerPos.forEach(([bx, by])=>{
+          const bStep = Math.sin(now * 0.008 + bx) * 2.5;
+          ctx.fillStyle = '#f59e0b';
+          rrc(ctx, bx-5, by-5+bStep, 10, 12, 3); ctx.fill();
+          ctx.fillStyle = '#0f172a';
+          ctx.beginPath(); ctx.arc(bx, by-8+bStep, 3.8, 0, Math.PI*2); ctx.fill();
+        });
+
+        // 硃砂紅轎身
+        ctx.fillStyle = 'rgba(0,0,0,0.32)';
+        ctx.beginPath(); ctx.ellipse(0, 18, 26, 12, 0, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#b91c1c';
+        rrc(ctx, -16, -14 + sedanBob, 32, 28, 4); ctx.fill();
+        ctx.strokeStyle = '#facc15'; ctx.lineWidth = 1.8; ctx.stroke();
+
+        // 轎頂金頂與飛簷
+        ctx.fillStyle = '#dc2626';
+        ctx.beginPath(); ctx.moveTo(-20, -14 + sedanBob); ctx.lineTo(20, -14 + sedanBob); ctx.lineTo(0, -28 + sedanBob); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#fde047'; ctx.beginPath(); ctx.arc(0, -29 + sedanBob, 4, 0, Math.PI*2); ctx.fill();
+
+        // 兩側流蘇吊穗
+        const tasselSway = Math.sin(now * 0.007) * 4;
+        ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.moveTo(-16, 14 + sedanBob); ctx.lineTo(-16 + tasselSway, 23 + sedanBob); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(16, 14 + sedanBob); ctx.lineTo(16 + tasselSway, 23 + sedanBob); ctx.stroke();
+
+        // 神明金光光暈
+        const aura = ctx.createRadialGradient(0, sedanBob, 10, 0, sedanBob, 42);
+        aura.addColorStop(0, 'rgba(254,240,138,0.45)');
+        aura.addColorStop(1, 'rgba(254,240,138,0)');
+        ctx.fillStyle = aura;
+        ctx.beginPath(); ctx.arc(0, sedanBob, 42, 0, Math.PI*2); ctx.fill();
+
+        ctx.font = '900 9px system-ui,sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#fef08a';
+        ctx.fillText('城隍老爺 ⛩️ 遶境中', 0, -34 + sedanBob);
+        ctx.restore();
+      }
+      break;
+    }
+    case 'harbor': { // 2. 淡水：街頭藝人木吉他
+      const bx = ev.bx, by = ev.by;
+      if(inView(bx - 60, by - 60, 120, 120)){
+        ctx.save();
+        ctx.translate(bx, by);
+        ctx.fillStyle = '#1e293b'; rrc(ctx, -18, 12, 36, 14, 4); ctx.fill();
+        ctx.fillStyle = '#fde047'; ctx.font = '10px system-ui'; ctx.fillText('🪙', 0, 19);
+
+        // 藝人本體
+        ctx.fillStyle = '#0284c7';
+        rrc(ctx, -7, -12, 14, 18, 4); ctx.fill();
+        ctx.fillStyle = '#fcd34d';
+        ctx.beginPath(); ctx.arc(0, -18, 8, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#b45309'; ctx.fillRect(-11, -19, 22, 3);
+
+        // 木吉他
+        ctx.fillStyle = '#d97706';
+        ctx.beginPath(); ctx.ellipse(4, -4, 9, 6.5, 0.4, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#78350f'; ctx.fillRect(10, -14, 3, 14);
+
+        // 飄浮音符
+        const noteY = Math.sin(now * 0.005) * 8;
+        ctx.fillStyle = '#38bdf8'; ctx.font = '900 13px system-ui';
+        ctx.fillText('♪', -14, -22 + noteY);
+        ctx.fillStyle = '#f472b6';
+        ctx.fillText('♫', 16, -26 - noteY);
+
+        ctx.font = '900 9px system-ui,sans-serif'; ctx.fillStyle = '#f8fafc'; ctx.textAlign = 'center';
+        ctx.fillText('🎸 淡水街頭彈唱', 0, -32);
+        ctx.restore();
+      }
+      break;
+    }
+    case 'alishan': { // 4. 阿里山：紅色小火車
+      const tx = ev.trainX, ty = ev.trainY;
+      ctx.save();
+      const cx = 650, cy = ty - HALF - 6;
+      if(inView(cx - 40, cy - 60, 80, 100)){
+        ctx.fillStyle = '#0f172a'; ctx.fillRect(cx - 3, cy - 24, 6, 32);
+        ctx.fillStyle = '#fde047'; ctx.fillRect(cx - 14, cy - 20, 28, 5);
+        const blinkA = Math.floor(now / 250) % 2 === 0;
+        ctx.fillStyle = blinkA ? '#ef4444' : '#450a0a';
+        ctx.beginPath(); ctx.arc(cx - 8, cy - 28, 4.5, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = !blinkA ? '#ef4444' : '#450a0a';
+        ctx.beginPath(); ctx.arc(cx + 8, cy - 28, 4.5, 0, Math.PI*2); ctx.fill();
+        ctx.font = '900 8.5px system-ui'; ctx.fillStyle = '#fca5a5'; ctx.textAlign = 'center';
+        ctx.fillText('🔴 叮叮叮', cx, cy - 36);
+      }
+
+      if(inView(tx - 60, ty - 40, 380, 80)){
+        ctx.translate(tx, ty);
+        for(let ci = 0; ci < 3; ci++){
+          const cxOff = -(ci + 1) * 62;
+          ctx.fillStyle = '#b91c1c';
+          rrc(ctx, cxOff, -11, 56, 22, 4); ctx.fill();
+          ctx.fillStyle = '#f8fafc';
+          rrc(ctx, cxOff + 2, -13, 52, 4, 2); ctx.fill();
+          ctx.fillStyle = '#fde68a';
+          for(let w = 0; w < 4; w++){
+            ctx.fillRect(cxOff + 6 + w * 12, -7, 8, 8);
+          }
+          ctx.fillStyle = '#334155'; ctx.fillRect(cxOff + 56, -2, 6, 4);
+        }
+
+        ctx.fillStyle = '#dc2626';
+        rrc(ctx, -8, -13, 62, 26, 6); ctx.fill();
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(-8, -2, 62, 4);
+        ctx.fillStyle = '#38bdf8'; ctx.fillRect(28, -10, 16, 9);
+        ctx.fillStyle = '#fef08a'; ctx.beginPath(); ctx.arc(54, 0, 4.5, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#1e293b'; ctx.fillRect(12, -18, 7, 6);
+        const puff = Math.sin(now * 0.01) * 3;
+        ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.beginPath(); ctx.arc(15 + puff, -24, 6, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.beginPath(); ctx.arc(10 + puff * 1.5, -31, 8, 0, Math.PI*2); ctx.fill();
+      }
+      ctx.restore();
+      break;
+    }
+    case 'tainan': { // 5. 台南：流水席辦桌
+      const bx = ev.x, by = ev.y;
+      if(inView(bx - 60, by - 60, 120, 120)){
+        ctx.save();
+        ctx.translate(bx, by);
+        const tablePos = [[-24, -14], [22, -14], [0, 20]];
+        tablePos.forEach(([tx, ty], idx)=>{
+          ctx.fillStyle = 'rgba(0,0,0,0.28)';
+          ctx.beginPath(); ctx.arc(tx + 2, ty + 3, 16, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle = '#dc2626';
+          ctx.beginPath(); ctx.arc(tx, ty, 16, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle = '#b91c1c'; ctx.beginPath(); ctx.arc(tx, ty, 13.5, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle = '#fef08a'; ctx.beginPath(); ctx.arc(tx, ty, 6, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle = '#f97316'; ctx.beginPath(); ctx.arc(tx, ty, 3.5, 0, Math.PI*2); ctx.fill();
+          const stm = Math.sin(now * 0.006 + idx) * 3;
+          ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.beginPath(); ctx.arc(tx + stm, ty - 10, 3, 0, Math.PI*2); ctx.fill();
+        });
+
+        const grandmaWave = Math.sin(now * 0.012) * 5;
+        ctx.fillStyle = '#ec4899';
+        rrc(ctx, -6, -34, 12, 16, 4); ctx.fill();
+        ctx.fillStyle = '#fde047';
+        rrc(ctx, -4, -28, 8, 10, 2); ctx.fill();
+        ctx.fillStyle = '#fbcfe8';
+        ctx.beginPath(); ctx.arc(0, -40, 5.5, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#fbcfe8'; ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.moveTo(6, -30); ctx.lineTo(13, -36 + grandmaWave); ctx.stroke();
+
+        ctx.font = '900 9px system-ui,sans-serif'; ctx.fillStyle = '#fde68a'; ctx.textAlign = 'center';
+        ctx.fillText('👵 阿嬤流水席辦桌', 0, -52);
+        ctx.restore();
+      }
+      break;
+    }
+    case 'kaohsiung': { // 6. 高雄：綠白輕軌列車
+      const ty = ev.tramY, tx = ev.trackX;
+      if(inView(tx - 40, ty - 160, 80, 320)){
+        ctx.save();
+        ctx.translate(tx, ty);
+        for(let s = 0; s < 4; s++){
+          const syOff = (s - 1.5) * 56;
+          ctx.fillStyle = '#f8fafc';
+          rrc(ctx, -13, syOff - 24, 26, 48, 5); ctx.fill();
+          ctx.fillStyle = '#10b981';
+          ctx.fillRect(-13, syOff - 12, 3, 24);
+          ctx.fillRect(10, syOff - 12, 3, 24);
+          ctx.fillStyle = '#0f172a';
+          rrc(ctx, -9, syOff - 20, 18, 40, 3); ctx.fill();
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(-7, syOff - 16, 14, 32);
+
+          if(s < 3){
+            ctx.fillStyle = '#334155';
+            ctx.fillRect(-9, syOff + 24, 18, 8);
+          }
+        }
+        ctx.strokeStyle = '#64748b'; ctx.lineWidth = 1.8;
+        ctx.beginPath(); ctx.moveTo(-6, -32); ctx.lineTo(0, -42); ctx.lineTo(6, -32); ctx.stroke();
+
+        ctx.font = '900 9px system-ui'; ctx.fillStyle = '#6ee7b7'; ctx.textAlign = 'center';
+        ctx.fillText('🚊 高雄輕軌', 0, -115);
+        ctx.restore();
+      }
+      break;
+    }
+    case 'taitung': { // 8. 鹿野：熱氣球與空投福袋
+      const bx = ev.balloonX, by = ev.balloonY;
+      if(inView(bx - 60, by - 80, 120, 160)){
+        ctx.save();
+        ctx.translate(bx, by);
+        const balloonR = 34;
+        ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.ellipse(0, -32, balloonR, balloonR*1.25, 0, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#fbbf24'; ctx.beginPath(); ctx.ellipse(0, -32, balloonR*0.7, balloonR*1.22, 0, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#0284c7'; ctx.beginPath(); ctx.ellipse(0, -32, balloonR*0.38, balloonR*1.2, 0, 0, Math.PI*2); ctx.fill();
+
+        const flr = Math.sin(now * 0.015) * 3;
+        ctx.fillStyle = '#f97316'; ctx.beginPath(); ctx.arc(0, 11 + flr, 6, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#fde047'; ctx.beginPath(); ctx.arc(0, 10, 3.5, 0, Math.PI*2); ctx.fill();
+
+        ctx.fillStyle = '#78350f'; rrc(ctx, -10, 20, 20, 13, 3); ctx.fill();
+        ctx.strokeStyle = '#92400e'; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(-6, 20); ctx.lineTo(-3, 11); ctx.moveTo(6, 20); ctx.lineTo(3, 11); ctx.stroke();
+
+        ctx.font = '900 9.5px system-ui'; ctx.fillStyle = '#fef08a'; ctx.textAlign = 'center';
+        ctx.fillText('🎈 鹿野高台熱氣球', 0, -78);
+        ctx.restore();
+      }
+
+      if(ev.gifts && ev.gifts.length){
+        for(const g of ev.gifts){
+          if(g.taken || !inView(g.x - 20, g.y - 20, 40, 40)) continue;
+          ctx.save();
+          ctx.translate(g.x, g.y);
+          const gBob = Math.sin(now * 0.007 + g.x) * 3;
+          ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.beginPath(); ctx.ellipse(0, 8, 12, 5, 0, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle = '#f59e0b'; rrc(ctx, -9, -9 + gBob, 18, 18, 3); ctx.fill();
+          ctx.fillStyle = '#fde047'; ctx.fillRect(-2, -9 + gBob, 4, 18); ctx.fillRect(-9, -2 + gBob, 18, 4);
+          ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.arc(0, -11 + gBob, 3.5, 0, Math.PI*2); ctx.fill();
+          ctx.font = '900 8.5px system-ui'; ctx.fillStyle = '#fef08a'; ctx.textAlign = 'center';
+          ctx.fillText('🪙+40', 0, -17 + gBob);
+          ctx.restore();
+        }
+      }
+      break;
+    }
+    case 'taroko': { // 9. 太魯閣：落石警示與台灣獼猴
+      const hx = ev.hazardX, hy = ev.hazardY;
+      if(inView(hx - 80, hy - 40, 160, 80)){
+        ctx.save();
+        ctx.fillStyle = 'rgba(250,204,21,0.28)';
+        ctx.fillRect(hx - 50, hy - 20, 100, 40);
+        ctx.strokeStyle = '#ca8a04'; ctx.lineWidth = 1.5; ctx.strokeRect(hx - 50, hy - 20, 100, 40);
+        const rockP = [[-28, -6, 7], [4, 8, 9], [32, -4, 6]];
+        rockP.forEach(([rx, ry, rr])=>{
+          ctx.fillStyle = '#475569'; ctx.beginPath(); ctx.arc(hx + rx, hy + ry, rr, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle = '#64748b'; ctx.beginPath(); ctx.arc(hx + rx - 2, hy + ry - 2, rr * 0.6, 0, Math.PI*2); ctx.fill();
+        });
+        ctx.font = '900 9px system-ui'; ctx.fillStyle = '#facc15'; ctx.textAlign = 'center';
+        ctx.fillText('⚠️ 落石警示區', hx, hy - 26);
+        ctx.restore();
+      }
+
+      const mx = ev.monkeyX, my = ev.monkeyY;
+      if(inView(mx - 30, my - 30, 60, 60)){
+        ctx.save();
+        ctx.translate(mx, my);
+        const mBob = Math.sin(now * 0.009) * 2;
+        ctx.fillStyle = '#78350f'; rrc(ctx, -7, -8 + mBob, 14, 16, 5); ctx.fill();
+        ctx.fillStyle = '#92400e'; ctx.beginPath(); ctx.arc(0, -13 + mBob, 6.5, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#fbcfe8'; ctx.beginPath(); ctx.arc(0, -12 + mBob, 4.2, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#78350f'; ctx.lineWidth = 2.2;
+        ctx.beginPath(); ctx.arc(-8, -4 + mBob, 6, Math.PI*0.5, Math.PI*1.8); ctx.stroke();
+
+        ctx.font = '900 8.5px system-ui'; ctx.fillStyle = ev.monkeyFed ? '#86efac' : '#fde047'; ctx.textAlign = 'center';
+        ctx.fillText(ev.monkeyFed ? '🐒 吃飽啦❤️' : '🐒 丟雞腿餵我🍗', 0, -24 + mBob);
+        ctx.restore();
+      }
+      break;
+    }
+    case 'shifen': { // 10. 平溪：升空天燈
+      if(ev.lanterns && ev.lanterns.length){
+        ctx.save();
+        for(const sl of ev.lanterns){
+          const sway = Math.sin(now * 0.0012 + sl.drift) * 14;
+          const ly = sl.y - ((now * 0.03 * sl.sp) % MAP.h);
+          const lx = sl.x + sway;
+          if(!inView(lx - 25, ly - 25, 50, 50)) continue;
+          ctx.save();
+          ctx.translate(lx, ly);
+          ctx.scale(sl.scale, sl.scale);
+          const glow = ctx.createRadialGradient(0, 0, 3, 0, 0, 20);
+          glow.addColorStop(0, 'rgba(254,240,138,0.7)');
+          glow.addColorStop(1, 'rgba(251,146,60,0)');
+          ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(0, 0, 20, 0, Math.PI*2); ctx.fill();
+
+          ctx.fillStyle = '#fed7aa';
+          ctx.beginPath();
+          ctx.moveTo(-7, 10); ctx.lineTo(7, 10); ctx.lineTo(9, -12); ctx.lineTo(-9, -12);
+          ctx.closePath(); ctx.fill();
+          ctx.fillStyle = '#f59e0b'; ctx.beginPath(); ctx.arc(0, 8, 3.2, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle = '#dc2626'; ctx.font = '900 6px system-ui'; ctx.textAlign = 'center';
+          ctx.fillText('平安', 0, 0);
+          ctx.restore();
+        }
+        ctx.restore();
+      }
+      break;
+    }
+  }
+
+  ctx.restore();
+}
+
+function drawStageEventOverlay(now){
+  if(!stageEvent || !stageEvent.active || !stageEvent.joined) return;
+  const ev = stageEvent;
+
+  switch(ev.type){
+    case 'gaomei': { // 3. 高美海口強烈側風氣流線
+      ctx.save();
+      ctx.strokeStyle = 'rgba(165,243,252,0.38)';
+      ctx.lineWidth = 1.8;
+      const off = (now * 0.42) % 180;
+      for(let y = cam.y - 40; y < cam.y + (H / ZOOM) + 40; y += 52){
+        ctx.beginPath();
+        const startX = cam.x - 60 + ((y * 13) % 120);
+        ctx.moveTo(startX + off, y);
+        ctx.bezierCurveTo(startX + off + 50, y - 8, startX + off + 90, y + 8, startX + off + 140, y);
+        ctx.stroke();
+      }
+      ctx.restore();
+      break;
+    }
+    case 'kenting': { // 7. 墾丁午後暴雨 ＆ 七色彩虹
+      if(ev.rainT > 0){
+        ctx.save();
+        ctx.strokeStyle = 'rgba(186,230,253,0.52)';
+        ctx.lineWidth = 1.6;
+        const rOff = (now * 0.75) % 60;
+        ctx.beginPath();
+        for(let rx = cam.x - 40; rx < cam.x + (W / ZOOM) + 40; rx += 28){
+          for(let ry = cam.y - 40; ry < cam.y + (H / ZOOM) + 40; ry += 38){
+            const y0 = ry + rOff;
+            ctx.moveTo(rx, y0); ctx.lineTo(rx - 8, y0 + 18);
+          }
+        }
+        ctx.stroke();
+        ctx.restore();
+      } else if(ev.phase === 'rainbow'){
+        ctx.save();
+        const rbColors = ['rgba(239,68,68,0.22)','rgba(249,115,22,0.22)','rgba(234,179,8,0.22)','rgba(34,197,94,0.22)','rgba(6,182,212,0.22)','rgba(59,130,246,0.22)','rgba(168,85,247,0.22)'];
+        const cx = cam.x + (W / ZOOM) / 2, cy = cam.y + (H / ZOOM) + 80;
+        rbColors.forEach((col, idx)=>{
+          ctx.strokeStyle = col;
+          ctx.lineWidth = 5;
+          ctx.beginPath();
+          ctx.arc(cx, cy, 320 + idx * 5.5, Math.PI * 1.15, Math.PI * 1.85);
+          ctx.stroke();
+        });
+        ctx.restore();
+      }
+      break;
+    }
+    case 'nightmarket': { // 11. 九份山城薄霧 ＆ 機車大燈前射光錐
+      ctx.save();
+      ctx.fillStyle = 'rgba(148,163,184,0.18)';
+      ctx.fillRect(cam.x - 20, cam.y - 20, (W / ZOOM) + 40, (H / ZOOM) + 40);
+
+      if(P){
+        ctx.save();
+        ctx.translate(P.x, P.y);
+        ctx.rotate(P.angle);
+        const lg = ctx.createRadialGradient(0, 0, 8, 120, 0, 160);
+        lg.addColorStop(0, 'rgba(254,240,138,0.48)');
+        lg.addColorStop(0.6, 'rgba(254,240,138,0.16)');
+        lg.addColorStop(1, 'rgba(254,240,138,0)');
+        ctx.fillStyle = lg;
+        ctx.beginPath();
+        ctx.moveTo(10, 0);
+        ctx.lineTo(160, -55);
+        ctx.lineTo(160, 55);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+      ctx.restore();
+      break;
+    }
+    case 'techpark': { // 12. 信義 101 璀璨跨年煙火
+      if(ev.fireworks && ev.fireworks.length){
+        ctx.save();
+        for(const fw of ev.fireworks){
+          const progress = 1 - (fw.t / fw.maxT);
+          const rad = fw.r * progress;
+          const alpha = Math.max(0, fw.t / fw.maxT);
+          ctx.strokeStyle = fw.color;
+          ctx.globalAlpha = alpha;
+          ctx.lineWidth = 2;
+          for(let a = 0; a < 8; a++){
+            const ang = (Math.PI * 2 / 8) * a;
+            const fx = fw.x + Math.cos(ang) * rad;
+            const fy = fw.y + Math.sin(ang) * rad;
+            ctx.beginPath(); ctx.moveTo(fw.x, fw.y); ctx.lineTo(fx, fy); ctx.stroke();
+            ctx.fillStyle = '#fef08a';
+            ctx.beginPath(); ctx.arc(fx, fy, 2.5, 0, Math.PI*2); ctx.fill();
+          }
+        }
+        ctx.globalAlpha = 1;
+        ctx.restore();
+      }
+      break;
+    }
+  }
+}
+
 function update(dt){
   updateCars(dt);
   updateTrafficAndPeds(dt);
@@ -3963,6 +4939,15 @@ function update(dt){
     }
     if(before===4&&after===4){}
     followCam(dt); return;
+  }
+  // 關卡專屬特殊事件系統更新
+  if(G.state === 'play'){
+    if(!stageEvent){
+      stageEventTimer = (stageEventTimer || 14) - dt;
+      if(stageEventTimer <= 0) triggerStageEvent();
+    } else {
+      updateStageEvent(dt);
+    }
   }
   stats.time+=dt;
   if(coinFlashT>0) coinFlashT=Math.max(0, coinFlashT-dt);
@@ -4142,11 +5127,12 @@ function update(dt){
   if(!order){orderDelay-=dt;if(orderDelay<=0)newOrder();}
   else{
     if(!devGod) order.time-=dt;
-    const tgt=order.stage==='pickup'?order.shop:order.cust;
-    const dDoor=dist(P,tgt.door);
+    const tgt=getOrderTarget();
+    const dDoor=tgt ? dist(P,tgt.door) : 999;
     if(dDoor<120) triggerTut('bay','🛵 橘黃虛線框是【外送臨停區】：紅燈車陣會自動淨空，停進這裡最安全！','#fde047');
-    if(dDoor<54){
-      if(order.stage==='pickup'){
+
+    if(order.stage==='pickup'){
+      if(dDoor<54){
         if(order.prepT > 0){
           if(!order.prepTriggered){
             order.prepTriggered = true;
@@ -4176,25 +5162,109 @@ function update(dt){
         } else {
           showBanner('📲 前往 '+order.cust.name,'備註：「'+(order.note||'盡快送達')+'」','#34d399');
         }
-      }else deliver();
-    }else if(order.time<=0) orderFail();
+      }
+    } else if(order.stage==='deliver'){
+      // 1. 順路接第二張單（送餐途中路過其他店家門口）
+      if(!order.stacked){
+        for(const s of shops){
+          if(s!==order.shop && dist(P,s.door)<52){
+            const candidateCusts = customers.filter(c => c !== order.cust);
+            let bestC = candidateCusts[0];
+            let bestDist = 999999;
+            for(const c of candidateCusts){
+              const d = pathLen(s.door, c.door);
+              if(d < bestDist){
+                bestDist = d;
+                bestC = c;
+              }
+            }
+            order.stacked = {
+              shop: s,
+              shopName: s.name,
+              cust: bestC,
+              custName: bestC.name,
+              delivered: false,
+              rewardGiven: false,
+              bonusCoins: 60,
+              bonusPts: 250
+            };
+            order.time += 15;
+            order.total += 15;
+            sfx('order');
+            sfx('pickup');
+            vibrate([50,40,50]);
+            pop(P.x, P.y-32, '🍱 順路接單！先送【'+bestC.name+'】時限 +15s・+60🪙', '#fde047', 20);
+            showBanner('🍱 順路接單成功！', '先送【'+bestC.name+'】再送【'+order.cust.name+'】・額外 +60🪙 獎金！', '#fbbf24', 4.0);
+            pathTimer = 0;
+            break;
+          }
+        }
+      }
 
-    // 順路雙拼夾單機制：送餐途中若行經其他店家門口，順路多帶一份獲取時限與高額工資加成！
-    if(order&&order.stage==='deliver'&&!order.stacked){
-      for(const s of shops){
-        if(s!==order.shop && dist(P,s.door)<52){
-          order.stacked={shopName:s.name,bonusCoins:60,bonusPts:250};
-          order.time=Math.min(order.total,order.time+8.5);
+      // 2. 順路單顧客送達判定
+      if(order.stacked && !order.stacked.delivered){
+        const dStackedCust = dist(P, order.stacked.cust.door);
+        if(dStackedCust < 54){
+          order.stacked.delivered = true;
+          order.stacked.rewardGiven = true;
+          addCoins(order.stacked.bonusCoins);
+          stats.score += order.stacked.bonusPts;
+          stats.delivered++;
+          life.orders = (life.orders || 0) + 1;
+          saveLife();
           sfx('pickup');
-          vibrate([50,40,50]);
-          pop(P.x,P.y-32,'🍱 順路雙拼夾單！時限 +8.5s・額外 +60 🪙','#fde047',20);
-          showBanner('🍱 順路雙拼夾單！','順路多帶一份【'+s.name+'】！送達享額外 +60🪙 獎金！','#fbbf24');
-          break;
+          sfx('praise');
+          vibrate([40,30,50]);
+          pop(P.x, P.y-34, '🍱 順路單送達！🪙+60 獎金！', '#34d399', 22);
+          showBanner('🍱 順路單送達成功！', '太棒了！接著全速送往【原單：'+order.cust.name+'】！', '#34d399', 3.5);
+          order.stacked.cust.speech = {
+            text: '「哇！順路送來超有效率！謝謝大叔！」',
+            t: 2.8,
+            hasTip: false,
+            tipCoins: 0
+          };
+          pathTimer = 0; // 立即切換導航光點至原單顧客
+          if(order.primaryDelivered){
+            deliver();
+          }
+        }
+      }
+
+      // 3. 原單顧客送達判定
+      if(order){
+        const dOrigCust = dist(P, order.cust.door);
+        if(dOrigCust < 54){
+          if(order.stacked && !order.stacked.delivered){
+            if(!order.primaryDelivered){
+              order.primaryDelivered = true;
+              sfx('pickup');
+              pop(P.x, P.y-34, '📦 原單先行送達！', '#38bdf8', 21);
+              showBanner('📦 原單送達！', '接著全速送往【順路單：'+order.stacked.cust.name+'】！', '#38bdf8', 3.0);
+              order.cust.speech = {
+                text: '「感謝大叔！餐點先收下囉！」',
+                t: 2.8,
+                hasTip: false,
+                tipCoins: 0
+              };
+              pathTimer = 0;
+            }
+          } else {
+            deliver();
+          }
         }
       }
     }
-    if(order&&order.time<5){const s=Math.ceil(order.time);if(s!==lastTick){lastTick=s;sfx('tick');}}
-    if(order){pathTimer-=dt;if(pathTimer<=0){pathTimer=0.25;path=buildNavDots(P,order.stage==='pickup'?order.shop.door:order.cust.door);}}
+
+    if(order && order.time<=0) orderFail();
+    if(order && order.time<5){const s=Math.ceil(order.time);if(s!==lastTick){lastTick=s;sfx('tick');}}
+    if(order){
+      pathTimer-=dt;
+      if(pathTimer<=0){
+        pathTimer=0.25;
+        const curTgt = getOrderTarget();
+        if(curTgt) path=buildNavDots(P, curTgt.door);
+      }
+    }
   }
   if(places.length){
     for(const pl of places){
@@ -5356,7 +6426,7 @@ function renderPlaceNPC(ctx, p, now, active, isPickup, prepT){
 }
 
   // 6. 店家／顧客招牌（清楚區分 🍳店家 vs 🏠顧客，加上目前目標發光提示）
-  const tgt=order?(order.stage==='pickup'?order.shop:order.cust):null;
+  const tgt=getOrderTarget();
   ctx.textAlign='center'; ctx.textBaseline='middle';
   for(const p of places){
     if(!inView(p.x,p.y-40,p.w,p.h+80)) continue;
@@ -5422,23 +6492,43 @@ function renderPlaceNPC(ctx, p, now, active, isPickup, prepT){
     const off=Math.floor(now/120)%3;
     for(let i=2+off;i<path.length;i+=3){const pt=path[i];ctx.beginPath();ctx.arc(pt.x,pt.y,4,0,Math.PI*2);ctx.fill();}
   }
-  // 目標光圈與超顯眼狀態標籤（取餐點 vs 送達這裡）
+  // 目標光圈與超顯眼狀態標籤（取餐點 vs 順路第1站 vs 送達這裡）
   if(tgt){
     const isPick=order.stage==='pickup';
-    const col=isPick?'#fbbf24':'#34d399';
+    const isStackedCust=(order.stage==='deliver' && order.stacked && !order.stacked.delivered && tgt===order.stacked.cust);
+    const col=isPick?'#fbbf24':(isStackedCust?'#38bdf8':'#34d399');
     ctx.strokeStyle=col; ctx.lineWidth=4;
     ctx.beginPath(); ctx.arc(tgt.door.x,tgt.door.y,40+Math.sin(now/150)*6,0,Math.PI*2); ctx.stroke();
     const bob=Math.sin(now/180)*5;
     const ty=tgt.side==='top'?tgt.door.y-46+bob:tgt.door.y+46+bob;
-    const lbl=isPick?'🍳 取餐點！':'📦 送達這裡！';
+    const lbl=isPick?'🍳 取餐點！':(isStackedCust?'🍱 第1站・順路單送達！':'📦 送達這裡！');
     ctx.font='900 13px system-ui,sans-serif';
     const lw=ctx.measureText(lbl).width+16;
-    ctx.fillStyle=isPick?'#b45309':'#047857';
+    ctx.fillStyle=isPick?'#b45309':(isStackedCust?'#0284c7':'#047857');
     rrc(ctx,tgt.door.x-lw/2,ty-12,lw,24,12); ctx.fill();
     ctx.strokeStyle=col; ctx.lineWidth=2; ctx.stroke();
     ctx.fillStyle='#ffffff'; ctx.fillText(lbl,tgt.door.x,ty);
   }
-  // 順路雙拼夾單提示（送餐中且尚未夾單時，其他非起點店家門口浮現 🍱 順路夾單標籤）
+  // 若有順路單且正在送第1站，地圖上原單顧客門口也顯示「📦 第2站・原單」輔助提示
+  if(order && order.stage==='deliver' && order.stacked && !order.stacked.delivered){
+    const oCust = order.cust;
+    if(inView(oCust.door.x-60, oCust.door.y-60, 120, 120)){
+      ctx.save();
+      ctx.strokeStyle='rgba(52,211,153,0.7)'; ctx.lineWidth=2; ctx.setLineDash([5,4]);
+      ctx.beginPath(); ctx.arc(oCust.door.x, oCust.door.y, 30, 0, Math.PI*2); ctx.stroke();
+      ctx.setLineDash([]);
+      const subLbl = '📦 第2站・原單';
+      ctx.font = '900 11px system-ui,sans-serif';
+      const slw = ctx.measureText(subLbl).width + 14;
+      const sty = oCust.side === 'top' ? oCust.door.y - 36 : oCust.door.y + 36;
+      ctx.fillStyle = 'rgba(15,23,42,0.88)';
+      rrc(ctx, oCust.door.x - slw/2, sty - 10, slw, 20, 10); ctx.fill();
+      ctx.strokeStyle = '#34d399'; ctx.lineWidth = 1.2; ctx.stroke();
+      ctx.fillStyle = '#a7f3d0'; ctx.fillText(subLbl, oCust.door.x, sty);
+      ctx.restore();
+    }
+  }
+  // 順路雙拼夾單提示（送餐中且尚未夾單時，其他非起點店家門口浮現 🍱 順路接單標籤）
   if(order&&order.stage==='deliver'&&!order.stacked){
     for(const s of shops){
       if(s!==order.shop && inView(s.door.x-60,s.door.y-60,120,120)){
@@ -5446,7 +6536,7 @@ function renderPlaceNPC(ctx, p, now, active, isPickup, prepT){
         const col='#f59e0b';
         ctx.strokeStyle=col; ctx.lineWidth=2;
         ctx.beginPath(); ctx.arc(s.door.x,s.door.y,28+Math.sin(now/160)*4,0,Math.PI*2); ctx.stroke();
-        const lbl='🍱 順路夾單 +60🪙';
+        const lbl='🍱 順路接單 +60🪙';
         ctx.font='900 11.5px system-ui,sans-serif';
         const lw=ctx.measureText(lbl).width+14;
         const ty=s.door.y-34+bob;
@@ -6100,6 +7190,8 @@ function renderPlaceNPC(ctx, p, now, active, isPickup, prepT){
     ctx.fillStyle=flashOn?'#fbbf24':'#92400e';
     ctx.beginPath(); ctx.arc(bx, by, 4.5, 0, Math.PI*2); ctx.fill();
   }
+  // 關卡特殊事件世界物件繪製
+  drawStageEventWorld(now);
   // 飄字
   ctx.textAlign='center'; ctx.textBaseline='middle';
   for(const p of pops){
@@ -6779,18 +7871,19 @@ function drawHUD(now){
   if(midW>60){
     ctx.textAlign='center';
     if(order){
-      const tgt=order.stage==='pickup'?order.shop:order.cust;
+      const tgt=getOrderTarget();
       const ratio=clamp(order.time/order.total, 0, 1);
       const isPick=(order.stage==='pickup');
-      let stepTag=isPick?'[取餐]':'[送達]';
-      if(order.isVip) stepTag='⭐特急【×2.5倍工資】';
-      else if(order.specialType==='drink') stepTag=order.spilled?'🧋手搖【已漏】':'🧋手搖【×1.7倍獎金】';
-      else if(order.fragile) stepTag=order.spilled?'🍲熱湯【已灑】':'🍲熱湯【×1.6倍獎金】';
-      if(order.stacked) stepTag+=' 🍱雙拼';
+      const isStackedCust=(order.stage==='deliver' && order.stacked && !order.stacked.delivered);
+      let stepTag=isPick?'[取餐]':(isStackedCust?'[🍱順路第1站]':'[送達]');
+      if(order.isVip) stepTag='⭐特急【×2.5倍】';
+      else if(order.specialType==='drink') stepTag=order.spilled?'🧋手搖【已漏】':'🧋手搖【×1.7】';
+      else if(order.fragile) stepTag=order.spilled?'🍲熱湯【已灑】':'🍲熱湯【×1.6】';
+      if(order.stacked && order.stacked.delivered) stepTag='🍱第2站原單';
       const secTxt=Math.max(0, order.time).toFixed(1)+'s';
       const isUrgent=order.time<5;
       const orderTxt=stepTag+' '+tgt.icon+tgt.name+' '+secTxt;
-      ctx.fillStyle=order.isVip?'#fde047':(order.specialType==='drink'?(order.spilled?'#fca5a5':'#38bdf8'):(order.fragile?(order.spilled?'#fca5a5':'#fdba74'):(isPick?'#fbbf24':'#34d399')));
+      ctx.fillStyle=order.isVip?'#fde047':(order.specialType==='drink'?(order.spilled?'#fca5a5':'#38bdf8'):(order.fragile?(order.spilled?'#fca5a5':'#fdba74'):(isPick?'#fbbf24':(isStackedCust?'#38bdf8':'#34d399'))));
       ctx.font=(isUrgent||order.isVip?'900 13px':'700 12px')+' system-ui,sans-serif';
       ctx.fillText(orderTxt, midLeft+midW/2, T+14);
       // 膠囊底部細微剩餘時間線
@@ -6849,20 +7942,60 @@ function drawHUD(now){
 
   // 畫面外的目標箭頭
   if(order){
-    const tgt=order.stage==='pickup'?order.shop:order.cust;
-    const isPick=(order.stage==='pickup');
-    const sx=(tgt.door.x-cam.x)*ZOOM, sy=(tgt.door.y-cam.y)*ZOOM;
-    const m=50, top=T+58;
-    if(sx<m||sx>W-m||sy<top||sy>H-m){
-      const px=(P.x-cam.x)*ZOOM, py=(P.y-cam.y)*ZOOM;
-      const ang=Math.atan2(sy-py,sx-px);
-      const ex=clamp(sx,m+safe.l,W-m-safe.r), ey=clamp(sy,top,H-m-safe.b);
-      ctx.save(); ctx.translate(ex,ey); ctx.rotate(ang);
-      ctx.fillStyle=isPick?'#fbbf24':'#34d399';
-      ctx.beginPath(); ctx.moveTo(20,0); ctx.lineTo(-10,-13); ctx.lineTo(-4,0); ctx.lineTo(-10,13); ctx.closePath(); ctx.fill();
+    const tgt=getOrderTarget();
+    if(tgt){
+      const isPick=(order.stage==='pickup');
+      const isStackedCust=(order.stage==='deliver' && order.stacked && !order.stacked.delivered);
+      const sx=(tgt.door.x-cam.x)*ZOOM, sy=(tgt.door.y-cam.y)*ZOOM;
+      const m=50, top=T+58;
+      if(sx<m||sx>W-m||sy<top||sy>H-m){
+        const px=(P.x-cam.x)*ZOOM, py=(P.y-cam.y)*ZOOM;
+        const ang=Math.atan2(sy-py,sx-px);
+        const ex=clamp(sx,m+safe.l,W-m-safe.r), ey=clamp(sy,top,H-m-safe.b);
+        ctx.save(); ctx.translate(ex,ey); ctx.rotate(ang);
+        ctx.fillStyle=isPick?'#fbbf24':(isStackedCust?'#38bdf8':'#34d399');
+        ctx.beginPath(); ctx.moveTo(20,0); ctx.lineTo(-10,-13); ctx.lineTo(-4,0); ctx.lineTo(-10,13); ctx.closePath(); ctx.fill();
+        ctx.restore();
+        ctx.fillStyle=isPick?'#fde68a':(isStackedCust?'#bae6fd':'#a7f3d0'); ctx.font='900 13.5px system-ui,sans-serif'; ctx.textAlign='center';
+        const lblPrefix = isPick ? '取餐 ' : (isStackedCust ? '順路送達 ' : '送達 ');
+        ctx.fillText(lblPrefix+Math.round(dist(P,tgt.door)/10)*10+'m',ex-Math.cos(ang)*32,ey-Math.sin(ang)*32);
+      }
+    }
+  }
+
+  // 特殊事件路邊自願互動導航指示（當事件出現且尚未加入時，畫面邊緣顯示金色箭頭標示地標與距離）
+  if(G.state === 'play' && countdown <= 0 && stageEvent && stageEvent.active && !stageEvent.joined && P){
+    const evX = stageEvent.x, evY = stageEvent.y;
+    const evSx = (evX - cam.x) * ZOOM, evSy = (evY - cam.y) * ZOOM;
+    const m = 44, evTop = T + 58;
+    if(evSx < m || evSx > W - m || evSy < evTop || evSy > H - m){
+      const px = (P.x - cam.x) * ZOOM, py = (P.y - cam.y) * ZOOM;
+      const ang = Math.atan2(evSy - py, evSx - px);
+      const ex = clamp(evSx, m + safe.l, W - m - safe.r);
+      const ey = clamp(evSy, evTop + 12, H - m - safe.b);
+      ctx.save();
+      ctx.translate(ex, ey);
+      ctx.rotate(ang);
+      ctx.fillStyle = '#f59e0b';
+      ctx.beginPath();
+      ctx.moveTo(22, 0); ctx.lineTo(-10, -12); ctx.lineTo(-4, 0); ctx.lineTo(-10, 12);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.stroke();
       ctx.restore();
-      ctx.fillStyle=isPick?'#fde68a':'#a7f3d0'; ctx.font='900 13.5px system-ui,sans-serif'; ctx.textAlign='center';
-      ctx.fillText((isPick?'取餐 ':'送達 ')+Math.round(dist(P,tgt.door)/10)*10+'m',ex-Math.cos(ang)*32,ey-Math.sin(ang)*32);
+
+      const dEv = Math.round(dist(P, { x: evX, y: evY }) / 10) * 10;
+      const tagTxt = '🎪 ' + (stageEvent.locName || '特殊事件') + ' ' + dEv + 'm';
+      ctx.font = '900 12.5px system-ui,sans-serif';
+      const tw = ctx.measureText(tagTxt).width + 16;
+      const tx = clamp(ex - Math.cos(ang) * 38, safe.l + tw / 2, W - safe.r - tw / 2);
+      const ty = clamp(ey - Math.sin(ang) * 38, evTop + 14, H - safe.b - 14);
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+      rrc(ctx, tx - tw / 2, ty - 10, tw, 20, 10);
+      ctx.fill();
+      ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 1.4; ctx.stroke();
+      ctx.fillStyle = '#fde047'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(tagTxt, tx, ty);
     }
   }
 
@@ -7017,6 +8150,9 @@ function draw(now){
     }
   }
 
+  // 關卡特殊事件氛圍疊層
+  drawStageEventOverlay(now);
+
   ctx.setTransform(DPR,0,0,DPR,0,0);
   if(G.state!=='title'&&G.state!=='story') drawHUD(now); else drawCharPreviews(now);
 }
@@ -7170,6 +8306,7 @@ btn('devSpeedBtn',()=>{devSpeed=!devSpeed;syncDevBtns();setDevStat('⚡ 極速�
 btn('devRefillBtn',devRefill);
 btn('devCoinsBtn',()=>{addCoins(1000);if($('garageModal').classList.contains('show'))renderGarage();setDevStat('🪙 已發放 +1000 金幣（目前：'+coins+'）');});
 btn('devWinBtn',devInstantWin);
+btn('devEventBtn',()=>{triggerStageEvent(null,true);setDevStat('🎉 已觸發【'+curMap.name+'】專屬特殊事件！');});
 btn('devCloseBtn',closeDevPanel);
 $('devModal').addEventListener('click',e=>{if(e.target===$('devModal')){ensureAudio();sfx('click');closeDevPanel();}});
 btn('restartBtn',startGame);
