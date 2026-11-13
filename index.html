@@ -13,13 +13,17 @@ html,body{margin:0;height:100%;background:#0b1020;color:#fff;font-family:system-
 #cv{position:fixed;inset:0;display:block;width:100%;height:100%;touch-action:none}
 #safe{position:fixed;inset:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);pointer-events:none;visibility:hidden}
 
-.hudBtn{position:fixed;top:calc(10px + env(safe-area-inset-top));width:44px;height:44px;border-radius:12px;border:2px solid #475569;background:rgba(15,23,42,.85);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;z-index:60;cursor:pointer;padding:0}
+.hudBtn{position:fixed;top:calc(10px + env(safe-area-inset-top));width:36px;height:36px;border-radius:10px;border:1.5px solid #475569;background:rgba(15,23,42,.85);color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;z-index:60;cursor:pointer;padding:0;transition:transform .12s,opacity .15s}
 .hudBtn:active{transform:scale(.92)}
-#pauseBtn{right:calc(10px + env(safe-area-inset-right));display:none}
-#muteBtn{right:calc(62px + env(safe-area-inset-right))}
-#fullBtn{right:calc(114px + env(safe-area-inset-right));color:#38bdf8;}
-body.title #muteBtn{right:calc(10px + env(safe-area-inset-right))}
-body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
+#hudMenuWrap{position:fixed;top:calc(6px + env(safe-area-inset-top));right:calc(8px + env(safe-area-inset-right));z-index:65;display:none}
+body.play #hudMenuWrap, body.tut #hudMenuWrap, body.pause #hudMenuWrap{display:block}
+#hudToggleBtn{width:36px;height:36px;border-radius:10px;border:1.5px solid #475569;background:rgba(15,23,42,.88);color:#fde68a;font-size:16px;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;box-shadow:0 2px 8px rgba(0,0,0,.45)}
+#hudMenuBtns{position:absolute;top:0;right:42px;display:none;align-items:center;gap:6px;background:rgba(10,15,30,.92);padding:3px 6px;border-radius:12px;border:1.5px solid #334155;box-shadow:0 4px 14px rgba(0,0,0,.6)}
+#hudMenuBtns.open{display:flex}
+#hudMenuBtns .hudBtn{position:static;width:32px;height:32px;font-size:14px;border-radius:8px}
+#titleBtnsTop{position:fixed;top:calc(10px + env(safe-area-inset-top));right:calc(10px + env(safe-area-inset-right));z-index:60;display:none;align-items:center;gap:6px}
+body.title #titleBtnsTop{display:flex}
+body.title #titleBtnsTop .hudBtn{position:static}
 
 #throwBtn{position:fixed;right:calc(18px + env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom));width:96px;height:96px;border-radius:50%;border:3px solid #fde68a;background:radial-gradient(circle at 35% 30%,#fbbf24,#b45309);color:#fff;font-weight:900;font-size:15px;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:20;box-shadow:0 6px 18px rgba(0,0,0,.5);cursor:pointer;padding:0;line-height:1.15;text-shadow:0 1px 2px rgba(0,0,0,.6)}
 #throwBtn .ic{font-size:32px}
@@ -137,7 +141,7 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
 #tutModal .card{max-width:460px;border-color:#fbbf24;background:linear-gradient(165deg,#16223d,#0d1527);padding:16px 20px}
 .tutTag{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;background:#0b1222;border:1.5px solid #fbbf24;color:#fde68a;font-size:13px;font-weight:900;margin-bottom:8px}
 .tutTitle{font-size:21px;font-weight:900;color:#fff;margin:2px 0 8px}
-.tutMsg{background:#0b1222;border:1.5px solid #334155;border-radius:12px;padding:12px 14px;font-size:16px;line-height:1.65;color:#f1f5f9;font-weight:700;text-align:left;margin-bottom:12px}
+.tutMsg{background:#0b1222;border:1.5px solid #334155;border-radius:12px;padding:12px 14px;font-size:16px;line-height:1.65;color:#f1f5f9;font-weight:700;text-align:left;margin-bottom:12px;white-space:pre-line}
 .tutHint{font-size:13px;color:#94a3b8;margin-top:4px}
 
 .verTap{cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation}
@@ -153,6 +157,10 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
 
 #garageModal .card{max-width:520px;border-color:#fbbf24;background:linear-gradient(160deg,#16223d,#0c1324);padding:16px 20px}
 .garageCoins{display:inline-flex;align-items:center;gap:6px;padding:4px 14px;border-radius:999px;background:#0b1222;border:1.5px solid #fbbf24;color:#fde68a;font-size:15px;font-weight:900;margin:4px 0 10px}
+.garageVehBox{background:#0b1222;border:2px solid #38bdf8;border-radius:14px;padding:12px 14px;margin-bottom:12px;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.garageVehTitle{font-size:16px;font-weight:900;color:#fde68a;display:flex;align-items:center;gap:8px}
+.garageVehSub{font-size:12.5px;color:#94a3b8;margin-top:2px}
+.garageVehBtns{display:flex;gap:8px;align-items:center}
 .upgGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
 @media (max-width:520px){.upgGrid{grid-template-columns:1fr}}
 .upgCard{background:#0b1222;border:1.5px solid #334155;border-radius:12px;padding:10px 12px;text-align:left;display:flex;flex-direction:column;gap:5px}
@@ -180,9 +188,21 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
 <canvas id="cv"></canvas>
 <div id="safe"></div>
 
-<button class="hudBtn" id="pauseBtn" aria-label="暫停">⏸</button>
-<button class="hudBtn" id="muteBtn" aria-label="靜音">🔊</button>
-<button class="hudBtn" id="fullBtn" aria-label="全螢幕" title="全螢幕"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
+<!-- 遊戲中折疊式右上角選單 -->
+<div id="hudMenuWrap">
+  <button id="hudToggleBtn" aria-label="選單">⚙️</button>
+  <div id="hudMenuBtns">
+    <button class="hudBtn" id="pauseBtn" aria-label="暫停">⏸</button>
+    <button class="hudBtn" id="muteBtn" aria-label="靜音">🔊</button>
+    <button class="hudBtn" id="fullBtn" aria-label="全螢幕" title="全螢幕"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
+  </div>
+</div>
+<!-- 主畫面專用獨立頂部按鈕 -->
+<div id="titleBtnsTop">
+  <button class="hudBtn" id="muteBtnTitle" aria-label="靜音">🔊</button>
+  <button class="hudBtn" id="fullBtnTitle" aria-label="全螢幕" title="全螢幕" style="color:#38bdf8"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
+</div>
+
 <button id="throwBtn" aria-label="丟雞腿"><span class="ic">🍗</span><span id="ammoTxt">×3</span></button>
 
 <!-- 開始畫面 -->
@@ -284,8 +304,15 @@ body.title #fullBtn{right:calc(62px + env(safe-area-inset-right))}
 
 <!-- 車庫升級 -->
 <div class="overlay" id="garageModal"><div class="card">
-  <h2>🔧 車庫改裝升級</h2>
+  <h2>🔧 車庫改裝與購車</h2>
   <div class="garageCoins">🪙 目前外送金幣：<span id="garageCoinsTxt">0</span></div>
+  <div class="garageVehBox" id="garageVehBox">
+    <div>
+      <div class="garageVehTitle" id="garageVehTitle">🚲 目前座駕：小黃外送腳踏車</div>
+      <div class="garageVehSub" id="garageVehSub">慢速省力・鑽車靈活・存滿 250 🪙 即可升級外送機車！</div>
+    </div>
+    <div class="garageVehBtns" id="garageVehBtns"></div>
+  </div>
   <div class="upgGrid" id="upgGrid"></div>
   <button class="btn primary" id="garageCloseBtn">✔ 返回主畫面</button>
 </div></div>
@@ -523,6 +550,7 @@ function sfx(name, volMul=1){
     case 'praise': tone(587,0.1,{type:'triangle',vol:0.18}); tone(880,0.2,{type:'triangle',vol:0.2,t:t+0.1}); break;
     case 'count': tone(660,0.12,{type:'square',vol:0.12}); break;
     case 'go': tone(1046,0.3,{type:'square',vol:0.15}); break;
+    case 'bell': tone(1480,0.08,{type:'sine',vol:0.14}); tone(2200,0.12,{type:'sine',vol:0.12,t:t+0.05}); break;
     case 'over': [392,330,262,196].forEach((f,i)=>tone(f,0.3,{type:'triangle',vol:0.22,t:t+i*0.22})); break;
   }
 }
@@ -777,7 +805,10 @@ function playStep(i,t){
 }
 function setMuted(m){
   muted=m; store.set('dug_muted',m);
-  $('muteBtn').textContent=m?'🔇':'🔊';
+  const icon=m?'🔇':'🔊';
+  const mb=$('muteBtn'), mbt=$('muteBtnTitle');
+  if(mb) mb.textContent=icon;
+  if(mbt) mbt.textContent=icon;
   if(Snd.master) Snd.master.gain.value=m?0:0.9;
 }
 
@@ -1329,16 +1360,23 @@ let selectedMapIdx=clamp(store.get('dug_map',0),0,unlockedMap-1);
 let best=store.get('dug_best',0);
 let bestStage=store.get('dug_best_stage',1);
 let coins=store.get('dug_coins',0);
+let motoUnlocked=store.get('dug_moto_unlocked',false);
+let vehicleType=store.get('dug_vehicle', motoUnlocked?'moto':'bike');
 const upg=Object.assign({engine:0,frame:0,bag:0,box:0}, store.get('dug_upg',{}));
 const UPG_DEFS=[
-  {key:'engine', icon:'⚡', name:'引擎改裝', max:5, costs:[80,160,280,440,650], desc:lv=>'極速 +'+(lv*12)+' (目前 '+(210+lv*12)+')'},
+  {key:'engine', icon:'⚡', name:'引擎改裝', max:5, costs:[80,160,280,440,650], desc:lv=>'極速 +'+(lv*12)+' (機車目前 '+(220+lv*12)+')'},
   {key:'frame',  icon:'🛡️', name:'強化車架', max:5, costs:[80,160,280,440,650], desc:lv=>'體力上限 '+(100+lv*12)+'・撞車減傷 -'+(lv*2)},
   {key:'bag',    icon:'🎒', name:'大保溫袋', max:5, costs:[90,180,300,460,680], desc:lv=>'訂單時限 +'+(lv*7)+'% 寬裕度'},
   {key:'box',    icon:'🍗', name:'大雞腿箱', max:5, costs:[70,150,260,420,620], desc:lv=>'開場雞腿 '+(4+lv)+' 支 (上限 '+(8+Math.floor(lv/2))+')'}
 ];
 function getMaxHp(){return 100+(upg.frame||0)*12;}
 function getMaxAmmo(){return 8+Math.floor((upg.box||0)/2);}
-function getBaseSpeed(){return 210+(upg.engine||0)*12+(char==='F'?15:0);}
+function getBaseSpeed(){
+  if(vehicleType==='bike'){
+    return 155 + (upg.engine||0)*6 + (char==='F'?10:0);
+  }
+  return 220 + (upg.engine||0)*12 + (char==='F'?15:0);
+}
 const life=Object.assign({orders:0,dogs:0,cleanStages:0,fragileOk:0,rainOk:0}, store.get('dug_life',{}));
 const ach=Object.assign({}, store.get('dug_ach',{}));
 const ACH_DEFS=[
@@ -1389,6 +1427,45 @@ function addCoins(n){
 }
 function renderGarage(){
   const ct=$('garageCoinsTxt'); if(ct) ct.textContent=coins;
+  // 車輛購買／切換區
+  const vTitle=$('garageVehTitle'), vSub=$('garageVehSub'), vBtns=$('garageVehBtns');
+  if(vTitle && vSub && vBtns){
+    vBtns.innerHTML='';
+    if(!motoUnlocked){
+      vTitle.innerHTML='🚲 目前座駕：小黃外送單車 <span style="font-size:12px;color:#fde047;background:#1e293b;padding:2px 8px;border-radius:999px;">新手車</span>';
+      vSub.textContent='極速 155 px/s・存滿 250 🪙 即可購入外送機車，享受引擎咆哮與 220+ 極速！';
+      const buyMotoBtn=document.createElement('button');
+      buyMotoBtn.className='upgBuy';
+      buyMotoBtn.textContent='🚀 購入外送機車 (🪙 250)';
+      buyMotoBtn.disabled=coins<250;
+      buyMotoBtn.addEventListener('click',()=>{
+        if(coins<250) return;
+        coins-=250; motoUnlocked=true; vehicleType='moto';
+        store.set('dug_coins',coins);
+        store.set('dug_moto_unlocked',true);
+        store.set('dug_vehicle','moto');
+        sfx('level');
+        const cTitle=$('coinsTitle'); if(cTitle) cTitle.textContent=coins;
+        renderGarage();
+      });
+      vBtns.appendChild(buyMotoBtn);
+    } else {
+      const isMoto=(vehicleType==='moto');
+      vTitle.innerHTML=(isMoto?'🛵 目前座駕：勁速外送機車':'🚲 目前座駕：環保外送單車')+' <span style="font-size:12px;color:#34d399;background:#1e293b;padding:2px 8px;border-radius:999px;">已解鎖</span>';
+      vSub.textContent=isMoto?'極速 220+ px/s・車頭大燈照亮夜景・引擎衝刺動力充足！':'極速 155 px/s・輕巧好鑽車縫・單車清脆鈴聲！';
+      const switchBtn=document.createElement('button');
+      switchBtn.className='upgBuy';
+      switchBtn.textContent=isMoto?'切換為 🚲 腳踏車':'切換為 🛵 機車';
+      switchBtn.addEventListener('click',()=>{
+        vehicleType=isMoto?'bike':'moto';
+        store.set('dug_vehicle',vehicleType);
+        sfx(vehicleType==='bike'?'bell':'click');
+        renderGarage();
+      });
+      vBtns.appendChild(switchBtn);
+    }
+  }
+
   const grid=$('upgGrid'); if(!grid) return;
   grid.innerHTML='';
   for(const u of UPG_DEFS){
@@ -1475,7 +1552,7 @@ function devUnlockAll(){
   setDevStat('🔓 已解鎖全部 '+MAPS.length+' 個關卡！');
 }
 function devResetProgress(){
-  const keysToClear=['dug_unlock','dug_map','dug_best','dug_best_stage','dug_tut_v1','dug_coins','dug_upg','dug_life','dug_ach'];
+  const keysToClear=['dug_unlock','dug_map','dug_best','dug_best_stage','dug_tut_v1','dug_coins','dug_upg','dug_life','dug_ach','dug_moto_unlocked','dug_vehicle'];
   for(const m of MAPS){
     keysToClear.push('dug_clr_'+m.id,'dug_stars_'+m.id,'dug_best_'+m.id,'dug_story_seen_'+m.id);
   }
@@ -1483,7 +1560,7 @@ function devResetProgress(){
   for(const k in tutSeen) delete tutSeen[k];
   for(const k in ach) delete ach[k];
   life.orders=0; life.dogs=0; life.cleanStages=0; life.fragileOk=0; life.rainOk=0;
-  unlockedMap=1; selectedMapIdx=0; best=0; bestStage=1; coins=0;
+  unlockedMap=1; selectedMapIdx=0; best=0; bestStage=1; coins=0; motoUnlocked=false; vehicleType='bike';
   upg.engine=0; upg.frame=0; upg.bag=0; upg.box=0;
   const ct=$('coinsTitle'); if(ct) ct.textContent=coins;
   devGod=false; devGhost=false; devSpeed=false;
@@ -1519,6 +1596,10 @@ function devInstantWin(){
   }
 }
 const TUT_TITLES={
+  guide1:'🚲 新手教學【第 1 步：起步取餐】',
+  guide2:'🚦 新手教學【第 2 步：遵守號誌】',
+  guide3:'📦 新手教學【第 3 步：送達顧客】',
+  guide4:'🎉 新手教學【第 4 步：存錢換機車】',
   bay:'🛵 認識「外送臨停區」',
   red:'🚦 紅綠燈與路口停等規則',
   ped:'🚶 斑馬線行人禮讓',
@@ -1532,10 +1613,19 @@ function renderTutModal(){
   const col=tutToast.color||'#fde68a';
   const card=$('tutCard'), tag=$('tutTag'), tit=$('tutTitle'), msg=$('tutMsg'), btn=$('tutOkBtn');
   if(card) card.style.borderColor=col;
-  if(tag){tag.style.borderColor=col; tag.style.color=col;}
+  if(tag){
+    tag.style.borderColor=col; tag.style.color=col;
+    tag.textContent=tutToast.key.startsWith('guide')?'🚲 新手教學・遊戲已暫停':'💡 首次遇到・遊戲已暫停';
+  }
   if(tit) tit.textContent=TUT_TITLES[tutToast.key]||'💡 首次遇到・操作提醒';
   if(msg) msg.textContent=tutToast.text;
-  if(btn) btn.style.opacity=tutLockT>0?'0.72':'1';
+  if(btn){
+    btn.style.opacity=tutLockT>0?'0.72':'1';
+    if(tutToast.key==='guide1') btn.textContent='▶ 我知道了，出發取餐';
+    else if(tutToast.key==='guide3') btn.textContent='▶ 餐點已備妥，前往送餐';
+    else if(tutToast.key==='guide4') btn.textContent='▶ 繼續外送存錢買機車';
+    else btn.textContent='▶ 我知道了，繼續外送';
+  }
 }
 function triggerTut(key,text,color){
   if(G.state!=='play'&&G.state!=='tut') return false;
@@ -1839,7 +1929,11 @@ function updateTrafficAndPeds(dt){
           const alongDelta = mvAxis==='h' ? (tl.x - P.x) : (tl.y - P.y);
           const latDelta = mvAxis==='h' ? Math.abs(dy) : Math.abs(dx);
           if(mvSig==='red' && latDelta < HALF + 14 && mvDir * alongDelta > 0 && Math.abs(alongDelta) > HALF + 16 && Math.abs(alongDelta) < HALF + 145){
-            triggerTut('red', '🚦 前方紅燈！停在停止線後方等綠燈；閃黃燈與無號誌路口可謹慎通過', '#fca5a5');
+            if(gameMode==='story'&&curMapIdx===0&&stats.delivered===0&&!tutSeen['guide2']){
+              triggerTut('guide2', '前方路口是【紅燈】！請停在白色停止線後方等待綠燈。\n✨ 每一單只要保持「零違規」，送達時即可額外獲得【+50 零違規獎金】！', '#fca5a5');
+            } else {
+              triggerTut('red', '🚦 前方紅燈！停在停止線後方等綠燈；閃黃燈與無號誌路口可謹慎通過', '#fca5a5');
+            }
           }
         }
       }else{
@@ -2155,7 +2249,7 @@ function syncHazards(){
 /* ===================== 遊戲流程 ===================== */
 function setBodyState(s){
   document.body.className=s;
-  $('pauseBtn').style.display=s==='play'?'flex':'none';
+  // 遊戲頂部折疊選單狀態依 body class 自動顯示/隱藏
   $('throwBtn').style.display=s==='play'?'flex':'none';
 }
 function showOnly(id){['title','mapSel','story','howto','garageModal','achModal','pause','tutModal','devModal','over'].forEach(o=>$(o).classList.toggle('show',o===id));}
@@ -2583,7 +2677,8 @@ function gameOver(reason){
   showEndCard(false, reason);
 }
 function winStage(){
-  if(G.state!=='play') return;
+  if(G.state!=='play'&&G.state!=='tut') return;
+  if(tutToast) dismissTut(true);
   store.set('dug_clr_'+curMap.id,true);
   const avgOrderStars=stats.orderStars/Math.max(1,curMap.goalOrders);
   const stageStars=(strikes===0 && avgOrderStars>=2.5)?3:((strikes<=1 && avgOrderStars>=1.7)?2:1);
@@ -2608,7 +2703,7 @@ function winStage(){
   }
   showEndCard(true, msg);
 }
-function showBanner(text,sub,color){banner={text,sub:sub||'',color:color||'#fde68a',t:1.8};}
+function showBanner(text,sub,color){banner={text,sub:sub||'',color:color||'#fde68a',t:1.5};}
 function pop(x,y,text,color,size){pops.push({x,y,text,color:color||'#fff',t:1.1,size:size||20});}
 function updateAmmo(){
   $('ammoTxt').textContent='×'+(P?P.ammo:0);
@@ -2707,7 +2802,11 @@ function deliver(){
       winStage();
     } else {
       syncHazards();
-      showBanner('進度 '+stats.delivered+'/'+curMap.goalOrders+' 單','車流加快了！還差 '+(curMap.goalOrders-stats.delivered)+' 單解鎖下一區！','#6ee7b7');
+      if(curMapIdx===0 && stats.delivered===1 && !tutSeen['guide4']){
+        triggerTut('guide4', '恭喜送達首單！獲得外送工資與金幣 🪙 獎勵！\n努力送單存滿 250 🪙，就可以回主畫面【🔧 車庫】購買換騎「外送機車」，速度大幅提升喔！', '#fbbf24');
+      } else {
+        showBanner('進度 '+stats.delivered+'/'+curMap.goalOrders+' 單','車流加快了！還差 '+(curMap.goalOrders-stats.delivered)+' 單解鎖下一區！','#6ee7b7');
+      }
     }
   } else if(stats.delivered%3===0){
     levelUp();
@@ -2923,7 +3022,13 @@ function updateCars(dt){
               }
             }
           }
-          if(needCrossYield) applyYield(dToLine);
+          if(needCrossYield){
+            c.waitCrossT = (c.waitCrossT || 0) + dt;
+            if(c.waitCrossT > 5.2) needCrossYield = false;
+            else applyYield(dToLine);
+          } else {
+            c.waitCrossT = 0;
+          }
         }
 
         // 3) 欲左轉時，若對向直行車或外送員交會則踩煞車禮讓
@@ -3119,6 +3224,13 @@ function updateCars(dt){
           c.pos = prevPos;
           c.braking = true;
           c.curSpeed = Math.min(c.curSpeed, 20);
+          c.turnBlockT = (c.turnBlockT || 0) + dt;
+          if(c.turnBlockT > 4.2){
+            c.turnTl = null;
+            c.turnSide = null;
+            c.turnBlockT = 0;
+            c.turnCool = 2.0;
+          }
         }
       }
     }
@@ -3383,14 +3495,19 @@ function update(dt){
       if(after>0) sfx('count');
       else {
         sfx('go');
-        const goMsg=(gameMode==='story'&&curMapIdx===0)?'① 跟著【黃色光點】騎到店家門口取餐！':'跟著光點路線去取餐';
-        showBanner('GO！',goMsg,'#6ee7b7');
+        if(gameMode==='story'&&curMapIdx===0&&stats.delivered===0&&!tutSeen['guide1']){
+          triggerTut('guide1', '按住螢幕任意處拖曳，騎乘【小黃外送腳踏車】出發！\n跟隨地面上的【黃色光點路線】前往店家門口取餐。', '#fbbf24');
+        } else {
+          showBanner('GO！','跟著光點路線出發！','#6ee7b7');
+        }
       }
     }
     if(before===4&&after===4){}
     followCam(dt); return;
   }
-  stats.time+=dt; if(hintT>0) hintT-=dt;
+  stats.time+=dt;
+  if(P.moving || joy.id!==null) hintT=Math.max(0, hintT-dt*3);
+  else if(hintT>0) hintT-=dt;
   if(rainT>0){
     rainT-=dt;
     if(rainT<=0){ rainT=0; showBanner('☀️ 雨停放晴','恢復晴朗路況','#fde68a'); }
@@ -3574,8 +3691,10 @@ function update(dt){
         const deliverTime=calcOrderTime(pathLen(P,order.cust.door), order.isVip);
         order.time=deliverTime; order.total=deliverTime;
         pop(P.x,P.y-30,'📦 取餐成功！限時 '+deliverTime+' 秒送達','#fde68a',18);
-        if(gameMode==='story'&&curMapIdx===0&&stats.delivered===0){
-          showBanner('② 取餐成功！','跟著【綠色光點】在時限內送到顧客門口！','#34d399');
+        if(gameMode==='story'&&curMapIdx===0&&stats.delivered===0&&!tutSeen['guide3']){
+          triggerTut('guide3', '餐點已到手！現在跟隨地面上的【綠色光點路線】在時限內送到顧客門口！\n路上若遇野狗 🐕 追咬，點擊右下角【🍗 雞腿】按鈕餵狗脫身！', '#34d399');
+        } else {
+          showBanner('取餐成功！','跟著綠色光點送達顧客門口！','#34d399');
         }
       }else deliver();
     }else if(order.time<=0) orderFail();
@@ -5304,7 +5423,106 @@ function rrc(c,x,y,w,h,r){
   c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r);
   c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath();
 }
+function renderBikeRider(c,gender,now,moving,hasMeal,scale,boosting,lean=0){
+  const F=gender==='F';
+  const pedal=moving?(now*0.016):0;
+  const steerAng=lean*0.18;
+  c.save();
+  c.scale(scale,scale);
+
+  // 陰影
+  c.fillStyle='rgba(0,0,0,.26)';
+  c.beginPath(); c.ellipse(-2,2,22,8.5,0,0,Math.PI*2); c.fill();
+
+  // 衝刺特效
+  if(boosting){
+    c.strokeStyle='rgba(56,189,248,0.7)'; c.lineWidth=2;
+    c.beginPath(); c.ellipse(-2,0,28,14,0,0,Math.PI*2); c.stroke();
+  }
+
+  // 1. 細輪胎
+  c.fillStyle='#0f172a';
+  rrc(c,-19,-2.4,12,4.8,2.2); c.fill();
+  c.save();
+  c.translate(14,0); c.rotate(steerAng);
+  c.fillStyle='#0f172a'; rrc(c,-5,-2.2,11.5,4.4,2.2); c.fill();
+  c.fillStyle='#cbd5e1'; c.fillRect(-1,-0.6,4,1.2); // 輪圈反光
+  c.restore();
+
+  // 2. 單車金屬車架（YouBike亮黃／淡藍車身）
+  const frameCol=F?'#f472b6':'#facc15';
+  c.strokeStyle=frameCol; c.lineWidth=2.6; c.lineCap='round';
+  c.beginPath();
+  c.moveTo(-13,0); c.lineTo(-2,0); c.lineTo(8,0); c.stroke();
+  c.strokeStyle='#334155'; c.lineWidth=2;
+  c.beginPath(); c.moveTo(-3,0); c.lineTo(-6,-5.5); c.stroke(); // 坐墊支架
+  c.fillStyle='#0f172a'; rrc(c,-9.5,-6.5,7,3.5,1.5); c.fill(); // 單車小坐墊
+
+  // 3. 車頭把手、金屬菜籃與車鈴
+  c.save();
+  c.translate(10,0); c.rotate(steerAng*0.6); c.translate(-10,0);
+  c.strokeStyle='#94a3b8'; c.lineWidth=2.2;
+  c.beginPath(); c.moveTo(8,-9.5); c.lineTo(8,9.5); c.stroke(); // 把手
+  c.fillStyle='#475569'; c.fillRect(7,-10.5,3,2); c.fillRect(7,8.5,3,2); // 握把套
+  // 車頭金屬鐵線置物籃
+  c.strokeStyle='#cbd5e1'; c.lineWidth=1.2;
+  rrc(c,10,-5.5,6.5,11,1.5); c.stroke();
+  c.fillStyle='rgba(255,255,255,0.2)'; c.fill();
+  // 小車鈴
+  c.fillStyle='#fbbf24'; c.beginPath(); c.arc(7.5,-7.5,1.8,0,Math.PI*2); c.fill();
+  c.restore();
+
+  // 4. 動態雙腳踩踏踏板
+  const pOffY=Math.sin(pedal)*4.2, pOffX=Math.cos(pedal)*3.6;
+  c.fillStyle=F?'#fff1f2':'#451a03';
+  c.beginPath(); c.ellipse(-2+pOffX, -5.5+pOffY, 3.2, 1.8, 0, 0, Math.PI*2); c.fill();
+  c.beginPath(); c.ellipse(-2-pOffX, 5.5-pOffY, 3.2, 1.8, 0, 0, Math.PI*2); c.fill();
+
+  // 5. 後座保溫箱
+  if(hasMeal){
+    c.fillStyle=F?'#db2777':'#2563eb'; c.strokeStyle='#0f172a'; c.lineWidth=1.2;
+    rrc(c,-24,-8.5,13,17,3); c.fill(); c.stroke();
+    c.fillStyle='#ffffff'; c.font='900 8px system-ui'; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('FAST',-17.5,0);
+  }
+
+  // 6. 騎士身體、雙臂與頭部
+  c.save();
+  c.translate(0, lean*1.1);
+  if(F){
+    c.fillStyle='#ffffff'; c.strokeStyle='#881337'; c.lineWidth=1.2;
+    c.beginPath(); c.ellipse(-4,0,6.2,7.6,0,0,Math.PI*2); c.fill(); c.stroke();
+    // 雙手握把
+    c.strokeStyle='#090d16'; c.lineWidth=3.8; c.lineCap='round';
+    c.beginPath(); c.moveTo(-1,-6); c.lineTo(7.5+steerAng*2,-9); c.moveTo(-1,6); c.lineTo(7.5-steerAng*2,9); c.stroke();
+    // 貓耳安全帽
+    c.fillStyle='#f472b6'; c.strokeStyle='#500724'; c.lineWidth=1.1;
+    c.beginPath(); c.arc(1.5,0,7.2,0,Math.PI*2); c.fill(); c.stroke();
+    c.fillStyle='#fda4af';
+    c.beginPath(); c.moveTo(1,-6.5); c.lineTo(-2,-10.5); c.lineTo(4,-7.8); c.closePath(); c.fill();
+    c.beginPath(); c.moveTo(1,6.5); c.lineTo(-2,10.5); c.lineTo(4,7.8); c.closePath(); c.fill();
+  } else {
+    c.fillStyle='#334155'; c.strokeStyle='#090d16'; c.lineWidth=1.2;
+    c.beginPath(); c.ellipse(-4,0,7.2,9,0,0,Math.PI*2); c.fill(); c.stroke();
+    // 反光背心
+    c.fillStyle='#facc15'; c.fillRect(-8,-5.5,2.8,11);
+    // 粗壯手臂握把
+    c.strokeStyle='#fdba74'; c.lineWidth=3.6; c.lineCap='round';
+    c.beginPath(); c.moveTo(-1,-7); c.lineTo(7.5+steerAng*2,-9); c.moveTo(-1,7); c.lineTo(7.5-steerAng*2,9); c.stroke();
+    // 黃色工程安全帽
+    c.fillStyle='#facc15'; c.strokeStyle='#422006'; c.lineWidth=1.2;
+    c.beginPath(); c.arc(1.5,0,7.6,0,Math.PI*2); c.fill(); c.stroke();
+    c.fillStyle='#1e3a8a'; c.fillRect(-5,-1.8,9,3.6);
+  }
+  c.restore();
+
+  c.restore();
+}
 function renderRider(c,gender,now,moving,hasMeal,scale,boosting,lean=0){
+  if(vehicleType==='bike'){
+    renderBikeRider(c,gender,now,moving,hasMeal,scale*0.96,boosting,lean);
+    return;
+  }
   const F=gender==='F';
   const vib=moving?(boosting?Math.sin(now/22)*1.05:Math.sin(now/35)*0.5):Math.sin(now/260)*0.18;
   const steerAng=lean*0.16;
@@ -5807,68 +6025,77 @@ function drawHUD(now){
     ctx.stroke();
     ctx.restore();
   }
-  const L=safe.l+10, T=safe.t+10, R=W-safe.r-10;
+  const L=safe.l+8, T=safe.t+6, R=W-safe.r-48; // 右側預留 48px 給右上折疊選單
+  const barW=Math.max(280, R-L), barH=32;
   ctx.textBaseline='middle';
-  // 左：分數、體力、連擊
-  const lw=Math.min(220,W*0.28);
-  hudPanel(L,T,lw,82);
-  ctx.textAlign='left'; ctx.fillStyle='#94a3b8'; ctx.font='bold 13.5px system-ui,sans-serif'; ctx.fillText('分數',L+10,T+16);
-  ctx.fillStyle='#fde68a'; ctx.font='900 26px system-ui,sans-serif'; ctx.fillText(String(stats.score),L+48,T+17);
-  ctx.fillStyle='#94a3b8'; ctx.font='bold 13.5px system-ui,sans-serif'; ctx.fillText('體力',L+10,T+42);
-  const bw=lw-60; ctx.fillStyle='#1e293b'; rr(L+48,T+35,bw,14,7); ctx.fill();
+
+  // 方案 A：超薄一體化頂欄（高度僅 32px，將分數/體力、訂單導航、關卡/差評整合在頂部一線）
+  hudPanel(L, T, barW, barH);
+
+  // 1. 左側：分數 ＋ 體力條 ＋ 連擊
+  const leftX=L+8;
+  ctx.textAlign='left';
+  ctx.fillStyle='#fde68a'; ctx.font='900 15px system-ui,sans-serif'; ctx.fillText(String(stats.score), leftX, T+16);
+  const scW=ctx.measureText(String(stats.score)).width;
+  const hpX=leftX+scW+8, hpW=clamp(Math.round(barW*0.14), 48, 80);
+  ctx.fillStyle='#1e293b'; rr(hpX, T+10, hpW, 12, 6); ctx.fill();
   const maxHp=getMaxHp();
   const hpc=P.hp>maxHp*0.5?'#22c55e':(P.hp>maxHp*0.25?'#f59e0b':'#ef4444');
-  if(P.hp>0){ctx.fillStyle=hpc; rr(L+48,T+35,Math.max(10,bw*P.hp/maxHp),14,7); ctx.fill();}
-  ctx.fillStyle='#94a3b8'; ctx.font='bold 13.5px system-ui,sans-serif'; ctx.fillText('連擊',L+10,T+66);
-  ctx.fillStyle=combo>0?'#f472b6':'#475569'; ctx.font='900 17px system-ui,sans-serif'; ctx.fillText('×'+combo+(combo>0?'  (加乘 '+(1+0.2*Math.min(combo,10)).toFixed(1)+')':''),L+48,T+66);
-
-  // 右：關卡／進度、差評（在按鈕下方）
-  const rw=164, rx=R-rw, ry=T+52;
-  hudPanel(rx,ry,rw,56);
-  ctx.textAlign='left'; ctx.fillStyle='#6ee7b7'; ctx.font='900 14.5px system-ui,sans-serif';
-  if(gameMode==='story'){
-    ctx.fillText(curMap.icon+' 進度 '+stats.delivered+'/'+curMap.goalOrders+'單',rx+10,ry+16);
-  }else{
-    const curCfg=STAGE_CONFIG[Math.min(STAGE_CONFIG.length-1,level-1)];
-    ctx.fillText('♾️ Lv.'+level+' '+curCfg.name.substring(0,5),rx+10,ry+16);
+  if(P.hp>0){ ctx.fillStyle=hpc; rr(hpX, T+10, Math.max(8, hpW*P.hp/maxHp), 12, 6); ctx.fill(); }
+  if(combo>1){
+    ctx.fillStyle='#f472b6'; ctx.font='900 12px system-ui,sans-serif';
+    ctx.fillText('×'+combo, hpX+hpW+6, T+16);
   }
-  ctx.fillStyle='#94a3b8'; ctx.font='bold 13.5px system-ui,sans-serif'; ctx.fillText('差評',rx+10,ry+39);
+
+  // 2. 右側：進度單數 ＋ 差評小紅點
+  const rightW=Math.min(130, Math.round(barW*0.24));
+  const rightX=L+barW-rightW-4;
+  ctx.textAlign='right';
+  ctx.fillStyle='#6ee7b7'; ctx.font='900 13px system-ui,sans-serif';
+  const progTxt=gameMode==='story'?(stats.delivered+'/'+curMap.goalOrders+'單'):('Lv.'+level);
+  ctx.fillText(progTxt, L+barW-46, T+16);
   for(let i=0;i<3;i++){
-    ctx.beginPath(); ctx.arc(rx+60+i*24,ry+39,8,0,Math.PI*2);
-    if(i<strikes){ctx.fillStyle='#ef4444';ctx.fill();}else{ctx.strokeStyle='#475569';ctx.lineWidth=2;ctx.stroke();}
+    ctx.beginPath(); ctx.arc(L+barW-34+i*11, T+16, 4, 0, Math.PI*2);
+    if(i<strikes){ ctx.fillStyle='#ef4444'; ctx.fill(); }
+    else { ctx.strokeStyle='#475569'; ctx.lineWidth=1.5; ctx.stroke(); }
   }
 
-  // 中：訂單
-  const cw=clamp(W-lw-rw-safe.l-safe.r-60,190,340), cx=(L+lw+rx)/2-cw/2;
-  const cxx=Math.max(L+lw+10,Math.min(cx,rx-cw-10));
-  hudPanel(cxx,T,cw,50);
-  ctx.textAlign='center';
-  if(order){
-    const tgt=order.stage==='pickup'?order.shop:order.cust;
-    const ratio=clamp(order.time/order.total,0,1);
-    const isPick=(order.stage==='pickup');
-    const stepTag=order.isVip?(isPick?'⭐特急取餐→':'⭐特急送達→'):(order.fragile&&!order.spilled?(isPick?'🍲熱湯取餐→':'🍲勿撞送達→'):(isPick?'【1.取餐】':'【2.送達】📦'));
-    ctx.fillStyle=order.isVip?'#fde047':(isPick?'#fbbf24':'#34d399'); ctx.font='900 15px system-ui,sans-serif';
-    ctx.fillText(stepTag+tgt.icon+tgt.name,cxx+cw/2-24,T+17);
-    ctx.textAlign='right';
-    const isUrgent=order.time<5;
-    ctx.fillStyle=isUrgent?'#f87171':'#fff';
-    ctx.font=(isUrgent?'900 19px':'900 17px')+' system-ui,sans-serif';
-    ctx.fillText(Math.max(0,order.time).toFixed(1)+'s',cxx+cw-10,T+17);
-    ctx.fillStyle='#1e293b'; rr(cxx+10,T+33,cw-20,9,5); ctx.fill();
-    ctx.fillStyle=ratio>0.4?'#22c55e':(ratio>0.15?'#f59e0b':'#ef4444');
-    if(ratio>0){rr(cxx+10,T+33,Math.max(9,(cw-20)*ratio),9,5); ctx.fill();}
-  }else{
-    ctx.fillStyle='#94a3b8'; ctx.font='bold 15.5px system-ui,sans-serif';
-    ctx.fillText(countdown>0?'準備出發…':'📲 等待新訂單…',cxx+cw/2,T+25);
+  // 3. 中央：訂單目標膠囊 ＋ 秒數倒數 ＋ 迷你進度底線
+  const midLeft=hpX+hpW+(combo>1?32:12), midRight=L+barW-rightW-8;
+  const midW=midRight-midLeft;
+  if(midW>60){
+    ctx.textAlign='center';
+    if(order){
+      const tgt=order.stage==='pickup'?order.shop:order.cust;
+      const ratio=clamp(order.time/order.total, 0, 1);
+      const isPick=(order.stage==='pickup');
+      const stepTag=order.isVip?'⭐特急':(order.fragile&&!order.spilled?'🍲熱湯':(isPick?'[取]':'[送]'));
+      const secTxt=Math.max(0, order.time).toFixed(1)+'s';
+      const isUrgent=order.time<5;
+      const orderTxt=stepTag+' '+tgt.icon+tgt.name+' '+secTxt;
+      ctx.fillStyle=order.isVip?'#fde047':(order.fragile&&!order.spilled?'#fdba74':(isPick?'#fbbf24':'#34d399'));
+      ctx.font=(isUrgent?'900 13px':'700 12.5px')+' system-ui,sans-serif';
+      ctx.fillText(orderTxt, midLeft+midW/2, T+14);
+      // 膠囊底部細微剩餘時間線
+      const pbW=Math.min(midW-20, 150), pbX=midLeft+midW/2-pbW/2;
+      ctx.fillStyle='rgba(30,41,59,.7)'; rr(pbX, T+24, pbW, 3, 1.5); ctx.fill();
+      ctx.fillStyle=ratio>0.4?'#22c55e':(ratio>0.15?'#f59e0b':'#ef4444');
+      if(ratio>0){ rr(pbX, T+24, Math.max(3, pbW*ratio), 3, 1.5); ctx.fill(); }
+    }else{
+      ctx.fillStyle='#94a3b8'; ctx.font='bold 12px system-ui,sans-serif';
+      ctx.fillText(countdown>0?'準備出發…':'📲 等待新訂單…', midLeft+midW/2, T+16);
+    }
   }
+
+  // 雨天提示膠囊
   if(rainT>0){
     ctx.save();
-    ctx.fillStyle='rgba(14,116,144,0.88)';
-    rrc(ctx,cxx+cw/2-68,T+54,136,22,11); ctx.fill();
+    ctx.fillStyle='rgba(14,116,144,0.92)';
+    const rw=168, rx=W/2-rw/2, ry=T+barH+4;
+    rrc(ctx, rx, ry, rw, 22, 11); ctx.fill();
     ctx.strokeStyle='#38bdf8'; ctx.lineWidth=1.2; ctx.stroke();
-    ctx.fillStyle='#e0f2fe'; ctx.font='900 12px system-ui,sans-serif'; ctx.textAlign='center';
-    ctx.fillText('🌧️ 雨天尖峰 小費×1.5 ('+Math.ceil(rainT)+'s)',cxx+cw/2,T+65);
+    ctx.fillStyle='#e0f2fe'; ctx.font='900 11.5px system-ui,sans-serif'; ctx.textAlign='center';
+    ctx.fillText('🌧️ 雨天尖峰 小費×1.5 ('+Math.ceil(rainT)+'s)', W/2, ry+11);
     ctx.restore();
   }
 
@@ -5925,15 +6152,14 @@ function drawHUD(now){
     ctx.beginPath(); ctx.arc(joy.ox,joy.oy,55,0,Math.PI*2); ctx.fill(); ctx.stroke();
     const dx=joy.x-joy.ox, dy=joy.y-joy.oy, l=Math.hypot(dx,dy), c=Math.min(55,l);
     ctx.fillStyle='rgba(245,158,11,.9)'; ctx.beginPath(); ctx.arc(joy.ox+(l?dx/l*c:0),joy.oy+(l?dy/l*c:0),24,0,Math.PI*2); ctx.fill();
-  }else if(hintT>0&&countdown<=0&&!tutToast){
-    ctx.globalAlpha=Math.min(1,hintT); ctx.textAlign='center'; ctx.font='bold 15px system-ui,sans-serif';
-    let msg=isTouch?'👆 按住畫面任一處拖曳＝移動　右下按鈕＝丟雞腿':'⌨️ WASD／方向鍵移動・空白鍵丟雞腿（滑鼠拖曳也可移動）';
-    if(gameMode==='story'&&curMapIdx===0&&stats.delivered===0){
-      if(order&&order.stage==='deliver') msg='教學 ②：跟著綠點送達【顧客】・遇到野狗'+(isTouch?'點右下 🍗':'按空白鍵')+'丟雞腿！';
-      else msg='教學 ①：'+(isTouch?'拖曳移動':'WASD／方向鍵移動')+'，跟著黃點去【店家】取餐・紅燈要停！';
-    }
-    const tw=ctx.measureText(msg).width+30;
-    hudPanel(W/2-tw/2,H-safe.b-120,tw,34); ctx.fillStyle='#fde68a'; ctx.fillText(msg,W/2,H-safe.b-103);
+  }else if(hintT>0&&countdown<=0&&!tutToast&&!P.moving){
+    ctx.globalAlpha=Math.min(1,hintT); ctx.textAlign='center'; ctx.font='bold 11px system-ui,sans-serif';
+    const msg=isTouch?'👆 拖曳畫面任一處操控方向・右下按鈕丟雞腿':'⌨️ WASD/方向鍵移動・空白鍵丟雞腿';
+    const tw=ctx.measureText(msg).width+24;
+    const hx=W/2-tw/2, hy=H-safe.b-24;
+    ctx.fillStyle='rgba(15,23,42,0.78)'; rrc(ctx,hx,hy,tw,20,10); ctx.fill();
+    ctx.strokeStyle='rgba(148,163,184,0.3)'; ctx.lineWidth=1; ctx.stroke();
+    ctx.fillStyle='#fde68a'; ctx.textBaseline='middle'; ctx.fillText(msg,W/2,hy+10);
     ctx.globalAlpha=1;
   }
 
@@ -5944,14 +6170,21 @@ function drawHUD(now){
     ctx.lineWidth=8; ctx.strokeStyle='rgba(0,0,0,.6)'; ctx.strokeText(String(n),W/2,H/2);
     ctx.fillStyle='#fde68a'; ctx.fillText(String(n),W/2,H/2);
   }
-  // 橫幅
+  // 頂部浮動橫幅提示（超薄小膠囊，置於頂端邊界，絕不橫切視野正中央）
   if(banner){
-    const a=Math.min(1,banner.t*2, (1.8-banner.t)*6);
-    ctx.globalAlpha=a; ctx.textAlign='center';
-    ctx.fillStyle='rgba(10,15,30,.75)'; ctx.fillRect(0,H/2-46,W,92);
-    ctx.font='900 34px system-ui,sans-serif'; ctx.fillStyle=banner.color; ctx.fillText(banner.text,W/2,H/2-12);
-    ctx.font='bold 16px system-ui,sans-serif'; ctx.fillStyle='#e2e8f0'; ctx.fillText(banner.sub,W/2,H/2+22);
-    ctx.globalAlpha=1;
+    const a=Math.min(1, banner.t*3, (1.5-banner.t)*5);
+    ctx.save();
+    ctx.globalAlpha=a;
+    const bTxt=banner.text+(banner.sub?(' ・ '+banner.sub):'');
+    ctx.font='900 13px system-ui,sans-serif';
+    const btw=Math.min(W-80, ctx.measureText(bTxt).width+36);
+    const bx=W/2-btw/2, by=T+38;
+    ctx.fillStyle='rgba(10,15,30,.88)';
+    rrc(ctx, bx, by, btw, 26, 13); ctx.fill();
+    ctx.strokeStyle=banner.color||'#fde68a'; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.fillStyle=banner.color||'#fde68a'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(bTxt, W/2, by+13);
+    ctx.restore();
   }
   // 低體力紅框
   if(P.hp<=25&&G.state==='play'){
@@ -6086,12 +6319,14 @@ const SVG_FULL_ENTER = '<svg width="20" height="20" viewBox="0 0 24 24" fill="no
 const SVG_FULL_EXIT = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>';
 function updateFullscreenBtn(){
   const isFull = !!(document.fullscreenElement || document.webkitFullscreenElement);
-  const btn = $('fullBtn');
-  if(btn){
-    btn.innerHTML = isFull ? SVG_FULL_EXIT : SVG_FULL_ENTER;
-    btn.setAttribute('aria-label', isFull ? '退出全螢幕' : '全螢幕');
-    btn.setAttribute('title', isFull ? '退出全螢幕' : '全螢幕');
-  }
+  const btn = $('fullBtn'), btnT = $('fullBtnTitle');
+  [btn, btnT].forEach(b=>{
+    if(b){
+      b.innerHTML = isFull ? SVG_FULL_EXIT : SVG_FULL_ENTER;
+      b.setAttribute('aria-label', isFull ? '退出全螢幕' : '全螢幕');
+      b.setAttribute('title', isFull ? '退出全螢幕' : '全螢幕');
+    }
+  });
 }
 ['fullscreenchange','webkitfullscreenchange'].forEach(ev=>{
   document.addEventListener(ev, updateFullscreenBtn);
@@ -6146,6 +6381,25 @@ btn('homeBtn2',goTitle);
 btn('pauseBtn',pauseGame);
 $('fullBtn').addEventListener('click',()=>{sfx('click');toggleFullScreen();});
 $('muteBtn').addEventListener('click',()=>{ensureAudio();setMuted(!muted);sfx('click');});
+const fbt=$('fullBtnTitle'), mbt=$('muteBtnTitle');
+if(fbt) fbt.addEventListener('click',()=>{sfx('click');toggleFullScreen();});
+if(mbt) mbt.addEventListener('click',()=>{ensureAudio();setMuted(!muted);sfx('click');});
+let hudMenuTimer=null;
+const toggleMenu=(force)=>{
+  const mb=$('hudMenuBtns'); if(!mb) return;
+  const willOpen=force!==undefined?force:!mb.classList.contains('open');
+  mb.classList.toggle('open',willOpen);
+  clearTimeout(hudMenuTimer);
+  if(willOpen){
+    hudMenuTimer=setTimeout(()=>{mb.classList.remove('open');},4000);
+  }
+};
+const htb=$('hudToggleBtn');
+if(htb) htb.addEventListener('click',e=>{e.stopPropagation();sfx('click');toggleMenu();});
+document.addEventListener('click',e=>{
+  const wrap=$('hudMenuWrap');
+  if(wrap&&!wrap.contains(e.target)) toggleMenu(false);
+});
 document.querySelectorAll('.modeBtn').forEach(b=>b.addEventListener('click',()=>{
   ensureAudio(); sfx('click'); gameMode=b.dataset.mode; store.set('dug_mode',gameMode);
   document.querySelectorAll('.modeBtn').forEach(x=>x.classList.toggle('sel',x===b));
