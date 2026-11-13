@@ -15,10 +15,12 @@ html,body{margin:0;height:100%;background:#0b1020;color:#fff;font-family:system-
 
 .hudBtn{position:fixed;top:calc(10px + env(safe-area-inset-top));width:36px;height:36px;border-radius:10px;border:1.5px solid #475569;background:rgba(15,23,42,.85);color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;z-index:60;cursor:pointer;padding:0;transition:transform .12s,opacity .15s}
 .hudBtn:active{transform:scale(.92)}
-#hudMenuWrap{position:fixed;top:calc(6px + env(safe-area-inset-top));right:calc(8px + env(safe-area-inset-right));z-index:65;display:none}
-body.play #hudMenuWrap, body.tut #hudMenuWrap, body.pause #hudMenuWrap{display:block}
-#hudToggleBtn{width:36px;height:36px;border-radius:10px;border:1.5px solid #475569;background:rgba(15,23,42,.88);color:#fde68a;font-size:16px;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;box-shadow:0 2px 8px rgba(0,0,0,.45)}
-#hudMenuBtns{position:absolute;top:0;right:42px;display:none;align-items:center;gap:6px;background:rgba(10,15,30,.92);padding:3px 6px;border-radius:12px;border:1.5px solid #334155;box-shadow:0 4px 14px rgba(0,0,0,.6)}
+#hudMenuWrap{position:fixed;top:calc(6px + env(safe-area-inset-top));right:calc(8px + env(safe-area-inset-right));z-index:65;display:none;align-items:center;gap:6px}
+body.play #hudMenuWrap, body.tut #hudMenuWrap, body.pause #hudMenuWrap{display:flex}
+#hudHomeBtn{position:static;width:36px;height:36px;border-radius:10px;border:1.5px solid #475569;background:rgba(15,23,42,.88);color:#f8fafc;font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;box-shadow:0 2px 8px rgba(0,0,0,.45);transition:transform .12s,background .15s}
+#hudHomeBtn:active{transform:scale(.92);background:rgba(30,41,59,.95)}
+#hudToggleBtn{position:static;width:36px;height:36px;border-radius:10px;border:1.5px solid #475569;background:rgba(15,23,42,.88);color:#fde68a;font-size:16px;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;box-shadow:0 2px 8px rgba(0,0,0,.45)}
+#hudMenuBtns{position:absolute;top:0;right:84px;display:none;align-items:center;gap:6px;background:rgba(10,15,30,.92);padding:3px 6px;border-radius:12px;border:1.5px solid #334155;box-shadow:0 4px 14px rgba(0,0,0,.6)}
 #hudMenuBtns.open{display:flex}
 #hudMenuBtns .hudBtn{position:static;width:32px;height:32px;font-size:14px;border-radius:8px}
 #titleBtnsTop{position:fixed;top:calc(10px + env(safe-area-inset-top));right:calc(10px + env(safe-area-inset-right));z-index:60;display:none;align-items:center;gap:6px}
@@ -200,11 +202,13 @@ body.title #titleBtnsTop .hudBtn{position:static}
 <canvas id="cv"></canvas>
 <div id="safe"></div>
 
-<!-- 遊戲中折疊式右上角選單 -->
+<!-- 遊戲中右上角快捷按鈕（🏠 直覺回大廳 ＋ ⚙️ 折疊功能選單） -->
 <div id="hudMenuWrap">
+  <button class="hudBtn" id="hudHomeBtn" aria-label="回主大廳" title="回主大廳">🏠</button>
   <button id="hudToggleBtn" aria-label="選單">⚙️</button>
   <div id="hudMenuBtns">
     <button class="hudBtn" id="pauseBtn" aria-label="暫停">⏸</button>
+    <button class="hudBtn" id="hudMenuHomeBtn" aria-label="回主大廳" title="回主大廳">🏠</button>
     <button class="hudBtn" id="vibBtn" aria-label="震動開關" title="震動：開啟">📳</button>
     <button class="hudBtn" id="muteBtn" aria-label="靜音">🔊</button>
     <button class="hudBtn" id="fullBtn" aria-label="全螢幕" title="全螢幕"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
@@ -254,7 +258,7 @@ body.title #titleBtnsTop .hudBtn{position:static}
 <!-- 開頭派單故事 -->
 <div class="overlay" id="story"><div class="card">
   <div class="storyTop">
-    <span class="storyTag">📱 外送系統派單中</span>
+    <span class="storyTag" id="storyTag">📱 外送系統派單中</span>
     <button class="storySkip" id="storySkip">略過 ⏭</button>
   </div>
   <div class="storyBox" id="storyBox">
@@ -310,6 +314,20 @@ body.title #titleBtnsTop .hudBtn{position:static}
   <button class="btn primary" id="resumeBtn">▶ 繼續</button>
   <button class="btn" id="restartBtn">🔄 重新開始</button>
   <button class="btn" id="homeBtn1">🏠 回主畫面</button>
+</div></div>
+
+<!-- 離開遊戲確認彈窗 -->
+<div class="overlay" id="exitModal"><div class="card" style="max-width:390px;">
+  <div style="font-size:36px;margin-bottom:4px;">🏠</div>
+  <h2 style="margin:0 0 8px;color:#fde047;font-size:20px;">結束配送返回大廳？</h2>
+  <p style="color:#cbd5e1;font-size:14px;line-height:1.6;margin:10px 0 18px;">
+    目前配送進度將不計入關卡結算。<br>
+    <span style="color:#94a3b8;font-size:12.5px;">（但本次賺得的 🪙 外送金幣會妥善保留）</span>
+  </p>
+  <div style="display:flex;gap:10px;justify-content:center;">
+    <button class="btn primary" id="exitCancelBtn" style="flex:1;">🚲 繼續送餐</button>
+    <button class="btn" id="exitConfirmBtn" style="flex:1;background:#334155;border-color:#64748b;">🚪 確定離開</button>
+  </div>
 </div></div>
 
 <!-- 首次教學暫停提示 -->
@@ -593,9 +611,29 @@ function sfx(name, volMul=1){
     case 'count': tone(660,0.12,{type:'square',vol:0.12}); break;
     case 'go': tone(1046,0.3,{type:'square',vol:0.15}); break;
     case 'bell': tone(1480,0.08,{type:'sine',vol:0.14}); tone(2200,0.12,{type:'sine',vol:0.12,t:t+0.05}); break;
+    case 'horn_moto':
+      // 台灣機車高頻電喇叭（嗶嗶！~720Hz 短促清脆高音）
+      tone(720,0.065,{type:'sawtooth',vol:0.16*volMul});
+      tone(720,0.085,{type:'sawtooth',vol:0.18*volMul,t:t+0.075});
+      break;
+    case 'horn_car':
+      // 汽車/小黃雙音和弦喇叭（叭叭！~370Hz + 460Hz 諧音厚實）
+      tone(370,0.09,{type:'sawtooth',vol:0.19*volMul}); tone(460,0.09,{type:'sawtooth',vol:0.19*volMul});
+      tone(370,0.15,{type:'sawtooth',vol:0.21*volMul,t:t+0.12}); tone(460,0.15,{type:'sawtooth',vol:0.21*volMul,t:t+0.12});
+      break;
+    case 'horn_truck':
+      // 三噸半貨卡深沉氣壓喇叭（震撼低頻 ~220Hz + 280Hz）
+      tone(220,0.18,{type:'sawtooth',vol:0.24*volMul}); tone(280,0.18,{type:'sawtooth',vol:0.24*volMul});
+      tone(220,0.24,{type:'sawtooth',vol:0.26*volMul,t:t+0.20}); tone(280,0.24,{type:'sawtooth',vol:0.26*volMul,t:t+0.20});
+      break;
+    case 'horn_amb':
+      // 119救護車緊急揚聲號角（雙音急促爆鳴 ~650Hz + 820Hz）
+      tone(650,0.20,{type:'sawtooth',vol:0.28*volMul}); tone(820,0.20,{type:'sawtooth',vol:0.28*volMul});
+      tone(650,0.24,{type:'sawtooth',vol:0.30*volMul,t:t+0.22}); tone(820,0.24,{type:'sawtooth',vol:0.30*volMul,t:t+0.22});
+      break;
     case 'horn':
-      tone(430,0.08,{type:'sawtooth',vol:0.18*volMul}); tone(515,0.08,{type:'sawtooth',vol:0.18*volMul});
-      tone(430,0.13,{type:'sawtooth',vol:0.20*volMul,t:t+0.11}); tone(515,0.13,{type:'sawtooth',vol:0.20*volMul,t:t+0.11});
+      tone(370,0.09,{type:'sawtooth',vol:0.19*volMul}); tone(460,0.09,{type:'sawtooth',vol:0.19*volMul});
+      tone(370,0.15,{type:'sawtooth',vol:0.21*volMul,t:t+0.12}); tone(460,0.15,{type:'sawtooth',vol:0.21*volMul,t:t+0.12});
       break;
     case 'over': [392,330,262,196].forEach((f,i)=>tone(f,0.3,{type:'triangle',vol:0.22,t:t+i*0.22})); break;
   }
@@ -1404,6 +1442,7 @@ let char=store.get('dug_char','M');
 let gameMode=store.get('dug_mode','story');
 let unlockedMap=clamp(store.get('dug_unlock',1),1,MAPS.length);
 if(unlockedMap===4 && store.get('dug_clr_harbor',false)) unlockedMap=5;
+let deliveryReceipt=null;
 let selectedMapIdx=clamp(store.get('dug_map',0),0,unlockedMap-1);
 let best=store.get('dug_best',0);
 let bestStage=store.get('dug_best_stage',1);
@@ -1949,7 +1988,7 @@ function resetGame(){
 }
 function startPoliceChase(cop, popMsg, bannerSub){
   cop.chasing = true;
-  cop.chaseTimer = 7.0;
+  cop.chaseTimer = (vehicleType === 'bike') ? 9.0 : 7.0;
   cop.chasedCrossings = 0;
   const cp = carPos(cop);
   let initKey = null;
@@ -1959,14 +1998,19 @@ function startPoliceChase(cop, popMsg, bannerSub){
     }
   }
   cop.lastCrossKey = initKey;
-  cop.speed = 208; // 與玩家接近，過兩個路口或轉彎加速即可甩開
+  // 單車極速 155，警車 220 具壓倒性速度優勢；機車極速 220+ 則可全速馳騁
+  cop.speed = (vehicleType === 'bike') ? 220 : 208;
   cop.sirenTimer = 0;
   cop.turnCooldown = 0;
   sfx('siren', 1);
   shake = 0.25;
   showBanner('🚨 警車追捕中！', bannerSub, '#f43f5e');
   pop(P.x, P.y-34, popMsg, '#ef4444', 20);
-  triggerTut('police', '🚔 甩開警車秘訣：加速拉開距離或「過兩個路口」警車就會自動放棄！', '#38bdf8');
+  if(vehicleType === 'bike'){
+    triggerTut('police', '🚔 騎單車極速比警車慢！善用靈活優勢：鑽入小巷騎樓、切進店家臨停區或連續急轉彎甩開！', '#38bdf8');
+  } else {
+    triggerTut('police', '🚔 甩開警車秘訣：加速拉開距離或「過兩個路口」警車就會自動放棄！', '#38bdf8');
+  }
 }
 function recordViolation(){
   stats.violations=(stats.violations||0)+1;
@@ -2161,8 +2205,13 @@ function updateTrafficAndPeds(dt){
   }
 }
 function rectDist(px,py,r){const nx=clamp(px,r.x,r.x+r.w),ny=clamp(py,r.y,r.y+r.h);return Math.hypot(px-nx,py-ny);}
+function carEffLane(c){
+  const side = c.axis === 'h' ? c.dir : -c.dir;
+  return c.lane + (c.yieldShift || 0) * side;
+}
 function carPos(c){
-  return c.axis==='h'?{x:c.pos,y:c.lane}:{x:c.lane,y:c.pos};
+  const l = carEffLane(c);
+  return c.axis==='h'?{x:c.pos,y:l}:{x:l,y:c.pos};
 }
 function pickRoadSeg(){
   const list=[];
@@ -2333,7 +2382,8 @@ function makeCar(){
 }
 function carRect(c){
   const w=c.w||48, h=c.h||26;
-  return c.axis==='h'?{x:c.pos-w/2,y:c.lane-h/2,w,h}:{x:c.lane-h/2,y:c.pos-w/2,w:h,h:w};
+  const l = carEffLane(c);
+  return c.axis==='h'?{x:c.pos-w/2,y:l-h/2,w,h}:{x:l-h/2,y:c.pos-w/2,w:h,h:w};
 }
 function randomRoadPoint(minDist){
   const minY=(HROADS[0]||200)-HALF+10;
@@ -2383,12 +2433,31 @@ function setBodyState(s){
   // 遊戲頂部折疊選單狀態依 body class 自動顯示/隱藏
   $('throwBtn').style.display=s==='play'?'flex':'none';
 }
-function showOnly(id){['title','mapSel','story','howto','garageModal','achModal','pause','tutModal','devModal','over'].forEach(o=>$(o).classList.toggle('show',o===id));}
-let storyIdx=0, storyFromBtn=false;
+function showOnly(id){['title','mapSel','story','howto','garageModal','achModal','pause','tutModal','devModal','over','exitModal'].forEach(o=>$(o).classList.toggle('show',o===id));}
+let storyIdx=0, storyFromBtn=false, isTitleStory=false;
 function getStorySteps(){
   const isF=char==='F';
   const charAva=isF?'👩':'👨';
   const charName=isF?'妮野可（粉紅勁駒）':'阿豪大叔（藍勁速車）';
+
+  // 主大廳點擊【📜 故事】顯示外送大叔 / 妮野可的人物專屬生涯奮鬥故事
+  if(isTitleStory){
+    if(isF){
+      return [
+        {ava:'👩', speaker:'妮野可（24歲・外送甜心）', text:'「大學剛畢業，我的夢想是開一間屬於自己的台味獨立甜點手搖店！為了籌備開店創業第一桶金，我毅然決定跨上座駕，踏上全台外送的冒險之旅！」'},
+        {ava:'🧋', speaker:'粉紅勁駒・夢想啟航', text:'「扣緊粉色安全帽、甩起俐落馬尾！不管是九份陡峭石階、平溪天燈山道，還是信義區跨年車陣，全台灣的大街小巷都是我的夢想伸展台！」'},
+        {ava:'🛵', speaker:'堅持與微笑', text:'「每一杯微糖微冰波霸奶茶，封膜都不能破；每一份熱湯，都要熱騰騰準時送達！看到客人驚喜的笑臉與五星好評，就是我前進的最大動力！」'},
+        {ava:'👩', speaker:'妮野可（青春制霸）', text:'「只要心中有夢，就沒有到達不了的終點！今天也要以最高效率與滿滿元氣，拿下全場零差評、征服全台灣！」'}
+      ];
+    }
+    return [
+      {ava:'👨', speaker:'阿豪大叔（42歲・前資深工程師）', text:'「去年科技業寒冬，待了十幾年的公司無預警縮編…回到家看著女兒剛考上大學的學費單與房貸，我抽了半包菸，心想：身為爸爸，我絕不能倒下！」'},
+      {ava:'🚲', speaker:'中年轉職・跨上舊鐵馬', text:'「牽出車庫裡那台生鏽但堅固的舊單車，裝上保溫箱、在手機下載了外送 App。頂著 36 度的柏油路熱浪與午後西北雨，雙腳用力踩著踏板，每一單都在跟生活賽跑！」'},
+      {ava:'🍜', speaker:'街頭的溫度', text:'「『大叔加油！這瓶青草茶請你喝啦！』小吃店老闆的熱情打氣、顧客接過便當真誠的一聲謝謝，讓我明白：只要踏板還在轉動，就沒有過不去的坎！送的不只是餐點，更是人情味！」'},
+      {ava:'👨', speaker:'阿豪大叔（外送大叔傳奇）', text:'「賺存金幣換了外送機車，現在我要挑戰環台 12 大著名街景！穿上反光背心、扣緊安全帽——外送大叔，今天也要為家人全速出發！」'}
+    ];
+  }
+
   if(curMapIdx===0){
     return [
       {ava:'📱', speaker:'外送平台・1. 台北大稻埕', text:'「叮咚！」環台外送大爆單開跑！從北起點紅磚古香的大稻埕老街出發吧——累積 3 個差評就會被停權！'},
@@ -2628,11 +2697,17 @@ function renderStory(){
   } else {
     avaEl.textContent=st.ava;
   }
+  const sTag=$('storyTag');
+  if(sTag){
+    sTag.textContent = isTitleStory
+      ? (char==='F' ? '🌸 妮野可・青春追夢物語' : '📜 外送大叔・人生奮鬥傳奇')
+      : ('📱 區域廣播・'+curMap.name);
+  }
   $('storySpeaker').textContent=st.speaker;
   $('storyText').textContent=st.text;
   $('storySkip').textContent=storyFromBtn?'✕ 關閉':'略過 ⏭';
   $('storyBack').style.display=storyFromBtn?'inline-flex':'none';
-  $('storyNext').textContent=storyIdx===steps.length-1?'🚀 跨上機車出發！':'下一句 ▶';
+  $('storyNext').textContent=storyIdx===steps.length-1 ? (isTitleStory ? '🛵 跨上座駕，出發！' : '🚀 跨上機車出發！') : '下一句 ▶';
   $('storyDots').innerHTML=steps.map((_,i)=>'<span class="'+(i===storyIdx?'on':'')+'"></span>').join('');
 }
 function openStory(fromBtn){
@@ -2640,6 +2715,11 @@ function openStory(fromBtn){
   G.state='story'; setBodyState('title'); showOnly('story'); renderStory();
 }
 function finishStory(cancelled){
+  if(isTitleStory){
+    isTitleStory = false;
+    goTitle();
+    return;
+  }
   store.set('dug_story_seen_'+curMap.id,true);
   if(cancelled && storyFromBtn){ goTitle(); return; }
   startGame();
@@ -2701,6 +2781,7 @@ function openMapSel(){
   G.state='title'; setBodyState('title'); showOnly('mapSel');
 }
 function beginDelivery(){
+  isTitleStory = false;
   openMapSel();
 }
 function goTitle(){
@@ -2731,6 +2812,13 @@ function resumeGame(){
   if($('rotate').classList.contains('show')) return;
   G.state='play'; showOnly(null); setBodyState('play'); lastFrame=performance.now();
   if(Snd.music) Snd.music.gain.value=0.55;
+}
+function openExitPrompt(){
+  if(G.state!=='play'&&G.state!=='pause') return;
+  G.state='pause'; joy.id=null;
+  for(const k in keys) keys[k]=false;
+  showOnly('exitModal'); setBodyState('pause');
+  if(Snd.music) Snd.music.gain.value=0.2;
 }
 let winStarInfo=null;
 function showEndCard(isWin, reason){
@@ -2902,7 +2990,11 @@ function newOrder(){
   if(specialType==='drink') note=pick(DRINK_NOTES);
   else if(specialType==='soup') note=pick(SOUP_NOTES);
 
-  order={shop,cust,stage:'pickup',time:t,total:t,isVip,specialType,fragile,note,spilled:false,violated:false,stacked:null};
+  // 隨機事件：店家餐點大火快炒／手搖飲封膜製作中（28%機率，非VIP單），到達時需在臨停區稍等 1.3s，完成給予補償紅包
+  const hasPrepDelay = !isVip && stats.delivered >= 1 && Math.random() < 0.28;
+  const prepT = hasPrepDelay ? 1.3 : 0;
+
+  order={shop,cust,stage:'pickup',time:t,total:t,isVip,specialType,fragile,note,spilled:false,violated:false,stacked:null,prepT,maxPrepT:prepT,prepTriggered:false};
   lastTick=-1; pathTimer=0;
   sfx('order');
   if(isVip){
@@ -2953,7 +3045,6 @@ function deliver(){
     else if(starNum===2) custPraise=pick(['「辛苦了大叔，剛好肚子餓！」','「謝謝外送員，路上辛苦了！」']);
     else custPraise=pick(['「呼，終於到了！辛苦辛苦！」','「趕在下班前送到，謝啦！」']);
   }
-  pop(order.cust.door.x, order.cust.door.y-48, custPraise, '#fef08a', 20);
 
   const cleanOrder=!order.violated;
   const cleanBonus=cleanOrder?50:0;
@@ -2964,34 +3055,72 @@ function deliver(){
   const pts=Math.round((100 + Math.ceil(tl)*12 + starBonus + cleanBonus) * mult * vipMult * specialMult * rainMult);
   const earnedCoins=Math.max(8, Math.round(pts*0.12));
 
+  // 偶發顧客給小費（32% 機率，顧客額外打賞 20~50 金幣）
+  let tipCoins = 0;
+  let tipMsg = '';
+  if(Math.random() < 0.35 && starNum >= 2){
+    tipCoins = pick([20, 25, 30, 40, 50]);
+    tipMsg = pick([
+      '🥰「大叔辛苦了！這點小費買杯飲料喝！」',
+      '👏「送得好快！不用找了，小費拿去！」',
+      '💖「太敬業了！小費給你加菜！」',
+      '👍「大熱天跑外送不容易，辛苦囉！」'
+    ]);
+  }
+  const totalEarnedCoins = earnedCoins + tipCoins;
+
   lastStars=starNum; lastWasVip=!!order.isVip;
   stats.score+=pts; combo++; stats.maxCombo=Math.max(stats.maxCombo,combo); stats.delivered++; stats.orderStars=(stats.orderStars||0)+starNum;
   life.orders=(life.orders||0)+1;
   if(specialMult>1) life.fragileOk=(life.fragileOk||0)+1;
   if(rainMult>1) life.rainOk=(life.rainOk||0)+1;
   saveLife();
-  addCoins(earnedCoins);
+  addCoins(totalEarnedCoins);
   checkAchievements();
+
   if(P.ammo<getMaxAmmo()){
     P.ammo++; updateAmmo();
-    pop(P.x,P.y-12,'🍗 +1 雞腿','#fdba74',15);
+    pop(P.x, P.y-56, '🍗 +1 雞腿', '#fdba74', 15);
   }
-  pop(P.x,P.y-34,'+'+pts+'分 '+stars,'#fde68a',22);
-  pop(P.x,P.y-58,'🪙 +'+earnedCoins+' 金幣','#fbbf24',20);
-  pop(P.x,P.y-80,starMsg,'#6ee7b7',16);
-  if(cleanOrder) pop(P.x,P.y-104,'🏅 零違規 +'+Math.round(cleanBonus*mult*vipMult),'#7dd3fc',16);
-  if(order.specialType==='drink' && !order.spilled) pop(P.x,P.y-124,'🧋 手搖飲封膜完美沒漏！×1.7','#38bdf8',16);
-  else if(order.specialType==='soup' && !order.spilled) pop(P.x,P.y-124,'🍲 熱湯完美沒灑！×1.6','#fdba74',16);
-  if(rainMult>1) pop(P.x,P.y-144,'🌧️ 雨天加給 ×1.5','#38bdf8',16);
-  if(vipMult>1) pop(P.x,P.y-164,'⭐ 特急爆單 ×2.5！','#fde047',16);
+
+  // 人物上方僅保留 1 個簡潔爽快的大字摘要，不再同時彈出 11 行字干擾視線
+  const headSum = `+${pts}分 ${stars} 🪙+${totalEarnedCoins}` + (tipCoins ? ` (含小費🪙${tipCoins})` : '');
+  pop(P.x, P.y-34, headSum, '#fde68a', 22);
 
   // 順路雙拼夾單額外獎金結算
   if(order.stacked){
     addCoins(order.stacked.bonusCoins);
     stats.score+=order.stacked.bonusPts;
-    pop(P.x,P.y-68,'🍱 順路雙拼夾單 +'+order.stacked.bonusCoins+' 🪙','#fde047',20);
-    pop(order.cust.door.x,order.cust.door.y-72,'「順便幫隔壁帶了餐，太貼心了！」','#6ee7b7',18);
   }
+
+  // 顧客 NPC 漫畫對白泡泡（在顧客頭上停留 2.6 秒）
+  order.cust.speech = {
+    text: (tipMsg || custPraise) + (tipCoins ? ` (小費+${tipCoins}🪙)` : ''),
+    t: 2.6,
+    hasTip: tipCoins > 0,
+    tipCoins
+  };
+
+  // 訂單完成結算卡片（精美半透明收據 Toast，平滑顯示 2.8 秒，明細一目了然）
+  const bonuses = [];
+  if(cleanOrder) bonuses.push('🏅 零違規 +'+Math.round(cleanBonus*mult*vipMult));
+  if(order.specialType==='drink' && !order.spilled) bonuses.push('🧋 封膜完整 ×1.7');
+  else if(order.specialType==='soup' && !order.spilled) bonuses.push('🍲 熱湯完整 ×1.6');
+  if(rainMult>1) bonuses.push('🌧️ 雨天 ×1.5');
+  if(vipMult>1) bonuses.push('⭐ 特急 ×2.5');
+  if(order.stacked) bonuses.push('🍱 雙拼 +'+order.stacked.bonusCoins+'🪙');
+  if(tipCoins>0) bonuses.push('💵 顧客小費 +'+tipCoins+'🪙');
+  if(combo>1) bonuses.push('🔥 連擊 ×'+combo);
+
+  deliveryReceipt = {
+    stars,
+    starMsg,
+    pts,
+    coins: totalEarnedCoins,
+    bonuses,
+    t: 2.8,
+    maxT: 2.8
+  };
 
   if(combo>1) pop(P.x,P.y-84,'連擊 ×'+combo,'#f472b6',18);
   sfx('deliver');
@@ -3370,9 +3499,18 @@ function updateCars(dt){
                   if(c.type === 'bike'){
                     sfx('bell');
                     pop(cpNow.x, cpNow.y - 24, isGreenAtTl ? '🔔 叮鈴叮鈴！綠燈囉～' : '🔔 叮鈴～借過借過', '#a7f3d0', 16);
+                  } else if(c.type === 'moto'){
+                    sfx('horn_moto');
+                    pop(cpNow.x, cpNow.y - 24, isGreenAtTl ? '🛵 嗶嗶！綠燈快走啦～' : '🛵 嗶嗶！借過借過～', '#fde047', 16);
+                  } else if(c.type === 'truck'){
+                    sfx('horn_truck');
+                    pop(cpNow.x, cpNow.y - 24, isGreenAtTl ? '🚛 叭——！綠燈走囉！' : '🚛 叭——！大車借過！', '#fde047', 16);
+                  } else if(c.type === 'ambulance'){
+                    sfx('horn_amb');
+                    pop(cpNow.x, cpNow.y - 24, '🚑 叭——！救護車借道！', '#ef4444', 18);
                   } else {
-                    sfx('horn');
-                    pop(cpNow.x, cpNow.y - 24, isGreenAtTl ? '📣 叭叭！綠燈快走～' : '📣 叭叭！借過一下～', '#fde047', 16);
+                    sfx('horn_car');
+                    pop(cpNow.x, cpNow.y - 24, isGreenAtTl ? '🚗 叭叭！綠燈快走～' : '🚗 叭叭！借過一下～', '#fde047', 16);
                   }
                   pop(P.x, P.y - 30, '💨 後車按喇叭催促！', '#fde047', 14);
                   vibrate([45, 35, 45]);
@@ -3397,6 +3535,61 @@ function updateCars(dt){
           }
         }
       }
+    }
+
+    // 救護車緊急出勤：在後方鳴笛借道，同向前方等紅燈或慢車靠邊禮讓
+    if(c.type === 'ambulance'){
+      let leadCar = null;
+      let minLeadDist = Infinity;
+      for(let oi = 0; oi < cars.length; oi++){
+        const o = cars[oi];
+        if(o === c || o.axis !== c.axis || o.roadCenter !== c.roadCenter || o.dir !== c.dir) continue;
+        const aheadGap = (o.pos - c.pos) * c.dir;
+        if(aheadGap > 0 && aheadGap < 200 && aheadGap < minLeadDist){
+          minLeadDist = aheadGap;
+          leadCar = o;
+        }
+      }
+      if(leadCar){
+        leadCar.yieldingAmb = true;
+        leadCar.yieldTimer = 2.2;
+        c.ambHornTimer = (c.ambHornTimer || 0) - dt;
+        if(c.ambHornTimer <= 0 && minLeadDist < 165){
+          c.ambHornTimer = 2.5;
+          sfx('horn_amb', 1.0);
+          const ambP = carPos(c);
+          pop(ambP.x, ambP.y - 26, '🚑 叭——！救護車借道！請向路邊禮讓！', '#ef4444', 17);
+        }
+        // 若前車尚未完全靠邊讓出通道，減速不直接穿模貫穿前車
+        const oEffLane = carEffLane(leadCar);
+        const cEffLane = carEffLane(c);
+        const latDiff = Math.abs(cEffLane - oEffLane);
+        const oRear = leadCar.pos - leadCar.dir * ((leadCar.w || 48) / 2);
+        const curFront = c.pos + c.dir * ((c.w || 48) / 2);
+        const physicalGap = (oRear - curFront) * c.dir;
+        if(latDiff < 16 && physicalGap < 38){
+          const safeDist = Math.max(0, physicalGap - 14);
+          maxStep = Math.min(maxStep, safeDist);
+          brakeLimitSpeed = Math.min(brakeLimitSpeed, Math.max(10, leadCar.curSpeed || 0));
+        }
+      }
+    }
+
+    // 車輛受救護車鳴笛影響靠邊禮讓
+    if(c.yieldingAmb){
+      c.yieldTimer = (c.yieldTimer || 0) - dt;
+      if(c.yieldTimer <= 0) c.yieldingAmb = false;
+      const maxYield = Math.max(0, HALF - 8 - (c.laneOff || 30));
+      c.yieldShift = Math.min(maxYield, (c.yieldShift || 0) + dt * 44);
+      c.yieldPopCool = (c.yieldPopCool || 0) - dt;
+      if(c.yieldPopCool <= 0){
+        c.yieldPopCool = 2.8;
+        const cpNow = carPos(c);
+        const yMsg = c.type === 'taxi' ? '🚕 靠邊禮讓119！' : (c.type === 'truck' ? '🚛 靠邊禮讓救護車！' : (c.type === 'moto' ? '🛵 靠邊禮讓救護車！' : '🚗 靠邊禮讓救護車！'));
+        pop(cpNow.x, cpNow.y - 24, yMsg, '#38bdf8', 15);
+      }
+    } else if((c.yieldShift || 0) > 0){
+      c.yieldShift = Math.max(0, c.yieldShift - dt * 26);
     }
 
     // 邊界剛進場緩速平順切入，避免突衝畫面邊緣
@@ -3539,10 +3732,12 @@ function updateCars(dt){
 
     let cp = carPos(c);
     let blocked=false;
-    if(c.pos>=0 && c.pos<=c.len && !onRoad(cp.x,cp.y,10)){
+    const testOnRoad = c.axis==='h' ? onRoad(cp.x, c.roadCenter, 10) : onRoad(c.roadCenter, cp.y, 10);
+    if(c.pos>=0 && c.pos<=c.len && !testOnRoad){
       blocked=true;
       c.pos=prevPos;
       c.dir*=-1;
+      c.yieldShift=0;
       const off=c.laneOff||30;
       c.lane=c.roadCenter+(c.axis==='h'?1:-1)*c.dir*off;
       cp=carPos(c);
@@ -3554,7 +3749,7 @@ function updateCars(dt){
       if(c.chasing && activePlay){
         c.chaseTimer -= dt;
         c.turnCooldown = Math.max(0, (c.turnCooldown || 0) - dt);
-        c.speed = 208; // 追捕速度略低於玩家，轉彎或過兩個路口即可甩開
+        c.speed = (vehicleType === 'bike') ? 220 : 208; // 警車極速顯著高於單車(155)，單車不可在直路硬跑
 
         // 記錄經過路口數量（過兩個路口自動停止追捕）
         for(const inter of intersections){
@@ -3624,8 +3819,17 @@ function updateCars(dt){
           if(dToP < 520) sfx('siren', clamp(1.05 - dToP / 560, 0.2, 0.9));
         }
 
+        // 單車專屬戰術逃脫：鑽入騎樓或外送臨停區
+        const inSafetyAlley = places.some(pl => dist(P, pl.door) < 52);
+        if(vehicleType === 'bike' && inSafetyAlley && dToP > 50){
+          c.chasing = false; c.chaseTimer = 0; c.chasedCrossings = 0; c.lastCrossKey = null; c.chaseCool = 5.0; c.speed = 105;
+          stats.score += 40;
+          sfx('praise');
+          pop(P.x, P.y-34, '🚲 鑽入騎樓臨停區！警車無法進入，成功脫逃！+40分', '#38bdf8', 20);
+          showBanner('善用單車靈活性！','鑽入騎樓小巷與外送臨停區，警車無法追入！+40分','#38bdf8');
+        }
         // 情況 A：追上玩家（攔停受檢開單 1.5 秒）
-        if(dToP < P.r + 18){
+        else if(dToP < P.r + 18){
           c.chasing = false; c.chaseTimer = 0; c.chasedCrossings = 0; c.lastCrossKey = null; c.chaseCool = 4.5; c.speed = 105;
           stats.score = Math.max(0, stats.score - 60);
           P.stopT = 1.5;
@@ -3640,7 +3844,7 @@ function updateCars(dt){
           c.chasing = false; c.chaseTimer = 0; c.chasedCrossings = 0; c.lastCrossKey = null; c.chaseCool = 4.5; c.speed = 105;
           stats.score += 35;
           sfx('praise');
-          pop(P.x, P.y-34, '💨 成功甩開警車！技術脫逃 +35分', '#38bdf8', 20);
+          pop(P.x, P.y-34, vehicleType==='bike' ? '🚲 善用單車急轉彎！成功甩開警車！+35分' : '💨 成功甩開警車！技術脫逃 +35分', '#38bdf8', 20);
           showBanner('甩開警車！','過了兩個路口成功甩開巡邏警車！+35分','#38bdf8');
         }
       } else {
@@ -3674,41 +3878,65 @@ function updateCars(dt){
       if(dToP < 330 && !c.warnedPlayer){
         c.warnedPlayer = true;
         pop(cp.x, cp.y-25, '🚑 救護車緊急出勤！請靠邊禮讓！', '#f43f5e', 18);
-        triggerTut('amb', '🚑 救護車來了！閃到路邊或中線禮讓通過，可獲【+25 分】獎勵！', '#fda4af');
+        triggerTut('amb', '🚑 救護車在後方鳴笛借道時，主動靠邊避讓讓出通道，可獲【+35 分】優良騎士獎勵！', '#fda4af');
       }
 
-      // 檢查玩家是否在救護車同車道前方擋道
-      const isAhead = c.axis === 'h'
-        ? (c.dir > 0 ? (P.x > cp.x && P.x < cp.x + 85) : (P.x < cp.x && P.x > cp.x - 85))
-        : (c.dir > 0 ? (P.y > cp.y && P.y < cp.y + 85) : (P.y < cp.y && P.y > cp.y - 85));
-      const inLane = c.axis === 'h' ? Math.abs(P.y - c.lane) < 22 : Math.abs(P.x - c.lane) < 22;
+      // 檢查外送員是否在救護車同向同道路前方（面臨被後方救護車催促借道之情境）
+      const onSameRoad = c.axis === 'h' ? Math.abs(P.y - c.roadCenter) < HALF : Math.abs(P.x - c.roadCenter) < HALF;
+      const playerAheadDelta = c.axis === 'h' ? (P.x - cp.x) * c.dir : (P.y - cp.y) * c.dir;
+      const ambTravelSide = c.axis === 'h' ? c.dir : -c.dir;
+      const playerSideDist = c.axis === 'h' ? (P.y - c.roadCenter) * ambTravelSide : (P.x - c.roadCenter) * ambTravelSide;
+      const inSameTravelHalf = playerSideDist > -4;
+      const distToAmbLane = c.axis === 'h' ? Math.abs(P.y - carEffLane(c)) : Math.abs(P.x - carEffLane(c));
 
-      // 情況 A：擋道未禮讓
-      if(isAhead && inLane && dToP < 70 && !c.penaltyGiven){
+      // 情況 1：後方鳴笛借道（救護車在騎士後方 20px～195px 同向接近並鳴笛催道）
+      if(onSameRoad && inSameTravelHalf && playerAheadDelta > 15 && playerAheadDelta < 195){
+        c.riderHornTimer = (c.riderHornTimer || 0) - dt;
+        if(c.riderHornTimer <= 0){
+          c.riderHornTimer = 2.4;
+          sfx('horn_amb', 1.0);
+          pop(cp.x, cp.y - 26, '🚑 叭——！救護車借道！請向路邊禮讓！', '#ef4444', 18);
+          pop(P.x, P.y - 30, '🚨 後方救護車鳴笛借道！請主動靠邊！', '#fde047', 15);
+          vibrate([50, 40, 50]);
+        }
+        // 記錄：確實觸發了「後方鳴笛借道」情境
+        c.playerYieldChallenged = true;
+        if(distToAmbLane < 26) c.playerWasInLane = true;
+      }
+
+      // 情況 2：擋道未靠邊禮讓（救護車逼近且騎士仍在正前方車道阻擋）
+      if(onSameRoad && inSameTravelHalf && playerAheadDelta > 0 && playerAheadDelta < 70 && distToAmbLane < 18 && !c.penaltyGiven){
         c.penaltyGiven = true;
         stats.score = Math.max(0, stats.score - 50);
         damage(20, '🚑 未禮讓救護車');
         sfx('hit');
         shake = 0.35;
-        pop(P.x, P.y-34, '❌ 未禮讓救護車 -50分 扣20體！', '#ef4444', 20);
-        showBanner('未禮讓救護車！','阻礙緊急救援車輛，重大違規開罰！','#ef4444');
+        pop(P.x, P.y - 34, '❌ 阻擋救護車借道！未靠邊避讓 -50分 扣20體！', '#ef4444', 20);
+        showBanner('未禮讓救護車！', '阻礙緊急救援車輛，重大違規開罰！', '#ef4444');
       }
 
-      // 情況 B：禮讓救護車通過（救護車順利開過玩家，玩家不在正前方擋道）
-      const isPassed = c.axis === 'h'
-        ? (c.dir > 0 ? (cp.x > P.x + 35) : (cp.x < P.x - 35))
-        : (c.dir > 0 ? (cp.y > P.y + 35) : (cp.y < P.y - 35));
-
-      if(isPassed && dToP < 170 && !c.passedPlayer && !c.penaltyGiven){
-        c.passedPlayer = true;
-        stats.score += 25;
-        sfx('praise');
-        pop(P.x, P.y-34, '😇 禮讓救護車通行！優良騎士 +25分', '#34d399', 20);
+      // 情況 3：【後方鳴笛借道 ＋ 前車主動靠邊避讓】成功加分判定！
+      // 救護車順利開過玩家前方（playerAheadDelta < -25），且先前確實面臨後方鳴笛借道情境，且騎士主動靠邊避讓讓道
+      const isPassed = playerAheadDelta < -25;
+      if(isPassed && dToP < 200 && !c.passedPlayer && !c.penaltyGiven){
+        if(c.playerYieldChallenged && c.playerWasInLane){
+          c.passedPlayer = true;
+          c.playerYieldChallenged = false;
+          c.playerWasInLane = false;
+          stats.score += 35;
+          sfx('praise');
+          pop(P.x, P.y - 34, '😇 聽到後方鳴笛主動靠邊避讓！優良騎士 +35分', '#34d399', 20);
+          showBanner('主動禮讓救護車！', '聽聞後方鳴笛借道，主動靠邊避讓！+35分', '#34d399');
+        } else {
+          // 若只是對向會車、路旁旁觀或未受後方鳴笛逼車，單純駛過不胡亂加分
+          c.passedPlayer = true;
+        }
       }
 
       // 開遠後重置
       if(!visibleOrNear && dToP > 560){
         c.appearedPlayed = false; c.warnedPlayer = false; c.passedPlayer = false; c.penaltyGiven = false;
+        c.playerYieldChallenged = false; c.playerWasInLane = false;
       }
     }
   }
@@ -3919,6 +4147,26 @@ function update(dt){
     if(dDoor<120) triggerTut('bay','🛵 橘黃虛線框是【外送臨停區】：紅燈車陣會自動淨空，停進這裡最安全！','#fde047');
     if(dDoor<54){
       if(order.stage==='pickup'){
+        if(order.prepT > 0){
+          if(!order.prepTriggered){
+            order.prepTriggered = true;
+            sfx('count');
+            const isD = order.specialType==='drink';
+            pop(order.shop.door.x, order.shop.door.y - 48, isD ? '🧋「大叔稍等！波霸現煮封膜中！」' : '🍳「大叔稍等！大火現炒馬上好！」', '#fbbf24', 18);
+            showBanner(isD ? '🧋 現做封膜中...' : '🍳 現炒製作中...', '老闆忙碌趕工中！請在臨停區稍候 1 秒！', '#fbbf24');
+          }
+          order.prepT -= dt;
+          P.stopT = Math.max(P.stopT, 0.15);
+          if(order.prepT <= 0){
+            order.prepT = 0;
+            addCoins(15);
+            sfx('pickup');
+            pop(order.shop.door.x, order.shop.door.y - 48, '✨「好囉！久等了～耽誤補償 🪙+15！」', '#34d399', 19);
+            pop(P.x, P.y - 32, '🪙 +15 耽誤補償金', '#fde047', 18);
+          } else {
+            return;
+          }
+        }
         order.stage='deliver'; sfx('pickup'); pathTimer=0; lastTick=-1;
         const deliverTime=calcOrderTime(pathLen(P,order.cust.door), order.isVip);
         order.time=deliverTime; order.total=deliverTime;
@@ -3947,6 +4195,18 @@ function update(dt){
     }
     if(order&&order.time<5){const s=Math.ceil(order.time);if(s!==lastTick){lastTick=s;sfx('tick');}}
     if(order){pathTimer-=dt;if(pathTimer<=0){pathTimer=0.25;path=buildNavDots(P,order.stage==='pickup'?order.shop.door:order.cust.door);}}
+  }
+  if(places.length){
+    for(const pl of places){
+      if(pl.speech && pl.speech.t > 0){
+        pl.speech.t -= dt;
+        if(pl.speech.t <= 0) pl.speech = null;
+      }
+    }
+  }
+  if(deliveryReceipt && deliveryReceipt.t > 0){
+    deliveryReceipt.t -= dt;
+    if(deliveryReceipt.t <= 0) deliveryReceipt = null;
   }
   followCam(dt);
 }
@@ -4932,6 +5192,169 @@ function drawWorld(now){
     ctx.restore();
   }
 
+function renderPlaceNPC(ctx, p, now, active, isPickup, prepT){
+  const isShop = p.type === 'shop';
+  const isH = p.axis === 'h';
+  let npcX = p.door.x + (isH ? 24 : 0);
+  let npcY = p.door.y + (isH ? (p.side === 'top' ? -18 : 18) : 24);
+  if(!isH){
+    npcX = p.side === 'left' ? p.door.x - 18 : p.door.x + 18;
+    npcY = p.door.y + 20;
+  }
+
+  // 地面陰影
+  ctx.fillStyle = 'rgba(0,0,0,0.36)';
+  ctx.beginPath();
+  ctx.ellipse(npcX, npcY + 11, 7, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  if(isShop){
+    const isDrink = (p.icon === '🧋' || p.name.includes('手搖') || p.name.includes('茶') || p.name.includes('奶') || p.name.includes('飲'));
+    const isPrepping = prepT > 0;
+
+    // 褲管 / 雙腿
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(npcX - 4, npcY + 3, 3, 8);
+    ctx.fillRect(npcX + 1, npcY + 3, 3, 8);
+
+    // 身軀與圍裙（手搖飲青藍圍裙 / 熱炒暖深紅圍裙）
+    ctx.fillStyle = isDrink ? '#0284c7' : '#b91c1c';
+    rrc(ctx, npcX - 6, npcY - 5, 12, 10, 2);
+    ctx.fill();
+    // 襯衫白領
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(npcX - 3, npcY - 5, 6, 3);
+
+    // 頭部與五官
+    ctx.fillStyle = '#fed7aa';
+    ctx.beginPath(); ctx.arc(npcX, npcY - 10, 5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(npcX - 3, npcY - 11, 1.5, 1.5);
+    ctx.fillRect(npcX + 1.5, npcY - 11, 1.5, 1.5);
+
+    // 帽子（廚師高帽 vs 飲料店遮陽小帽）
+    if(isDrink){
+      ctx.fillStyle = '#0369a1';
+      ctx.fillRect(npcX - 6, npcY - 15, 12, 3);
+      ctx.fillRect(npcX - 7, npcY - 13, 14, 2);
+    } else {
+      ctx.fillStyle = '#ffffff';
+      rrc(ctx, npcX - 5, npcY - 18, 10, 8, 3);
+      ctx.fill();
+    }
+
+    // 手部動作（手搖杯搖晃 / 平底鍋翻炒與油煙）
+    if(isDrink){
+      const shY = Math.sin(now / (isPrepping ? 40 : 100)) * (isPrepping ? 5 : 2.5);
+      ctx.fillStyle = '#cbd5e1';
+      ctx.fillRect(npcX + 4, npcY - 7 + shY, 4, 7);
+      if(isPrepping){
+        ctx.fillStyle = '#38bdf8';
+        ctx.font = '10px system-ui';
+        ctx.fillText('💦', npcX - 9, npcY - 15);
+      }
+    } else {
+      const flipY = Math.sin(now / (isPrepping ? 50 : 120)) * (isPrepping ? 4 : 2);
+      ctx.fillStyle = '#475569';
+      ctx.fillRect(npcX + 3, npcY - 6 + flipY, 7, 2);
+      ctx.fillStyle = '#1e293b';
+      ctx.beginPath(); ctx.arc(npcX + 11, npcY - 5 + flipY, 4, 0, Math.PI * 2); ctx.fill();
+      if(isPrepping){
+        ctx.fillStyle = '#ef4444';
+        ctx.font = '9px system-ui';
+        ctx.fillText('🔥', npcX + 11, npcY - 12 + flipY);
+      } else {
+        ctx.fillStyle = 'rgba(255,255,255,0.7)';
+        ctx.font = '9px system-ui';
+        ctx.fillText('♨️', npcX + 11, npcY - 12);
+      }
+    }
+
+    // 取餐目標狀態提示
+    if(active && isPickup){
+      if(isPrepping){
+        const pRatio = Math.max(0, Math.min(1, 1 - prepT / 1.3));
+        ctx.fillStyle = 'rgba(15,23,42,0.92)';
+        rrc(ctx, npcX - 36, npcY - 32, 72, 16, 8); ctx.fill();
+        ctx.strokeStyle = '#fde047'; ctx.lineWidth = 1.2; ctx.stroke();
+        ctx.fillStyle = '#eab308';
+        rrc(ctx, npcX - 34, npcY - 30, Math.max(4, 68 * pRatio), 12, 6); ctx.fill();
+        ctx.fillStyle = '#ffffff'; ctx.font = '900 9px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(isDrink ? '🧋 封膜中...' : '🍳 現炒中...', npcX, npcY - 24);
+      } else {
+        ctx.fillStyle = '#16a34a';
+        rrc(ctx, npcX - 28, npcY - 30, 56, 14, 7); ctx.fill();
+        ctx.fillStyle = '#ffffff'; ctx.font = '900 9px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('🍽️ 餐點備妥', npcX, npcY - 23);
+      }
+    }
+  } else {
+    // 顧客 NPC
+    const isTarget = active && !isPickup;
+    if(isTarget){
+      npcY -= Math.abs(Math.sin(now / 160)) * 5;
+    }
+
+    // 牛仔褲
+    ctx.fillStyle = '#1d4ed8';
+    ctx.fillRect(npcX - 4, npcY + 3, 3, 8);
+    ctx.fillRect(npcX + 1, npcY + 3, 3, 8);
+
+    // 上衣
+    ctx.fillStyle = '#fb7185';
+    rrc(ctx, npcX - 6, npcY - 5, 12, 10, 2); ctx.fill();
+
+    // 頭部與髮型
+    ctx.fillStyle = '#fed7aa';
+    ctx.beginPath(); ctx.arc(npcX, npcY - 10, 5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#334155';
+    ctx.beginPath(); ctx.arc(npcX, npcY - 12, 5, Math.PI, Math.PI * 2); ctx.fill();
+
+    // 手機
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(npcX + 4, npcY - 6, 3, 5);
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillRect(npcX + 4.5, npcY - 5.5, 2, 4);
+
+    if(isTarget){
+      // 揮手動作
+      const wave = Math.sin(now / 140) * 4;
+      ctx.fillStyle = '#fed7aa';
+      ctx.beginPath(); ctx.arc(npcX - 6, npcY - 12 + wave, 2, 0, Math.PI * 2); ctx.fill();
+      // 等待對白泡泡
+      ctx.fillStyle = 'rgba(15,23,42,0.92)';
+      rrc(ctx, npcX - 32, npcY - 32, 64, 15, 7); ctx.fill();
+      ctx.strokeStyle = '#34d399'; ctx.lineWidth = 1.2; ctx.stroke();
+      ctx.fillStyle = '#34d399'; ctx.font = '900 9px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('🙋‍♂️ 這裡這裡！', npcX, npcY - 24.5);
+    }
+  }
+
+  // 漫畫對白泡泡（取餐或送達感謝/小費）
+  if(p.speech && p.speech.t > 0){
+    ctx.font = '900 11px system-ui,sans-serif';
+    const spW = Math.min(240, ctx.measureText(p.speech.text).width + 20);
+    const spH = 22;
+    const spX = npcX - spW / 2;
+    const spY = npcY - 38;
+    ctx.save();
+    ctx.fillStyle = 'rgba(15,23,42,0.96)';
+    rrc(ctx, spX, spY, spW, spH, 10); ctx.fill();
+    ctx.strokeStyle = p.speech.hasTip ? '#fde047' : '#38bdf8';
+    ctx.lineWidth = 1.6; ctx.stroke();
+    // 小尾巴
+    ctx.fillStyle = 'rgba(15,23,42,0.96)';
+    ctx.beginPath();
+    ctx.moveTo(npcX - 4, spY + spH); ctx.lineTo(npcX + 4, spY + spH); ctx.lineTo(npcX, spY + spH + 4);
+    ctx.closePath(); ctx.fill();
+
+    ctx.fillStyle = p.speech.hasTip ? '#fef08a' : '#ffffff';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(p.speech.text, npcX, spY + spH / 2);
+    ctx.restore();
+  }
+}
+
   // 6. 店家／顧客招牌（清楚區分 🍳店家 vs 🏠顧客，加上目前目標發光提示）
   const tgt=order?(order.stage==='pickup'?order.shop:order.cust):null;
   ctx.textAlign='center'; ctx.textBaseline='middle';
@@ -4989,6 +5412,9 @@ function drawWorld(now){
     ctx.lineWidth=2; ctx.setLineDash([6,6]);
     ctx.beginPath(); ctx.arc(p.door.x,p.door.y,20,0,Math.PI*2); ctx.stroke();
     ctx.setLineDash([]);
+
+    // 門口/騎樓之店家老闆(廚師/飲料店員)或顧客 NPC 角色渲染
+    renderPlaceNPC(ctx, p, now, active, order && order.stage === 'pickup', (order && order.shop === p && order.stage === 'pickup') ? (order.prepT || 0) : 0);
   }
   // 導航光點（沿台灣右行制順向車道排列引導）
   if(order&&path.length){
@@ -6298,7 +6724,7 @@ function drawHUD(now){
     ctx.stroke();
     ctx.restore();
   }
-  const L=safe.l+8, T=safe.t+6, R=W-safe.r-48; // 右側預留 48px 給右上折疊選單
+  const L=safe.l+8, T=safe.t+6, R=W-safe.r-88; // 右側預留 88px 給右上直覺回大廳與折疊選單按鈕
   const barW=Math.max(280, R-L), barH=32;
   ctx.textBaseline='middle';
 
@@ -6508,6 +6934,56 @@ function drawHUD(now){
     ctx.fillText(bTxt, W/2, by+13);
     ctx.restore();
   }
+
+  // 訂單完成結算卡片（精美半透明外送結算單，平滑呈現星級、工資、加乘與小費明細，避免多重跳字眼花）
+  if(deliveryReceipt && deliveryReceipt.t > 0){
+    const dr = deliveryReceipt;
+    const a = Math.min(1, dr.t * 3.5, (dr.maxT - dr.t) * 4.5);
+    ctx.save();
+    ctx.globalAlpha = a;
+    const rcW = Math.min(360, W - 40);
+    const rcH = 64 + (dr.bonuses.length > 0 ? 22 : 0);
+    const rcX = W/2 - rcW/2;
+    const rcY = T + 36;
+
+    // 半透明磨砂質感深色底卡
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.94)';
+    rrc(ctx, rcX, rcY, rcW, rcH, 12);
+    ctx.fill();
+    ctx.strokeStyle = '#fde047';
+    ctx.lineWidth = 1.8;
+    ctx.stroke();
+
+    // 頂行：訂單完成 ＋ 星級評價
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#fde047';
+    ctx.font = '900 13px system-ui,sans-serif';
+    ctx.fillText('📦 訂單送達！ ' + dr.stars + ' ' + dr.starMsg, rcX + 14, rcY + 18);
+
+    // 金幣與分數總計
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#6ee7b7';
+    ctx.font = '900 14px system-ui,sans-serif';
+    ctx.fillText('+' + dr.pts + '分  🪙 +' + dr.coins, rcX + rcW - 14, rcY + 18);
+
+    // 分隔細線
+    ctx.strokeStyle = 'rgba(148, 163, 184, 0.3)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(rcX + 12, rcY + 32); ctx.lineTo(rcX + rcW - 12, rcY + 32);
+    ctx.stroke();
+
+    // 獎金明細標籤
+    if(dr.bonuses.length > 0){
+      ctx.textAlign = 'center';
+      ctx.font = '700 10.5px system-ui,sans-serif';
+      const bStr = dr.bonuses.join('  •  ');
+      ctx.fillStyle = '#bae6fd';
+      ctx.fillText(bStr, rcX + rcW/2, rcY + 46);
+    }
+
+    ctx.restore();
+  }
   // 低體力紅框
   if(P.hp<=25&&G.state==='play'){
     ctx.strokeStyle='rgba(239,68,68,'+(0.35+Math.sin(now/150)*0.25)+')'; ctx.lineWidth=10; ctx.strokeRect(5,5,W-10,H-10);
@@ -6587,13 +7063,19 @@ addEventListener('keydown',e=>{
   if(k==='v'){ensureAudio();setVibEnabled(!vibEnabled);if(vibEnabled)vibrate(40);return;}
   if(G.state==='play'){
     if(k===' '||k==='j') throwFood();
-    if(k==='p'||k==='escape') pauseGame();
+    if(k==='p') pauseGame();
+    if(k==='escape'||k==='h') {ensureAudio();sfx('click');openExitPrompt();}
   }else if(G.state==='tut'){
     if((k===' '||k==='enter'||k==='escape') && tutLockT<=0){
       ensureAudio(); sfx('click'); dismissTut();
     }
   }else if(G.state==='pause'){
-    if(k==='p'||k==='escape'||k==='enter') resumeGame();
+    if($('exitModal').classList.contains('show')){
+      if(k==='escape'||k==='c') {ensureAudio();sfx('click');resumeGame();}
+      else if(k==='enter'||k==='q') {ensureAudio();sfx('click');goTitle();}
+    }else{
+      if(k==='p'||k==='escape'||k==='enter') resumeGame();
+    }
   }else if(G.state==='story'){
     if(k==='enter'||k===' ') {ensureAudio();sfx('click');nextStory();}
     if(k==='escape') {ensureAudio();sfx('click');finishStory(true);}
@@ -6657,7 +7139,7 @@ function updateFullscreenBtn(){
 function btn(id,fn){$(id).addEventListener('click',()=>{ensureAudio();sfx('click');fn();});}
 btn('startBtn',beginDelivery);
 btn('mapBack',()=>showOnly('title'));
-btn('storyBtn',()=>{buildMap(selectedMapIdx);openStory(true);});
+btn('storyBtn',()=>{ isTitleStory=true; buildMap(selectedMapIdx); openStory(true); });
 btn('storyNext',nextStory);
 btn('storyBox',nextStory);
 btn('storyBack',()=>finishStory(true));
@@ -6702,6 +7184,11 @@ btn('againBtn',startGame);
 btn('mapBtn',openMapSel);
 btn('homeBtn2',goTitle);
 btn('pauseBtn',pauseGame);
+const hhb=$('hudHomeBtn'); if(hhb) hhb.addEventListener('click',e=>{e.stopPropagation();openExitPrompt();});
+const hmhb=$('hudMenuHomeBtn'); if(hmhb) hmhb.addEventListener('click',e=>{e.stopPropagation();openExitPrompt();});
+btn('exitCancelBtn',resumeGame);
+btn('exitConfirmBtn',goTitle);
+$('exitModal').addEventListener('click',e=>{if(e.target===$('exitModal')){ensureAudio();sfx('click');resumeGame();}});
 $('fullBtn').addEventListener('click',()=>{sfx('click');toggleFullScreen();});
 $('muteBtn').addEventListener('click',()=>{ensureAudio();setMuted(!muted);sfx('click');});
 const fbt=$('fullBtnTitle'), mbt=$('muteBtnTitle');
