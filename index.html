@@ -99,6 +99,11 @@ body.title #titleBtnsTop .hudBtn{position:static}
 .storyDots{display:flex;gap:6px;align-items:center}
 .storyDots span{width:8px;height:8px;border-radius:50%;background:#334155;transition:all .2s}
 .storyDots span.on{width:20px;border-radius:999px;background:#fbbf24}
+.storyCharSwitch{display:flex;gap:8px;margin:2px 0 10px;justify-content:center}
+.storyCharTab{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 10px;border-radius:12px;border:1.5px solid #334155;background:#0f172a;color:#94a3b8;font-size:13px;font-weight:900;cursor:pointer;font-family:inherit;transition:all .18s}
+.storyCharTab:hover{border-color:#64748b;color:#f8fafc}
+.storyCharTab.sel{background:linear-gradient(135deg,#1e293b,#1e3a5f);border-color:#fde047;color:#fef08a;box-shadow:0 0 12px rgba(253,224,71,.28)}
+.storyCharTab.selF{background:linear-gradient(135deg,#2e1065,#581c87);border-color:#f472b6;color:#fdf2f8;box-shadow:0 0 12px rgba(244,114,182,.28)}
 
 .modes{display:inline-flex;gap:6px;background:#0b1222;border:1.5px solid #334155;border-radius:14px;padding:4px;margin:6px 0 2px}
 .modeBtn{border:none;background:transparent;color:#94a3b8;font-weight:900;font-size:13px;padding:6px 14px;border-radius:10px;cursor:pointer;font-family:inherit;transition:all .15s}
@@ -207,7 +212,6 @@ body.title #titleBtnsTop .hudBtn{position:static}
   <button class="hudBtn" id="hudHomeBtn" aria-label="回主大廳" title="回主大廳">🏠</button>
   <button id="hudToggleBtn" aria-label="選單">⚙️</button>
   <div id="hudMenuBtns">
-    <button class="hudBtn" id="hudRestartBtn" aria-label="重新開始" title="重新開始">🔄</button>
     <button class="hudBtn" id="vibBtn" aria-label="震動開關" title="震動：開啟">📳</button>
     <button class="hudBtn" id="muteBtn" aria-label="靜音">🔊</button>
     <button class="hudBtn" id="fullBtn" aria-label="全螢幕" title="全螢幕"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
@@ -259,6 +263,10 @@ body.title #titleBtnsTop .hudBtn{position:static}
   <div class="storyTop">
     <span class="storyTag" id="storyTag">📱 外送系統派單中</span>
     <button class="storySkip" id="storySkip">略過 ⏭</button>
+  </div>
+  <div class="storyCharSwitch" id="storyCharSwitch">
+    <button class="storyCharTab" id="storyCharM">👨 阿豪大叔傳奇</button>
+    <button class="storyCharTab" id="storyCharF">🌸 妮野可青春記</button>
   </div>
   <div class="storyBox" id="storyBox">
     <div class="storyAva" id="storyAva">📱</div>
@@ -323,12 +331,9 @@ body.title #titleBtnsTop .hudBtn{position:static}
     目前配送進度將不計入關卡結算。<br>
     <span style="color:#94a3b8;font-size:12.5px;">（但本次賺得的 🪙 外送金幣會妥善保留）</span>
   </p>
-  <div style="display:flex;flex-direction:column;gap:8px;justify-content:center;">
-    <button class="btn primary" id="exitCancelBtn" style="width:100%;">🚲 繼續送餐</button>
-    <div style="display:flex;gap:8px;">
-      <button class="btn" id="exitRestartBtn" style="flex:1;background:#1e293b;border-color:#475569;">🔄 重新開始</button>
-      <button class="btn" id="exitConfirmBtn" style="flex:1;background:#334155;border-color:#64748b;">🚪 確定離開</button>
-    </div>
+  <div style="display:flex;gap:10px;justify-content:center;">
+    <button class="btn primary" id="exitCancelBtn" style="flex:1;">🚲 繼續送餐</button>
+    <button class="btn" id="exitConfirmBtn" style="flex:1;background:#334155;border-color:#64748b;">🚪 確定離開</button>
   </div>
 </div></div>
 
@@ -2775,6 +2780,13 @@ function renderCharPortrait(cv, gender){
 }
 function renderStory(){
   const steps=getStorySteps(), st=steps[storyIdx];
+  const scM=$('storyCharM'), scF=$('storyCharF');
+  if(scM&&scF){
+    scM.classList.toggle('sel', char==='M');
+    scM.classList.remove('selF');
+    scF.classList.toggle('selF', char==='F');
+    scF.classList.remove('sel');
+  }
   const avaEl=$('storyAva');
   if(st.ava==='👨'||st.ava==='👩'){
     avaEl.innerHTML='<canvas width="108" height="108" style="width:54px;height:54px;display:block"></canvas>';
@@ -2852,7 +2864,8 @@ function renderMapSel(){
         ensureAudio(); sfx('click');
         selectedMapIdx=i; store.set('dug_map',i);
         resetGame();
-        if(isTouch) toggleFullScreen();
+        userExitedFullscreen=false;
+        enterFullScreen();
         if(!store.get('dug_story_seen_'+m.id,false)){ openStory(false); }
         else startGame();
       });
@@ -2867,6 +2880,8 @@ function openMapSel(){
 }
 function beginDelivery(){
   isTitleStory = false;
+  userExitedFullscreen = false;
+  enterFullScreen();
   openMapSel();
 }
 function goTitle(){
@@ -2880,10 +2895,8 @@ function goTitle(){
 }
 function startGame(){
   ensureAudio();
-  if (isTouch) {
-    // 手機點擊「開始外送」時自動嘗試進入全螢幕並鎖定橫向
-    toggleFullScreen();
-  }
+  userExitedFullscreen = false;
+  enterFullScreen();
   resetGame(); G.state='play'; setBodyState('play'); showOnly(null);
   joy.id=null; lastFrame=performance.now();
 }
@@ -3082,7 +3095,9 @@ function getOrderTarget(){
   if(!order) return null;
   if(order.stage === 'pickup') return order.shop;
   if(order.stacked){
-    if(!order.primaryDelivered && !order.stacked.delivered) return order.stacked.cust;
+    if(!order.primaryDelivered && !order.stacked.delivered){
+      return dist(P, order.cust.door) <= dist(P, order.stacked.cust.door) ? order.cust : order.stacked.cust;
+    }
     if(!order.primaryDelivered) return order.cust;
     if(!order.stacked.delivered) return order.stacked.cust;
     return null;
@@ -5284,22 +5299,39 @@ function update(dt){
       // 1. 順路接第二張單（送餐途中路過其他店家門口）
       if(!order.stacked){
         for(const s of shops){
-          if(s!==order.shop && dist(P,s.door)<52){
-            const candidateCusts = customers.filter(c => c !== order.cust);
-            let bestC = candidateCusts[0];
-            let bestDist = 999999;
-            for(const c of candidateCusts){
-              const d = pathLen(s.door, c.door);
-              if(d < bestDist){
-                bestDist = d;
-                bestC = c;
-              }
+          if(s!==order.shop && dist(P,s.door)<54){
+            // 順路單送達點固定在原單顧客 (order.cust) 的正對面！
+            const oppSide = (order.cust.axis === 'h')
+              ? (order.cust.side === 'top' ? 'bottom' : 'top')
+              : (order.cust.side === 'left' ? 'right' : 'left');
+
+            let oppCust = customers.find(c =>
+              c !== order.cust &&
+              c.axis === order.cust.axis &&
+              c.roadCenter === order.cust.roadCenter &&
+              c.side === oppSide &&
+              Math.abs(c.alongPos - order.cust.alongPos) < 180
+            );
+
+            if(!oppCust){
+              oppCust = mkPlaceSeg(
+                '【對面】'+order.cust.name+'對面住戶',
+                '🏠',
+                'cust',
+                order.cust.axis,
+                order.cust.roadCenter,
+                order.cust.alongPos,
+                oppSide
+              );
+              oppCust.isOpposite = true;
+              if(!places.includes(oppCust)) places.push(oppCust);
             }
+
             order.stacked = {
               shop: s,
               shopName: s.name,
-              cust: bestC,
-              custName: bestC.name,
+              cust: oppCust,
+              custName: oppCust.name,
               delivered: false,
               rewardGiven: false,
               bonusCoins: 60,
@@ -5310,8 +5342,8 @@ function update(dt){
             sfx('order');
             sfx('pickup');
             vibrate([50,40,50]);
-            pop(P.x, P.y-32, '🍱 順路接單！先送【'+bestC.name+'】時限 +15s・+60🪙', '#fde047', 20);
-            showBanner('🍱 順路接單成功！', '先送【'+bestC.name+'】再送【'+order.cust.name+'】・額外 +60🪙 獎金！', '#fbbf24', 4.0);
+            pop(P.x, P.y-32, '🍱 順路接單！送達處就在【'+order.cust.name+'】正對面！+60🪙', '#fde047', 20);
+            showBanner('🍱 順路接單成功！', '送達地點就在【'+order.cust.name+'】對面！到對面即可直接送單！+60🪙 獎金', '#fbbf24', 4.0);
             pathTimer = 0;
             break;
           }
@@ -5341,10 +5373,10 @@ function update(dt){
           };
           pathTimer = 0;
           if(order.primaryDelivered){
-            showBanner('🍱 雙拼單全數送達！', '原單與順路單皆全速送達！領取額外雙倍獎金！', '#34d399', 3.5);
+            showBanner('🍱 雙拼單全數送達！', '原單與對面順路單皆全速送達！領取額外雙倍獎金！', '#34d399', 3.5);
             deliver();
           } else {
-            showBanner('🍱 順路單送達成功！', '太棒了！接著全速送往【原單：'+order.cust.name+'】！', '#34d399', 3.5);
+            showBanner('🍱 順路單送達成功！', '太棒了！過馬路到【對面】即可送達【原單：'+order.cust.name+'】！', '#34d399', 3.5);
           }
         }
       }
@@ -5358,7 +5390,7 @@ function update(dt){
             sfx('pickup');
             sfx('praise');
             pop(P.x, P.y-34, '📦 原單送達！', '#38bdf8', 21);
-            showBanner('📦 原單送達！', '太棒了！接著全速送往【順路單：'+order.stacked.cust.name+'】！', '#38bdf8', 3.5);
+            showBanner('📦 原單送達！', '太棒了！過馬路到【對面】即可送達【順路單：'+order.stacked.cust.name+'】！', '#38bdf8', 3.5);
             order.cust.speech = {
               text: '「感謝大叔！餐點先收下囉！」',
               t: 2.8,
@@ -6734,7 +6766,7 @@ function drawStreetDecor(p, now){
     ctx.beginPath(); ctx.arc(tgt.door.x,tgt.door.y,40+Math.sin(now/150)*6,0,Math.PI*2); ctx.stroke();
     const bob=Math.sin(now/180)*5;
     const ty=tgt.side==='top'?tgt.door.y-46+bob:tgt.door.y+46+bob;
-    const lbl=isPick?'🍳 取餐點！':(isStackedCust?'🍱 第1站・順路單送達！':'📦 送達這裡！');
+    const lbl=isPick?'🍳 取餐點！':(isStackedCust?'🍱 順路單送達（對面）！':'📦 送達這裡！');
     ctx.font='900 13.5px system-ui,sans-serif';
     const lw=ctx.measureText(lbl).width+16;
     ctx.fillStyle=isPick?'#b45309':(isStackedCust?'#0284c7':'#047857');
@@ -6742,22 +6774,27 @@ function drawStreetDecor(p, now){
     ctx.strokeStyle=col; ctx.lineWidth=2; ctx.stroke();
     ctx.fillStyle='#ffffff'; ctx.fillText(lbl,tgt.door.x,ty);
   }
-  // 若有順路單且正在送第1站，地圖上原單顧客門口也顯示「📦 第2站・原單」輔助提示
+  // 若有順路單且兩單都尚未送達，對面的另一張單也顯示輔助提示標籤
   if(order && order.stage==='deliver' && order.stacked && !order.stacked.delivered && !order.primaryDelivered){
-    const oCust = order.cust;
-    if(inView(oCust.door.x-60, oCust.door.y-60, 120, 120)){
+    const otherCust = (tgt === order.cust) ? order.stacked.cust : order.cust;
+    if(otherCust && inView(otherCust.door.x-60, otherCust.door.y-60, 120, 120)){
       ctx.save();
-      ctx.strokeStyle='rgba(52,211,153,0.7)'; ctx.lineWidth=2; ctx.setLineDash([5,4]);
-      ctx.beginPath(); ctx.arc(oCust.door.x, oCust.door.y, 30, 0, Math.PI*2); ctx.stroke();
+      const isStackedOther = (otherCust === order.stacked.cust);
+      ctx.strokeStyle = isStackedOther ? 'rgba(56,189,248,0.85)' : 'rgba(52,211,153,0.85)';
+      ctx.lineWidth = 2.5; ctx.setLineDash([5,4]);
+      ctx.beginPath(); ctx.arc(otherCust.door.x, otherCust.door.y, 32, 0, Math.PI*2); ctx.stroke();
       ctx.setLineDash([]);
-      const subLbl = '📦 第2站・原單';
-      ctx.font = '900 11px system-ui,sans-serif';
+      const subLbl = isStackedOther ? '🍱 順路單（對面）' : '📦 原單送達處';
+      ctx.font = '900 11.5px system-ui,sans-serif';
       const slw = ctx.measureText(subLbl).width + 14;
-      const sty = oCust.side === 'top' ? oCust.door.y - 36 : oCust.door.y + 36;
-      ctx.fillStyle = 'rgba(15,23,42,0.88)';
-      rrc(ctx, oCust.door.x - slw/2, sty - 10, slw, 20, 10); ctx.fill();
-      ctx.strokeStyle = '#34d399'; ctx.lineWidth = 1.2; ctx.stroke();
-      ctx.fillStyle = '#a7f3d0'; ctx.fillText(subLbl, oCust.door.x, sty);
+      const bob = Math.sin(now/180 + otherCust.door.x)*4;
+      const sty = otherCust.side === 'top' ? otherCust.door.y - 38 + bob : otherCust.door.y + 38 + bob;
+      ctx.fillStyle = 'rgba(15,23,42,0.92)';
+      rrc(ctx, otherCust.door.x - slw/2, sty - 10, slw, 20, 10); ctx.fill();
+      ctx.strokeStyle = isStackedOther ? '#38bdf8' : '#34d399';
+      ctx.lineWidth = 1.4; ctx.stroke();
+      ctx.fillStyle = isStackedOther ? '#bae6fd' : '#a7f3d0';
+      ctx.fillText(subLbl, otherCust.door.x, sty);
       ctx.restore();
     }
   }
@@ -8126,8 +8163,13 @@ function drawHUD(now){
       else if(order.specialType==='drink') stepTag=order.spilled?'🧋手搖【已漏】':'🧋手搖【×1.7】';
       else if(order.fragile) stepTag=order.spilled?'🍲熱湯【已灑】':'🍲熱湯【×1.6】';
       if(order.stacked){
-        if(tgt===order.stacked.cust) stepTag='[🍱順路單]';
-        else if(tgt===order.cust) stepTag='[📦原單]';
+        if(!order.primaryDelivered && !order.stacked.delivered){
+          stepTag = (tgt===order.stacked.cust) ? '[🍱對面順路單]' : '[📦原單(對面有順路單)]';
+        } else if(tgt===order.stacked.cust){
+          stepTag='[🍱對面順路單]';
+        } else if(tgt===order.cust){
+          stepTag='[📦原單]';
+        }
       }
       const secTxt=Math.max(0, order.time).toFixed(1)+'s';
       const isUrgent=order.time<5;
@@ -8409,6 +8451,7 @@ function loop(now){
 
 /* ===================== 輸入 ===================== */
 cvs.addEventListener('pointerdown',e=>{
+  if(!userExitedFullscreen) enterFullScreen();
   if(G.state!=='play'||joy.id!==null) return;
   e.preventDefault();
   joy.id=e.pointerId; joy.ox=joy.x=e.clientX; joy.oy=joy.y=e.clientY;
@@ -8468,7 +8511,8 @@ addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('gesturestart',e=>e.preventDefault());
 document.addEventListener('dblclick',e=>e.preventDefault());
 
-function toggleFullScreen(){
+let userExitedFullscreen = false;
+function enterFullScreen(){
   ensureAudio();
   const doc = document;
   const el = doc.documentElement;
@@ -8481,7 +8525,17 @@ function toggleFullScreen(){
         }
       }).catch(()=>{});
     }
+  }
+}
+function toggleFullScreen(){
+  ensureAudio();
+  const doc = document;
+  const el = doc.documentElement;
+  if (!doc.fullscreenElement && !doc.webkitFullscreenElement && !doc.mozFullScreenElement && !doc.msFullscreenElement) {
+    userExitedFullscreen = false;
+    enterFullScreen();
   } else {
+    userExitedFullscreen = true;
     const exit = doc.exitFullscreen || doc.webkitExitFullscreen || doc.mozCancelFullScreen || doc.msExitFullscreen;
     if (exit) exit.call(doc).catch(()=>{});
   }
@@ -8507,6 +8561,20 @@ function btn(id,fn){$(id).addEventListener('click',()=>{ensureAudio();sfx('click
 btn('startBtn',beginDelivery);
 btn('mapBack',()=>showOnly('title'));
 btn('storyBtn',()=>{ isTitleStory=true; buildMap(selectedMapIdx); openStory(true); });
+btn('storyCharM',()=>{
+  if(char!=='M'){
+    char='M'; store.set('dug_char','M');
+    document.querySelectorAll('.char').forEach(x=>x.classList.toggle('sel',x.dataset.char==='M'));
+    storyIdx=0; renderStory();
+  }
+});
+btn('storyCharF',()=>{
+  if(char!=='F'){
+    char='F'; store.set('dug_char','F');
+    document.querySelectorAll('.char').forEach(x=>x.classList.toggle('sel',x.dataset.char==='F'));
+    storyIdx=0; renderStory();
+  }
+});
 btn('storyNext',nextStory);
 btn('storyBox',nextStory);
 btn('storyBack',()=>finishStory(true));
@@ -8545,12 +8613,17 @@ btn('homeBtn1',goTitle);
 btn('nextStageBtn',()=>{
   if(selectedMapIdx<MAPS.length-1){ selectedMapIdx++; store.set('dug_map',selectedMapIdx); }
   resetGame();
+  userExitedFullscreen=false;
+  enterFullScreen();
   if(!store.get('dug_story_seen_'+curMap.id,false)) openStory(false);
   else startGame();
 });
-btn('againBtn',startGame);
+btn('againBtn',()=>{ userExitedFullscreen=false; enterFullScreen(); startGame(); });
 btn('mapBtn',openMapSel);
 btn('homeBtn2',goTitle);
+$('title').addEventListener('pointerdown',e=>{
+  if(!userExitedFullscreen) enterFullScreen();
+},{passive:true});
 if($('pauseBtn')) btn('pauseBtn',pauseGame);
 const hhb=$('hudHomeBtn'); if(hhb) hhb.addEventListener('click',e=>{e.stopPropagation();openExitPrompt();});
 const hrb=$('hudRestartBtn'); if(hrb) hrb.addEventListener('click',e=>{e.stopPropagation();ensureAudio();sfx('click');startGame();});
