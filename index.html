@@ -1281,6 +1281,8 @@ const MAPS=[
 
 let curMapIdx=0, curMap=MAPS[0];
 let MAP={w:1800,h:1200}, HALF=65, HROADS=[], VROADS=[], H_SEGS=[], V_SEGS=[];
+const hasVBetween=(vx,ya,yb)=>V_SEGS.some(s=>s.x===vx && s.y0<=ya+4 && s.y1>=yb-4);
+const hasHBetween=(hy,xa,xb)=>H_SEGS.some(s=>s.y===hy && s.x0<=xa+4 && s.x1>=xb-4);
 let roadblocks=[], river=null, bridges=[], coast=null;
 let blocks=[], big=[], shops=[], customers=[], places=[];
 let windmills=[], sakuraPetals=[], skyLanterns=[], lanternPts=[], cornerTrees=[];
@@ -1345,9 +1347,6 @@ function buildMap(idx){
   V_SEGS=rawV.map(([x,a,b])=>({x, y0:a<=0?0:a-HALF, y1:b>=MAP.h?MAP.h:b+HALF, c0:a, c1:b}));
   HROADS=[...new Set(H_SEGS.map(s=>s.y))].sort((a,b)=>a-b);
   VROADS=[...new Set(V_SEGS.map(s=>s.x))].sort((a,b)=>a-b);
-
-  const hasVBetween=(vx,ya,yb)=>V_SEGS.some(s=>s.x===vx && s.y0<=ya+4 && s.y1>=yb-4);
-  const hasHBetween=(hy,xa,xb)=>H_SEGS.some(s=>s.y===hy && s.x0<=xa+4 && s.x1>=xb-4);
 
   const srand=mulberry(curMap.seed);
   blocks=[]; windmills=[]; sakuraPetals=[]; skyLanterns=[]; lanternPts=[]; cornerTrees=[];
