@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0b1020">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>外送大叔：限時爆走</title>
+<title>瘋狂外送員：限時爆走</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;background:#0b1020;color:#fff;font-family:system-ui,-apple-system,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:none;-webkit-touch-callout:none}
@@ -229,8 +229,8 @@ body.title #titleBtnsTop .hudBtn{position:static}
 <!-- 開始畫面 -->
 <div class="overlay show" id="title"><div class="card">
   <div class="logo">🛵💨</div>
-  <div class="gname">外送大叔：限時爆走</div>
-  <div class="gsub">閃過車流・甩開野狗・準時送達！</div>
+  <div class="gname">瘋狂外送員：限時爆走</div>
+  <div class="gsub">全台景點巡迴・閃過車流・準時送達！</div>
   <div class="best">🏆 最高紀錄：<span id="bestTitle">0</span>　｜　🪙 金幣：<span id="coinsTitle">0</span>　｜　🗺️ 已解鎖：<span id="unlockTxt">1/4</span></div>
   <div class="modes" role="group" aria-label="遊戲模式">
     <button class="modeBtn sel" data-mode="story">🏆 闖關模式</button>
@@ -303,7 +303,7 @@ body.title #titleBtnsTop .hudBtn{position:static}
     <div class="howBox"><div class="t">💯 計分</div>送達 = 100 分 + 剩餘秒數 × 12，依星級給予額外獎勵與回血。<br>連擊 <b>≥ 3 且上一單滿 3 星無差評</b> 觸發<b>【⭐金牌特急單】</b>，時限更趕、享 <b>2.5 倍</b>工資！驚險閃車 +10，禮讓行人 +15。</div>
     <div class="howBox"><div class="t">🚦 交通法規</div>路口<b>紅綠燈</b>：闖紅燈罰 <b>-30 分</b>（閃黃／無號誌路口不罰）；若附近有警車會展開追捕！<br><b>逆向行駛</b>：沿中線鑽車縫或短暫超車沒事，但<b>持續逆向過久</b>遇警車也會被追！甩開（過 2 個路口／轉彎拉開）<b>+35 分</b>，被捕 <b>-60 分</b>。<br>斑馬線<b>禮讓行人 +15 分</b>，撞人 <b>-50 分與 35 體力</b>；禮讓救護車 <b>+25 分</b>！</div>
     <div class="howBox"><div class="t">⚠️ 危險</div>撞車 −25 體力、被野狗咬 −15 體力；店家／顧客門前設有<b>🛵 外送臨停區</b>。<br>每完成 1 單獲得 <b>+1 支 🍗 雞腿</b>（上限 8 支）；拾取 🍱 回復體力、🍗 +2 雞腿、⚡ 能量飲料加速 3.5 秒。</div>
-    <div class="howBox"><div class="t">📈 模式</div><b>🏆 闖關模式</b>：<b>12 大景點環台路線</b>（大稻埕 → 淡水 → 高美 → 阿里山 → 安平 → 高雄 85 → 墾丁 → 台東熱氣球 → 花蓮太魯閣 → 平溪十分天燈 → 九份 → 台北 101）！<br><b>♾️ 無限模式</b>：在已解鎖的景點地圖無限跑單，難度隨單數飆升！</div>
+    <div class="howBox"><div class="t">📈 模式</div><b>🏆 闖關模式</b>：<b>12 大景點環台路線</b>（大稻埕 → 淡水 → 高美 → 阿里山 → 安平 → 高雄 85 → 墾丁 → 台東熱氣球 → 花蓮太魯閣 → 平溪十分天燈 → 九份 → 台北 101）！<br><b>♾️ 無限模式</b>：<b>全台巡迴・跨區馬拉松！</b>一鍵即刻出發，每送達 4 單無縫跨區前往下一個景點，難度隨單數持續飆升，挑戰環島極限！</div>
     <div class="howBox"><div class="t">💀 結束</div><b>體力歸零</b>或累積 <b>3 個差評</b>（訂單逾時）就結束。連續準時送 5 單可消除 1 個差評。</div>
   </div>
   <div style="text-align:center;margin-top:8px"><button class="btn primary" id="howClose">我知道了</button></div>
@@ -420,7 +420,7 @@ body.title #titleBtnsTop .hudBtn{position:static}
   <button class="btn green" id="nextStageBtn" style="display:none">➡ 挑戰下一關</button>
   <button class="btn primary" id="againBtn">🔄 再玩一次</button>
   <button class="btn" id="mapBtn">🗺️ 換地圖</button>
-  <button class="btn" id="homeBtn2">🏠 回主畫面</button><div style="font-size:11px;color:#64748b;margin-top:6px">外送大叔 v1.4.0</div>
+  <button class="btn" id="homeBtn2">🏠 回主畫面</button><div style="font-size:11px;color:#64748b;margin-top:6px">瘋狂外送員 v1.4.0</div>
 </div></div>
 
 <!-- 直式提示 -->
@@ -1527,6 +1527,9 @@ function buildNavDots(a,b){
 const G={state:'title'};
 let char=store.get('dug_char','M');
 let gameMode=store.get('dug_mode','story');
+let stageDelivered=0;
+let endlessStationsCleared=0;
+let endlessLoop=1;
 let unlockedMap=clamp(store.get('dug_unlock',1),1,MAPS.length);
 if(unlockedMap===4 && store.get('dug_clr_harbor',false)) unlockedMap=5;
 let deliveryReceipt=null;
@@ -2039,6 +2042,13 @@ const STAGE_CONFIG=[
 ];
 
 function resetGame(){
+  if(gameMode==='endless'){
+    selectedMapIdx=0;
+    curMapIdx=0;
+  }
+  stageDelivered=0;
+  endlessStationsCleared=0;
+  endlessLoop=1;
   buildMap(selectedMapIdx);
   // 出生點設置在安全停車起點（店家或建築門口旁），並朝向該側順向車道方向
   const spawnX = places[0].door.x;
@@ -2878,20 +2888,44 @@ function openMapSel(){
   renderMapSel();
   G.state='title'; setBodyState('title'); showOnly('mapSel');
 }
+function updateModeUI(){
+  document.querySelectorAll('.modeBtn').forEach(b=>b.classList.toggle('sel',b.dataset.mode===gameMode));
+  const sb=$('startBtn');
+  if(sb){
+    sb.innerHTML=(gameMode==='endless')
+      ? '🚀 開始巡迴外送'
+      : '🛵 選擇關卡出發';
+  }
+  const bt=$('bestTitle');
+  const un=$('unlockTxt');
+  if(gameMode==='endless'){
+    const endBest=store.get('dug_endless_best',0);
+    const endOrders=store.get('dug_endless_orders',0);
+    if(bt) bt.textContent=endBest?(endBest+'分 ('+endOrders+'單)'):'尚無紀錄';
+    if(un) un.textContent='12 區全台巡迴';
+  } else {
+    if(bt) bt.textContent=best;
+    if(un) un.textContent=unlockedMap+'/'+MAPS.length;
+  }
+}
 function beginDelivery(){
   isTitleStory = false;
   userExitedFullscreen = false;
   enterFullScreen();
-  openMapSel();
+  if(gameMode==='endless'){
+    selectedMapIdx=0;
+    curMapIdx=0;
+    startGame();
+  } else {
+    openMapSel();
+  }
 }
 function goTitle(){
   buildMap(selectedMapIdx);
   G.state='title'; resetGame(); setBodyState('title'); showOnly('title');
-  $('bestTitle').textContent=best;
   const ct=$('coinsTitle'); if(ct) ct.textContent=coins;
-  $('unlockTxt').textContent=unlockedMap+'/'+MAPS.length;
   document.querySelectorAll('.char').forEach(b=>b.classList.toggle('sel',b.dataset.char===char));
-  document.querySelectorAll('.modeBtn').forEach(b=>b.classList.toggle('sel',b.dataset.mode===gameMode));
+  updateModeUI();
 }
 function startGame(){
   ensureAudio();
@@ -2931,7 +2965,7 @@ function showEndCard(isWin, reason){
 
   if(isWin){ sfx('level'); } else { sfx('over'); shake=0.4; }
 
-  $('overTitle').textContent=isWin?'🎉 區域制霸・過關！':'🏁 今日收工';
+  $('overTitle').textContent=isWin?'🎉 區域制霸・過關！':(gameMode==='endless'?'🏁 今日巡迴結束':'🏁 今日收工');
   $('overTitle').style.color=isWin?'#6ee7b7':'#fbbf24';
   $('overReason').textContent=reason;
   $('overReason').classList.toggle('win',!!isWin);
@@ -2976,6 +3010,15 @@ function showEndCard(isWin, reason){
   }
   winStarInfo=null;
   $('overScore').textContent=stats.score;
+  const isEndless=(gameMode==='endless');
+  if(isEndless){
+    const prevEndBest=store.get('dug_endless_best',0);
+    if(stats.score>prevEndBest){
+      store.set('dug_endless_best',stats.score);
+      store.set('dug_endless_orders',stats.delivered);
+      store.set('dug_endless_stations',endlessStationsCleared);
+    }
+  }
   const newRecEl=$('newRec');
   if(newRecEl){
     if(isNew){
@@ -2990,17 +3033,19 @@ function showEndCard(isWin, reason){
   }
   $('stDel').textContent=stats.delivered;
   $('stCombo').textContent=stats.maxCombo;
-  $('stLv').textContent=gameMode==='story'?((curMapIdx+1)+'/'+MAPS.length):level;
-  $('stLvLbl').textContent=gameMode==='story'?'完成區域':'到達關卡';
+  $('stLv').textContent=isEndless?(endlessStationsCleared+' 站 (第'+endlessLoop+'輪)'):((curMapIdx+1)+'/'+MAPS.length);
+  $('stLvLbl').textContent=isEndless?'探索景點':'完成區域';
   $('stNear').textContent=stats.near;
   $('stDog').textContent=stats.dogs;
   $('stTime').textContent=Math.floor(stats.time)+'s';
-  $('bestOver').textContent=best;
+  $('bestOver').textContent=isEndless?store.get('dug_endless_best',0):best;
   $('bestStageTxt').textContent=bestStage;
   if(stats.coins>0){
-    $('overReason').textContent=reason+'　(本次賺取 +'+stats.coins+' 🪙)';
+    const baseReason=isEndless?(reason+' ｜ 探索了 '+endlessStationsCleared+' 個景點'):reason;
+    $('overReason').textContent=baseReason+'　(本次賺取 +'+stats.coins+' 🪙)';
   }
   $('nextStageBtn').style.display=(isWin && gameMode==='story' && curMapIdx<MAPS.length-1)?'inline-flex':'none';
+  const mbOver=$('mapBtn'); if(mbOver) mbOver.style.display=isEndless?'none':'inline-flex';
   setBodyState('over');
   setTimeout(()=>{
     if(G.state==='over'){
@@ -3303,7 +3348,7 @@ function deliver(){
   if(combo%5===0&&strikes>0){strikes--;pop(P.x,P.y-104,'👍 好評！差評 −1','#6ee7b7',18);}
   order=null; orderDelay=0.8; path=[];
 
-  // 闖關模式達成目標單數直接過關，未達則微幅提升車流難度；無限模式每 3 單升 1 級
+  // 闖關模式達成目標單數直接過關，未達則微幅提升車流難度；無限模式每送滿 4 單無縫跨區前往下一個景點
   if(gameMode==='story'){
     if(stats.delivered>=curMap.goalOrders){
       winStage();
@@ -3315,8 +3360,87 @@ function deliver(){
         showBanner('進度 '+stats.delivered+'/'+curMap.goalOrders+' 單','車流加快了！還差 '+(curMap.goalOrders-stats.delivered)+' 單解鎖下一區！','#6ee7b7');
       }
     }
-  } else if(stats.delivered%3===0){
-    levelUp();
+  } else {
+    // ♾️ 無限模式：全台巡迴・跨區馬拉松（每 4 單跨區轉移下一景點）
+    stageDelivered++;
+    syncHazards();
+    const ENDLESS_STAGE_GOAL = 4;
+    if(stageDelivered >= ENDLESS_STAGE_GOAL){
+      endlessStageTransition();
+    } else {
+      const remain = ENDLESS_STAGE_GOAL - stageDelivered;
+      showBanner('📦 本站進度 '+stageDelivered+'/'+ENDLESS_STAGE_GOAL+' 單','再送 '+remain+' 單前往下一景點！','#38bdf8',2.8);
+    }
+  }
+}
+function endlessStageTransition(){
+  endlessStationsCleared++;
+  stageDelivered = 0;
+  level++;
+
+  const prevMapName = curMap.name;
+  const nextMapIdx = (curMapIdx + 1) % MAPS.length;
+  const isLoopComplete = (nextMapIdx === 0);
+  if(isLoopComplete){
+    endlessLoop++;
+  }
+  curMapIdx = nextMapIdx;
+  selectedMapIdx = nextMapIdx;
+
+  // 保留玩家血量與屬性，回補體力 30
+  const curHp = Math.min(getMaxHp(), P.hp + 30);
+  const curAmmo = P.ammo;
+  const curBoost = P.boost;
+
+  // 重建新景點地圖
+  buildMap(curMapIdx);
+
+  // 安全出生於新地圖的起點臨停區
+  const spawnX = places[0].door.x;
+  const spawnY = places[0].door.y;
+  let spawnAng = 0, spawnFx = 1, spawnFy = 0;
+  let bestH = null, bestHd = 1e9, bestV = null, bestVd = 1e9;
+  for(const hy of HROADS){
+    if(!findSegAt('h',hy,spawnX)) continue;
+    const d = Math.abs(spawnY - hy);
+    if(d < bestHd){ bestHd = d; bestH = hy; }
+  }
+  for(const vx of VROADS){
+    if(!findSegAt('v',vx,spawnY)) continue;
+    const d = Math.abs(spawnX - vx);
+    if(d < bestVd){ bestVd = d; bestV = vx; }
+  }
+  if(bestH !== null && bestHd <= bestVd){
+    if(spawnY < bestH){ spawnAng = Math.PI; spawnFx = -1; spawnFy = 0; }
+    else { spawnAng = 0; spawnFx = 1; spawnFy = 0; }
+  } else if(bestV !== null){
+    if(spawnX < bestV){ spawnAng = Math.PI/2; spawnFx = 0; spawnFy = 1; }
+    else { spawnAng = -Math.PI/2; spawnFx = 0; spawnFy = -1; }
+  }
+
+  P.x = spawnX; P.y = spawnY; P.angle = spawnAng; P.steer = 0; P.fx = spawnFx; P.fy = spawnFy;
+  P.hp = curHp; P.ammo = curAmmo; P.inv = 2.5; P.moving = false; P.boost = curBoost;
+
+  cars = []; dogs = []; shots = []; items = []; pops = [];
+  order = null; orderDelay = 1.0; path = []; pathTimer = 0;
+  recentShops = []; recentCusts = [];
+
+  initStageEvent();
+  initTrafficSystem();
+  syncHazards();
+
+  cam.x = clamp(P.x - W/ZOOM/2, 0, Math.max(0, MAP.w - W/ZOOM));
+  cam.y = clamp(P.y - H/ZOOM/2, 0, Math.max(0, MAP.h - H/ZOOM));
+
+  sfx('level');
+  vibrate([40, 30, 60, 30, 80]);
+  stats.score += 200;
+  addCoins(25);
+
+  if(isLoopComplete){
+    showBanner('👑 環台巡迴第 '+(endlessLoop-1)+' 輪制霸！', '進入第 '+endlessLoop+' 輪【極限狂暴】！下一站：'+curMap.name+'！', '#facc15', 4.0);
+  } else {
+    showBanner('🎉 '+prevMapName+' 配送達成！', '🚚 跨區轉移！第 '+(endlessStationsCleared + 1)+' 站：【'+curMap.name+'】！體力+30！', '#34d399', 4.0);
   }
 }
 function levelUp(){
@@ -8140,7 +8264,7 @@ function drawHUD(now){
   const rightX=L+barW-rightW-4;
   ctx.textAlign='right';
   ctx.fillStyle='#6ee7b7'; ctx.font='900 13px system-ui,sans-serif';
-  const progTxt=gameMode==='story'?(stats.delivered+'/'+curMap.goalOrders+'單'):('Lv.'+level);
+  const progTxt=gameMode==='story'?(stats.delivered+'/'+curMap.goalOrders+'單'):('第'+(curMapIdx+1)+'站 '+stageDelivered+'/4單');
   ctx.fillText(progTxt, L+barW-46, T+16);
   for(let i=0;i<3;i++){
     ctx.beginPath(); ctx.arc(L+barW-34+i*11, T+16, 4, 0, Math.PI*2);
@@ -8667,7 +8791,7 @@ document.addEventListener('click',e=>{
 });
 document.querySelectorAll('.modeBtn').forEach(b=>b.addEventListener('click',()=>{
   ensureAudio(); sfx('click'); gameMode=b.dataset.mode; store.set('dug_mode',gameMode);
-  document.querySelectorAll('.modeBtn').forEach(x=>x.classList.toggle('sel',x===b));
+  updateModeUI();
 }));
 document.querySelectorAll('.char').forEach(b=>b.addEventListener('click',()=>{
   ensureAudio(); sfx('click'); char=b.dataset.char; store.set('dug_char',char);
