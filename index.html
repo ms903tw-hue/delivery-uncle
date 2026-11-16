@@ -207,8 +207,7 @@ body.title #titleBtnsTop .hudBtn{position:static}
   <button class="hudBtn" id="hudHomeBtn" aria-label="回主大廳" title="回主大廳">🏠</button>
   <button id="hudToggleBtn" aria-label="選單">⚙️</button>
   <div id="hudMenuBtns">
-    <button class="hudBtn" id="pauseBtn" aria-label="暫停">⏸</button>
-    <button class="hudBtn" id="hudMenuHomeBtn" aria-label="回主大廳" title="回主大廳">🏠</button>
+    <button class="hudBtn" id="hudRestartBtn" aria-label="重新開始" title="重新開始">🔄</button>
     <button class="hudBtn" id="vibBtn" aria-label="震動開關" title="震動：開啟">📳</button>
     <button class="hudBtn" id="muteBtn" aria-label="靜音">🔊</button>
     <button class="hudBtn" id="fullBtn" aria-label="全螢幕" title="全螢幕"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
@@ -319,14 +318,17 @@ body.title #titleBtnsTop .hudBtn{position:static}
 <!-- 離開遊戲確認彈窗 -->
 <div class="overlay" id="exitModal"><div class="card" style="max-width:390px;">
   <div style="font-size:36px;margin-bottom:4px;">🏠</div>
-  <h2 style="margin:0 0 8px;color:#fde047;font-size:20px;">結束配送返回大廳？</h2>
+  <h2 style="margin:0 0 8px;color:#fde047;font-size:20px;">暫停配送・返回大廳？</h2>
   <p style="color:#cbd5e1;font-size:14px;line-height:1.6;margin:10px 0 18px;">
     目前配送進度將不計入關卡結算。<br>
     <span style="color:#94a3b8;font-size:12.5px;">（但本次賺得的 🪙 外送金幣會妥善保留）</span>
   </p>
-  <div style="display:flex;gap:10px;justify-content:center;">
-    <button class="btn primary" id="exitCancelBtn" style="flex:1;">🚲 繼續送餐</button>
-    <button class="btn" id="exitConfirmBtn" style="flex:1;background:#334155;border-color:#64748b;">🚪 確定離開</button>
+  <div style="display:flex;flex-direction:column;gap:8px;justify-content:center;">
+    <button class="btn primary" id="exitCancelBtn" style="width:100%;">🚲 繼續送餐</button>
+    <div style="display:flex;gap:8px;">
+      <button class="btn" id="exitRestartBtn" style="flex:1;background:#1e293b;border-color:#475569;">🔄 重新開始</button>
+      <button class="btn" id="exitConfirmBtn" style="flex:1;background:#334155;border-color:#64748b;">🚪 確定離開</button>
+    </div>
   </div>
 </div></div>
 
@@ -666,6 +668,7 @@ function playCheerSound(volMul=1){
 
 function sfx(name, volMul=1){
   if(!Snd.ctx||muted) return;
+  if((name.startsWith('horn') || name==='siren' || name==='amb') && G.state !== 'play') return;
   const t=Snd.ctx.currentTime;
   switch(name){
     case 'cheer': playCheerSound(volMul); break;
@@ -1752,6 +1755,7 @@ function buyUpgrade(key){
   renderGarage();
 }
 let P,cars,dogs,shots,items,pops,order,stats,level,strikes,combo,countdown,shake,itemTimer,orderDelay,banner,lastTick,path,pathTimer,hintT;
+let recentShops=[], recentCusts=[];
 let trafficLights=[]; // 紅綠燈號誌
 let peds=[];          // 行人
 let redCooldown=0;    // 闖紅燈判定冷卻
@@ -2059,6 +2063,7 @@ function resetGame(){
   level=1;strikes=0;combo=0;lastStars=0;lastWasVip=false;redCooldown=0;tutToast=null;tutQueue=[];tutLockT=0;
   stats={score:0,delivered:0,orderStars:0,maxCombo:0,near:0,dogs:0,time:0,violations:0,coins:0};
   order=null;orderDelay=0.2;countdown=3.2;shake=0;itemTimer=4;banner=null;lastTick=-1;path=[];pathTimer=0;hintT=(gameMode==='story'&&curMapIdx===0)?16:7;
+  recentShops=[]; recentCusts=[];
   rainT=0; rainCooldown=rand(18,30);
   initStageEvent();
   initTrafficSystem();
@@ -2526,15 +2531,15 @@ function getStorySteps(){
     if(isF){
       return [
         {ava:'👩', speaker:'妮野可（24歲・外送甜心）', text:'「大學剛畢業，我的夢想是開一間屬於自己的台味獨立甜點手搖店！為了籌備開店創業第一桶金，我毅然決定跨上座駕，踏上全台外送的冒險之旅！」'},
-        {ava:'🧋', speaker:'粉紅勁駒・夢想啟航', text:'「扣緊粉色安全帽、甩起俐落馬尾！不管是九份陡峭石階、平溪天燈山道，還是信義區跨年車陣，全台灣的大街小巷都是我的夢想伸展台！」'},
-        {ava:'🛵', speaker:'堅持與微笑', text:'「每一杯微糖微冰波霸奶茶，封膜都不能破；每一份熱湯，都要熱騰騰準時送達！看到客人驚喜的笑臉與五星好評，就是我前進的最大動力！」'},
+        {ava:'🛵', speaker:'粉紅勁駒・夢想啟航', text:'「扣緊粉色安全帽、甩起俐落馬尾！不管是九份陡峭石階、平溪天燈山道，還是信義區跨年車陣，全台灣的大街小巷都是我的夢想伸展台！」'},
+        {ava:'🧋', speaker:'堅持與微笑', text:'「每一杯微糖微冰波霸奶茶，封膜都不能破；每一份熱湯，都要熱騰騰準時送達！看到客人驚喜的笑臉與五星好評，就是我前進的最大動力！」'},
         {ava:'👩', speaker:'妮野可（青春制霸）', text:'「只要心中有夢，就沒有到達不了的終點！今天也要以最高效率與滿滿元氣，拿下全場零差評、征服全台灣！」'}
       ];
     }
     return [
       {ava:'👨', speaker:'阿豪大叔（42歲・前資深工程師）', text:'「去年科技業寒冬，待了十幾年的公司無預警縮編…回到家看著女兒剛考上大學的學費單與房貸，我抽了半包菸，心想：身為爸爸，我絕不能倒下！」'},
       {ava:'🚲', speaker:'中年轉職・跨上舊鐵馬', text:'「牽出車庫裡那台生鏽但堅固的舊單車，裝上保溫箱、在手機下載了外送 App。頂著 36 度的柏油路熱浪與午後西北雨，雙腳用力踩著踏板，每一單都在跟生活賽跑！」'},
-      {ava:'🍜', speaker:'街頭的溫度', text:'「『大叔加油！這瓶青草茶請你喝啦！』小吃店老闆的熱情打氣、顧客接過便當真誠的一聲謝謝，讓我明白：只要踏板還在轉動，就沒有過不去的坎！送的不只是餐點，更是人情味！」'},
+      {ava:'🍵', speaker:'街頭的溫度', text:'「『大叔加油！這瓶青草茶請你喝啦！』小吃店老闆的熱情打氣、顧客接過便當真誠的一聲謝謝，讓我明白：只要踏板還在轉動，就沒有過不去的坎！送的不只是餐點，更是人情味！」'},
       {ava:'👨', speaker:'阿豪大叔（外送大叔傳奇）', text:'「賺存金幣換了外送機車，現在我要挑戰環台 12 大著名街景！穿上反光背心、扣緊安全帽——外送大叔，今天也要為家人全速出發！」'}
     ];
   }
@@ -2841,7 +2846,7 @@ function renderMapSel(){
       ? (mStars>0
         ? '<span style="font-size:13px;letter-spacing:1px;color:#fde047">'+'★'.repeat(mStars)+'<span style="color:#475569">'+'★'.repeat(3-mStars)+'</span></span>'
         : '<span style="color:#94a3b8;font-size:11px">未通關</span>')
-      : '<span style="color:#38bdf8;font-size:11px">♾️ 已解鎖</span>');
+      : '<span title="已解鎖" style="font-size:14px">🔓</span>');
     card.innerHTML='<div class="mapIc">'+m.icon+'</div><div class="mapInfo"><div class="mapName"><span>'+m.name+'</span>'+badge+'</div><div class="mapDesc">'+m.shortDesc+'</div><div class="mapMeta">'+meta+'</div></div>';
     if(unlocked){
       card.addEventListener('click',()=>{
@@ -3026,8 +3031,8 @@ function winStage(){
   }
   showEndCard(true, msg);
 }
-function showBanner(text,sub,color,dur=2.0){banner={text,sub:sub||'',color:color||'#fde68a',t:dur,maxT:dur};}
-function pop(x,y,text,color,size){pops.push({x,y,text,color:color||'#fff',t:1.1,size:size||20});}
+function showBanner(text,sub,color,dur=3.2){banner={text,sub:sub||'',color:color||'#fde68a',t:dur,maxT:dur};}
+function pop(x,y,text,color,size){pops.push({x,y,text,color:color||'#fff',t:1.6,size:size||22});}
 function updateAmmo(){
   $('ammoTxt').textContent='×'+(P?P.ammo:0);
   $('throwBtn').classList.toggle('empty',!P||P.ammo<=0);
@@ -3077,20 +3082,49 @@ const ORDER_NOTES = GENERAL_NOTES.concat(DRINK_NOTES, SOUP_NOTES);
 function getOrderTarget(){
   if(!order) return null;
   if(order.stage === 'pickup') return order.shop;
-  if(order.stacked && !order.stacked.delivered) return order.stacked.cust;
-  return order.cust;
+  if(order.stacked){
+    if(!order.primaryDelivered && !order.stacked.delivered) return order.stacked.cust;
+    if(!order.primaryDelivered) return order.cust;
+    if(!order.stacked.delivered) return order.stacked.cust;
+    return null;
+  }
+  return order.primaryDelivered ? null : order.cust;
 }
 
 function newOrder(){
   // 嚴格觸發【金牌特急單】：需 連擊>=3 ＋ 上單滿分3星 ＋ 無差評 ＋ 不連續出現
   const isVip = (combo >= 3 && lastStars >= 3 && strikes === 0 && !lastWasVip);
   const isSpecial = !isVip && stats.delivered >= 1 && Math.random() < 0.45;
-  const minDist = isVip ? 900 : 600;
-  let shop=pick(shops), cust=pick(customers);
-  for(let i=0;i<40;i++){
-    const s=pick(shops), c=pick(customers);
-    if(pathLen(s.door,c.door)>=minDist){shop=s;cust=c;break;}
+  const minDist = isVip ? 720 : (gameMode === 'endless' ? rand(360, 560) : 450);
+
+  // 避免重複造訪最近的店家與顧客，讓全地圖景點均勻輪替
+  const availShops = shops.filter(s => !recentShops.includes(s));
+  const shopPool = availShops.length ? availShops : shops;
+  const availCusts = customers.filter(c => !recentCusts.includes(c));
+  const custPool = availCusts.length ? availCusts : customers;
+
+  let bestShop = pick(shopPool), bestCust = pick(custPool);
+  let bestScore = -1e9;
+  for(let i=0; i<35; i++){
+    const s = pick(shopPool);
+    const c = pick(custPool);
+    if(s === bestShop && c === bestCust) continue;
+    const distSC = pathLen(s.door, c.door);
+    const distPtoS = P ? pathLen(P, s.door) : 400;
+    if(distSC >= minDist){
+      const score = distSC - Math.abs(distPtoS - 420) * 0.4 + Math.random() * 200;
+      if(score > bestScore){
+        bestScore = score;
+        bestShop = s;
+        bestCust = c;
+      }
+    }
   }
+  const shop = bestShop, cust = bestCust;
+  recentShops.push(shop);
+  if(recentShops.length > 2) recentShops.shift();
+  recentCusts.push(cust);
+  if(recentCusts.length > 3) recentCusts.shift();
   const isDrinkShop = (shop.icon==='🧋' || shop.name.includes('手搖') || shop.name.includes('茶') || shop.name.includes('奶') || shop.name.includes('飲'));
   const specialType = isSpecial ? ((isDrinkShop || Math.random() < 0.55) ? 'drink' : 'soup') : null;
   const fragile = !!specialType;
@@ -3597,11 +3631,12 @@ function updateCars(dt){
         }
       }
 
-      // D. 保護同車道前方之外送員（停紅燈或低速減速保持 34px 安全淨空，絕不貼身撞上）
+      // D. 保護同車道前方之外送員（停紅燈或低速減速保持 34px 安全淨空，絕不貼身撞上；騎士在臨停區內時車輛不停滯催促）
       if(G.state === 'play' && P && !devGhost){
+        const inBay = places.some(pl => dist(P, pl.door) < 55);
         const lateral = c.axis==='h' ? Math.abs(P.y - c.lane) : Math.abs(P.x - c.lane);
         const laneHitW = ((c.h || 26) / 2) + P.r + 8;
-        if(lateral < laneHitW){
+        if(lateral < laneHitW && !inBay){
           const dToRiderRear = ((c.axis==='h' ? P.x : P.y) - front) * c.dir - P.r;
           const riderSafeGap = 34;
           if(dToRiderRear >= -6 && dToRiderRear < 150 && (!c.speeder || !P.moving)){
@@ -3619,10 +3654,10 @@ function updateCars(dt){
                 c.blockRiderT = 0;
               } else {
                 c.blockRiderT = (c.blockRiderT || 0) + dt;
-                const reqTime = isGreenAtTl ? 1.0 : 1.8;
+                const reqTime = isGreenAtTl ? 1.4 : 2.5;
                 if(c.blockRiderT >= reqTime && (c.hornCooldown || 0) <= 0){
                   c.blockRiderT = 0;
-                  c.hornCooldown = 3.2;
+                  c.hornCooldown = 5.0;
                   const cpNow = carPos(c);
                   if(c.type === 'bike'){
                     sfx('bell');
@@ -3634,7 +3669,7 @@ function updateCars(dt){
                     sfx('horn_truck');
                     pop(cpNow.x, cpNow.y - 24, isGreenAtTl ? '🚛 叭——！綠燈走囉！' : '🚛 叭——！大車借過！', '#fde047', 16);
                   } else if(c.type === 'ambulance'){
-                    sfx('horn_amb');
+                    sfx('horn_amb', 0.8);
                     pop(cpNow.x, cpNow.y - 24, '🚑 叭——！救護車借道！', '#ef4444', 18);
                   } else {
                     sfx('horn_car');
@@ -3683,10 +3718,12 @@ function updateCars(dt){
         leadCar.yieldTimer = 2.2;
         c.ambHornTimer = (c.ambHornTimer || 0) - dt;
         if(c.ambHornTimer <= 0 && minLeadDist < 165){
-          c.ambHornTimer = 2.5;
-          sfx('horn_amb', 1.0);
+          c.ambHornTimer = 8.0;
+          if(activePlay && dist(carPos(c), P) < 200){
+            sfx('horn_amb', 0.6);
+          }
           const ambP = carPos(c);
-          pop(ambP.x, ambP.y - 26, '🚑 叭——！救護車借道！請向路邊禮讓！', '#ef4444', 17);
+          pop(ambP.x, ambP.y - 26, '🚑 叭——！救護車借道！請向路邊禮讓！', '#ef4444', 16);
         }
         // 若前車尚未完全靠邊讓出通道，減速不直接穿模貫穿前車
         const oEffLane = carEffLane(leadCar);
@@ -4030,11 +4067,12 @@ function updateCars(dt){
       const distToAmbLane = c.axis === 'h' ? Math.abs(P.y - carEffLane(c)) : Math.abs(P.x - carEffLane(c));
 
       // 情況 1：後方鳴笛借道（救護車在騎士後方 20px～195px 同向接近並鳴笛催道）
-      if(onSameRoad && inSameTravelHalf && playerAheadDelta > 15 && playerAheadDelta < 195){
+      const riderInBay = places.some(pl => dist(P, pl.door) < 55);
+      if(activePlay && onSameRoad && inSameTravelHalf && playerAheadDelta > 15 && playerAheadDelta < 195 && !riderInBay){
         c.riderHornTimer = (c.riderHornTimer || 0) - dt;
         if(c.riderHornTimer <= 0){
-          c.riderHornTimer = 2.4;
-          sfx('horn_amb', 1.0);
+          c.riderHornTimer = 6.0;
+          sfx('horn_amb', 0.9);
           pop(cp.x, cp.y - 26, '🚑 叭——！救護車借道！請向路邊禮讓！', '#ef4444', 18);
           pop(P.x, P.y - 30, '🚨 後方救護車鳴笛借道！請主動靠邊！', '#fde047', 15);
           vibrate([50, 40, 50]);
@@ -4136,14 +4174,14 @@ function triggerStageEvent(forcedType, isInstant = false){
       break;
     }
     case 'alishan': { // 4. 嘉義阿里山：櫻花鐵道平交道森林小火車
-      const trainY = (HROADS[1] || 720);
+      const trainY = (curMap.id==='alishan' ? 785 : ((HROADS[1] || 720) - HALF - 24));
       stageEvent = {
         type: 'alishan', active: true, joined: false, t: 30, maxT: 30,
-        x: 650, y: trainY - HALF - 16,
+        x: 620, y: trainY,
         trainX: -320, trainY: trainY, dir: 1, barrierDown: true, healed: false,
         locName: '【櫻花平交道路口】',
         title: '🚂 森林小火車',
-        promptDesc: '森林小火車即將駛過！平交道前停等賞櫻體力大回復！',
+        promptDesc: '森林小火車即將駛過鐵道平交道！在平交道前停等賞櫻體力大回復！',
         joinedMsg: '停等平交道賞櫻！心靈放鬆體力大回復 +60分！'
       };
       break;
@@ -4283,6 +4321,16 @@ function updateStageEvent(dt){
   }
 
   const ev = stageEvent;
+  if(ev.joinAnimTimer > 0) ev.joinAnimTimer -= dt;
+  if(ev.particles && ev.particles.length > 0){
+    for(const p of ev.particles){
+      p.t -= dt;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vy += 95 * dt;
+    }
+    ev.particles = ev.particles.filter(p => p.t > 0);
+  }
 
   // 自願路邊互動判定：當玩家靠近事件座標時，自願加入事件
   if(!ev.joined && P){
@@ -4290,6 +4338,23 @@ function updateStageEvent(dt){
     if(dJoin < 65){
       ev.joined = true;
       sfx('praise');
+      ev.joinAnimTimer = 3.5;
+      ev.particles = [];
+      const burstColors = ['#fde047', '#38bdf8', '#f472b6', '#34d399', '#fb923c', '#ffffff'];
+      const icons = ['✨', '⭐', '🪙', '🎉', '🎊', '💫'];
+      for(let i=0; i<24; i++){
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 60 + Math.random() * 140;
+        ev.particles.push({
+          x: ev.x, y: ev.y,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd - 45,
+          color: pick(burstColors),
+          icon: pick(icons),
+          size: 14 + Math.random() * 10,
+          t: 1.8, maxT: 1.8
+        });
+      }
       showBanner('🎉 成功加入特殊事件！', ev.joinedMsg || ev.title, '#34d399', 3.5);
       pop(ev.x, ev.y - 36, '🎪 加入特殊事件！', '#34d399', 24);
 
@@ -4600,7 +4665,7 @@ function drawStageEventWorld(now){
     case 'alishan': { // 4. 阿里山：紅色小火車
       const tx = ev.trainX, ty = ev.trainY;
       ctx.save();
-      const cx = 650, cy = ty - HALF - 6;
+      const cx = 620, cy = ty - 26;
       if(inView(cx - 40, cy - 60, 80, 100)){
         ctx.fillStyle = '#0f172a'; ctx.fillRect(cx - 3, cy - 24, 6, 32);
         ctx.fillStyle = '#fde047'; ctx.fillRect(cx - 14, cy - 20, 28, 5);
@@ -4810,6 +4875,59 @@ function drawStageEventWorld(now){
       }
       break;
     }
+  }
+
+  // 特殊事件加入慶祝粒子與動畫
+  if(ev.particles && ev.particles.length > 0){
+    ctx.save();
+    for(const p of ev.particles){
+      ctx.globalAlpha = Math.max(0, p.t / (p.maxT || 1.8));
+      ctx.font = `${p.size || 16}px system-ui, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(p.icon || '✨', p.x, p.y);
+    }
+    ctx.restore();
+  }
+
+  if(ev.joinAnimTimer > 0 && P){
+    const pTimer = ev.joinAnimTimer;
+    const alpha = Math.min(1, pTimer / 0.5, (3.5 - pTimer) / 0.5);
+    ctx.save();
+    ctx.translate(P.x, P.y);
+    ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
+
+    // 金色能量脈衝光環
+    const pulseR = 30 + Math.sin(now * 0.012) * 8;
+    const aura = ctx.createRadialGradient(0, 0, 10, 0, 0, pulseR + 15);
+    aura.addColorStop(0, 'rgba(253, 224, 71, 0.45)');
+    aura.addColorStop(0.6, 'rgba(245, 158, 11, 0.25)');
+    aura.addColorStop(1, 'rgba(245, 158, 11, 0)');
+    ctx.fillStyle = aura;
+    ctx.beginPath(); ctx.arc(0, 0, pulseR + 15, 0, Math.PI * 2); ctx.fill();
+
+    // 環繞旋轉祈福之星
+    const starCount = 6;
+    for(let i = 0; i < starCount; i++){
+      const angle = now * 0.004 + (i * Math.PI * 2 / starCount);
+      const sx = Math.cos(angle) * (pulseR + 6);
+      const sy = Math.sin(angle) * (pulseR + 6) * 0.6;
+      ctx.font = '12px system-ui';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('⭐', sx, sy);
+    }
+
+    // 向上漂浮的獲得祝福提示
+    const floatY = -35 - (3.5 - pTimer) * 12;
+    ctx.fillStyle = '#fde047';
+    ctx.font = '900 13px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.shadowColor = 'rgba(0,0,0,0.85)';
+    ctx.shadowBlur = 4;
+    ctx.fillText('✨ 特殊加成啟動！ ✨', 0, floatY);
+
+    ctx.restore();
   }
 
   ctx.restore();
@@ -5216,39 +5334,41 @@ function update(dt){
           sfx('praise');
           vibrate([40,30,50]);
           pop(P.x, P.y-34, '🍱 順路單送達！🪙+60 獎金！', '#34d399', 22);
-          showBanner('🍱 順路單送達成功！', '太棒了！接著全速送往【原單：'+order.cust.name+'】！', '#34d399', 3.5);
           order.stacked.cust.speech = {
             text: '「哇！順路送來超有效率！謝謝大叔！」',
             t: 2.8,
             hasTip: false,
             tipCoins: 0
           };
-          pathTimer = 0; // 立即切換導航光點至原單顧客
+          pathTimer = 0;
           if(order.primaryDelivered){
+            showBanner('🍱 雙拼單全數送達！', '原單與順路單皆全速送達！領取額外雙倍獎金！', '#34d399', 3.5);
             deliver();
+          } else {
+            showBanner('🍱 順路單送達成功！', '太棒了！接著全速送往【原單：'+order.cust.name+'】！', '#34d399', 3.5);
           }
         }
       }
 
       // 3. 原單顧客送達判定
-      if(order){
+      if(order && !order.primaryDelivered){
         const dOrigCust = dist(P, order.cust.door);
         if(dOrigCust < 54){
           if(order.stacked && !order.stacked.delivered){
-            if(!order.primaryDelivered){
-              order.primaryDelivered = true;
-              sfx('pickup');
-              pop(P.x, P.y-34, '📦 原單先行送達！', '#38bdf8', 21);
-              showBanner('📦 原單送達！', '接著全速送往【順路單：'+order.stacked.cust.name+'】！', '#38bdf8', 3.0);
-              order.cust.speech = {
-                text: '「感謝大叔！餐點先收下囉！」',
-                t: 2.8,
-                hasTip: false,
-                tipCoins: 0
-              };
-              pathTimer = 0;
-            }
+            order.primaryDelivered = true;
+            sfx('pickup');
+            sfx('praise');
+            pop(P.x, P.y-34, '📦 原單送達！', '#38bdf8', 21);
+            showBanner('📦 原單送達！', '太棒了！接著全速送往【順路單：'+order.stacked.cust.name+'】！', '#38bdf8', 3.5);
+            order.cust.speech = {
+              text: '「感謝大叔！餐點先收下囉！」',
+              t: 2.8,
+              hasTip: false,
+              tipCoins: 0
+            };
+            pathTimer = 0;
           } else {
+            order.primaryDelivered = true;
             deliver();
           }
         }
@@ -5910,8 +6030,13 @@ function drawWorld(now){
   // 阿里山森林小火車／平溪十分鐵道裝飾
   if(th==='alishan' || th==='shifen'){
     const railYs=[];
-    if(HROADS[1]!==undefined) railYs.push(HROADS[1]-HALF-22);
-    if(HROADS[2]!==undefined) railYs.push(HROADS[2]+HALF+22);
+    if(th==='alishan'){
+      railYs.push(785);
+      if(HROADS[0]!==undefined) railYs.push(HROADS[0]-HALF-22);
+    } else {
+      if(HROADS[1]!==undefined) railYs.push(HROADS[1]-HALF-22);
+      if(HROADS[2]!==undefined) railYs.push(HROADS[2]+HALF+22);
+    }
     railYs.forEach(ry=>{
       ctx.fillStyle='#451a03';
       for(let rx=0;rx<MAP.w;rx+=14) ctx.fillRect(rx,ry-6,6,12);
@@ -6011,6 +6136,49 @@ function drawWorld(now){
   ctx.fillStyle=pal.road;
   for(const s of H_SEGS) ctx.fillRect(s.x0+1,s.y-HALF+1,s.x1-s.x0-2,HALF*2-2);
   for(const s of V_SEGS) for(const [y0,y1] of vSegRuns(s,true)) ctx.fillRect(s.x-HALF+1,y0+1,HALF*2-2,y1-y0-2);
+
+  // 馬路路口轉彎處圓弧倒角化（改善生硬直角轉彎，平順連接路緣與紅線）
+  const cornerR = 18;
+  for(const it of getIntersections()){
+    if(!inView(it.x-HALF-24, it.y-HALF-24, HALF*2+48, HALF*2+48)) continue;
+    const hasLeft = hasHBetween(it.y, it.x-30, it.x);
+    const hasRight = hasHBetween(it.y, it.x, it.x+30);
+    const hasTop = hasVBetween(it.x, it.y-30, it.y);
+    const hasBottom = hasVBetween(it.x, it.y, it.y+30);
+
+    if(hasTop && hasLeft){
+      const cx = it.x - HALF, cy = it.y - HALF;
+      ctx.beginPath(); ctx.moveTo(cx, cy - cornerR); ctx.lineTo(cx, cy); ctx.lineTo(cx - cornerR, cy); ctx.arcTo(cx, cy, cx, cy - cornerR, cornerR); ctx.closePath();
+      ctx.fillStyle = pal.road; ctx.fill();
+      ctx.beginPath(); ctx.moveTo(cx - cornerR, cy); ctx.arcTo(cx, cy, cx, cy - cornerR, cornerR);
+      ctx.strokeStyle = '#334155'; ctx.lineWidth = 4; ctx.stroke();
+      ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2; ctx.stroke();
+    }
+    if(hasTop && hasRight){
+      const cx = it.x + HALF, cy = it.y - HALF;
+      ctx.beginPath(); ctx.moveTo(cx, cy - cornerR); ctx.lineTo(cx, cy); ctx.lineTo(cx + cornerR, cy); ctx.arcTo(cx, cy, cx, cy - cornerR, cornerR); ctx.closePath();
+      ctx.fillStyle = pal.road; ctx.fill();
+      ctx.beginPath(); ctx.moveTo(cx + cornerR, cy); ctx.arcTo(cx, cy, cx, cy - cornerR, cornerR);
+      ctx.strokeStyle = '#334155'; ctx.lineWidth = 4; ctx.stroke();
+      ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2; ctx.stroke();
+    }
+    if(hasBottom && hasLeft){
+      const cx = it.x - HALF, cy = it.y + HALF;
+      ctx.beginPath(); ctx.moveTo(cx, cy + cornerR); ctx.lineTo(cx, cy); ctx.lineTo(cx - cornerR, cy); ctx.arcTo(cx, cy, cx, cy + cornerR, cornerR); ctx.closePath();
+      ctx.fillStyle = pal.road; ctx.fill();
+      ctx.beginPath(); ctx.moveTo(cx - cornerR, cy); ctx.arcTo(cx, cy, cx, cy + cornerR, cornerR);
+      ctx.strokeStyle = '#334155'; ctx.lineWidth = 4; ctx.stroke();
+      ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2; ctx.stroke();
+    }
+    if(hasBottom && hasRight){
+      const cx = it.x + HALF, cy = it.y + HALF;
+      ctx.beginPath(); ctx.moveTo(cx, cy + cornerR); ctx.lineTo(cx, cy); ctx.lineTo(cx + cornerR, cy); ctx.arcTo(cx, cy, cx, cy + cornerR, cornerR); ctx.closePath();
+      ctx.fillStyle = pal.road; ctx.fill();
+      ctx.beginPath(); ctx.moveTo(cx + cornerR, cy); ctx.arcTo(cx, cy, cx, cy + cornerR, cornerR);
+      ctx.strokeStyle = '#334155'; ctx.lineWidth = 4; ctx.stroke();
+      ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2; ctx.stroke();
+    }
+  }
   if(th==='dadaocheng'||th==='jiufen'||th==='anping'||th==='shifen'){
     ctx.fillStyle='rgba(255,255,255,0.035)';
     for(const s of H_SEGS){
@@ -6425,11 +6593,77 @@ function renderPlaceNPC(ctx, p, now, active, isPickup, prepT){
   }
 }
 
+function drawStreetDecor(p, now){
+  if(p.axis !== 'h') return;
+  const isTop = (p.side === 'top');
+  const decorY = isTop ? (p.y + p.h - 32) : (p.y + 4);
+
+  // 1. 店家/住戶左側：特色街頭小吃攤車 (🍢) 或 飲品自動販賣機 (🥤)
+  const leftX = p.x - 58;
+  if(inView(leftX - 10, decorY - 10, 52, 38)){
+    if(p.type === 'shop'){
+      ctx.save();
+      ctx.fillStyle = '#451a03';
+      rrc(ctx, leftX, decorY + 10, 44, 20, 3); ctx.fill();
+      ctx.fillStyle = '#9a3412';
+      ctx.fillRect(leftX + 4, decorY + 12, 36, 12);
+      ctx.fillStyle = '#ea580c';
+      rrc(ctx, leftX - 2, decorY, 48, 9, 2); ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      for(let sx = leftX + 2; sx < leftX + 44; sx += 8) ctx.fillRect(sx, decorY, 4, 9);
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath(); ctx.arc(leftX + 8, decorY + 28, 4, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(leftX + 36, decorY + 28, 4, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#fef08a'; ctx.font = '9px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('🍢', leftX + 22, decorY + 17);
+      ctx.restore();
+    } else {
+      ctx.save();
+      ctx.fillStyle = '#1e293b';
+      rrc(ctx, leftX + 8, decorY + 2, 30, 26, 3); ctx.fill();
+      ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 1.2; ctx.stroke();
+      ctx.fillStyle = 'rgba(56,189,248,0.3)';
+      ctx.fillRect(leftX + 12, decorY + 6, 22, 10);
+      ctx.fillStyle = '#fde047'; ctx.fillRect(leftX + 14, decorY + 8, 4, 6);
+      ctx.fillStyle = '#f43f5e'; ctx.fillRect(leftX + 21, decorY + 8, 4, 6);
+      ctx.fillStyle = '#34d399'; ctx.fillRect(leftX + 28, decorY + 8, 4, 6);
+      ctx.fillStyle = '#0f172a'; ctx.fillRect(leftX + 14, decorY + 19, 18, 6);
+      ctx.restore();
+    }
+  }
+
+  // 2. 店家/住戶右側：機車停放格 (🛵) 或 台灣經典紅白綠郵筒 (📮) ＆ 盆栽 (🪴)
+  const rightX = p.x + p.w + 12;
+  if(inView(rightX - 10, decorY - 10, 52, 38)){
+    if(p.type === 'shop'){
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.lineWidth = 1.2;
+      ctx.strokeRect(rightX, decorY + 4, 20, 24);
+      ctx.strokeRect(rightX + 22, decorY + 4, 20, 24);
+      ctx.fillStyle = '#0284c7'; rrc(ctx, rightX + 4, decorY + 6, 12, 18, 2); ctx.fill();
+      ctx.fillStyle = '#0f172a'; ctx.fillRect(rightX + 7, decorY + 10, 6, 8);
+      ctx.fillStyle = '#ec4899'; rrc(ctx, rightX + 26, decorY + 7, 12, 18, 2); ctx.fill();
+      ctx.fillStyle = '#0f172a'; ctx.fillRect(rightX + 29, decorY + 11, 6, 8);
+      ctx.restore();
+    } else {
+      ctx.save();
+      ctx.fillStyle = '#15803d'; rrc(ctx, rightX + 4, decorY + 6, 11, 20, 2); ctx.fill();
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(rightX + 6, decorY + 10, 7, 2);
+      ctx.fillStyle = '#b91c1c'; rrc(ctx, rightX + 18, decorY + 6, 11, 20, 2); ctx.fill();
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(rightX + 20, decorY + 10, 7, 2);
+      ctx.fillStyle = '#78350f'; rrc(ctx, rightX + 34, decorY + 16, 10, 10, 2); ctx.fill();
+      ctx.fillStyle = '#22c55e'; ctx.beginPath(); ctx.arc(rightX + 39, decorY + 12, 7, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+    }
+  }
+}
+
   // 6. 店家／顧客招牌（清楚區分 🍳店家 vs 🏠顧客，加上目前目標發光提示）
   const tgt=getOrderTarget();
   ctx.textAlign='center'; ctx.textBaseline='middle';
   for(const p of places){
-    if(!inView(p.x,p.y-40,p.w,p.h+80)) continue;
+    if(!inView(p.x - 70, p.y - 40, p.w + 140, p.h + 80)) continue;
+    drawStreetDecor(p, now);
     const active=p===tgt;
     const isShop=p.type==='shop';
 
@@ -6502,7 +6736,7 @@ function renderPlaceNPC(ctx, p, now, active, isPickup, prepT){
     const bob=Math.sin(now/180)*5;
     const ty=tgt.side==='top'?tgt.door.y-46+bob:tgt.door.y+46+bob;
     const lbl=isPick?'🍳 取餐點！':(isStackedCust?'🍱 第1站・順路單送達！':'📦 送達這裡！');
-    ctx.font='900 13px system-ui,sans-serif';
+    ctx.font='900 13.5px system-ui,sans-serif';
     const lw=ctx.measureText(lbl).width+16;
     ctx.fillStyle=isPick?'#b45309':(isStackedCust?'#0284c7':'#047857');
     rrc(ctx,tgt.door.x-lw/2,ty-12,lw,24,12); ctx.fill();
@@ -6510,7 +6744,7 @@ function renderPlaceNPC(ctx, p, now, active, isPickup, prepT){
     ctx.fillStyle='#ffffff'; ctx.fillText(lbl,tgt.door.x,ty);
   }
   // 若有順路單且正在送第1站，地圖上原單顧客門口也顯示「📦 第2站・原單」輔助提示
-  if(order && order.stage==='deliver' && order.stacked && !order.stacked.delivered){
+  if(order && order.stage==='deliver' && order.stacked && !order.stacked.delivered && !order.primaryDelivered){
     const oCust = order.cust;
     if(inView(oCust.door.x-60, oCust.door.y-60, 120, 120)){
       ctx.save();
@@ -7262,21 +7496,34 @@ function renderBikeRider(c,gender,now,moving,hasMeal,scale,boosting,lean=0){
   c.beginPath(); c.ellipse(-2+pOffX, -5.5+pOffY, 3.2, 1.8, 0, 0, Math.PI*2); c.fill();
   c.beginPath(); c.ellipse(-2-pOffX, 5.5-pOffY, 3.2, 1.8, 0, 0, Math.PI*2); c.fill();
 
-  // 5. 後座保溫箱
-  const skin = (typeof BOX_SKINS!=='undefined' && BOX_SKINS.find(s=>s.id===curSkin)) || {col1:'#2563eb',col2:'#1d4ed8',lid:'#1e3a8a'};
-  if(hasMeal){
-    const bG=c.createLinearGradient(-24,-8.5,-11,8.5);
-    bG.addColorStop(0,skin.col1); bG.addColorStop(1,skin.col2);
-    c.fillStyle=bG; c.strokeStyle='#0f172a'; c.lineWidth=1.2;
-    rrc(c,-24,-8.5,13,17,3); c.fill(); c.stroke();
-    c.fillStyle=skin.lid||'#065f46'; rrc(c,-22,-6.5,9,13,1.8); c.fill();
-    c.fillStyle='#ffffff'; c.font='900 7.5px system-ui'; c.textAlign='center'; c.textBaseline='middle';
-    c.fillText('FAST',-17.5,0);
-  }
+  // 5. 單車後輪擋泥板與紅色警示尾燈
+  c.strokeStyle='#64748b'; c.lineWidth=2.2;
+  c.beginPath(); c.arc(-14,0,9,Math.PI*0.7,Math.PI*1.3); c.stroke();
+  c.fillStyle='#ef4444'; c.fillRect(-20,-1.5,3.5,3); // 紅色反光尾燈
 
-  // 6. 騎士身體、雙臂與頭部
+  // 6. 騎士身體、雙臂、安全帽 ＆ 後背外送保溫包（單車外送員雙肩後揹）
   c.save();
   c.translate(0, lean*1.1);
+
+  // 6.1 雙肩後揹外送保溫箱（緊貼後背並隨身體擺動傾角同步傾斜）
+  const skin = (typeof BOX_SKINS!=='undefined' && BOX_SKINS.find(s=>s.id===curSkin)) || {col1:'#2563eb',col2:'#1d4ed8',lid:'#1e3a8a'};
+  if(hasMeal){
+    // 保溫背包本體
+    const bG=c.createLinearGradient(-19,-7.5,-7,7.5);
+    bG.addColorStop(0,skin.col1); bG.addColorStop(1,skin.col2);
+    c.fillStyle=bG; c.strokeStyle='#0f172a'; c.lineWidth=1.3;
+    rrc(c,-18,-7.5,12,15,2.6); c.fill(); c.stroke();
+    // 頂部掀蓋
+    c.fillStyle=skin.lid||'#065f46'; rrc(c,-16.5,-6,8,12,1.6); c.fill();
+    // 反光條與標籤
+    c.fillStyle='#ffffff'; c.font='900 6.5px system-ui'; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('FAST',-12.5,0);
+    // 雙肩加寬減壓揹帶（連至肩膀）
+    c.strokeStyle='#0f172a'; c.lineWidth=2.4; c.lineCap='round';
+    c.beginPath(); c.moveTo(-11,-4.8); c.lineTo(-4,-4.8); c.moveTo(-11,4.8); c.lineTo(-4,4.8); c.stroke();
+    c.strokeStyle='#fde047'; c.lineWidth=1.0;
+    c.beginPath(); c.moveTo(-9,-4.8); c.lineTo(-5,-4.8); c.moveTo(-9,4.8); c.lineTo(-5,4.8); c.stroke();
+  }
   if(F){
     c.fillStyle='#ffffff'; c.strokeStyle='#881337'; c.lineWidth=1.2;
     c.beginPath(); c.ellipse(-4,0,6.2,7.6,0,0,Math.PI*2); c.fill(); c.stroke();
@@ -7874,12 +8121,15 @@ function drawHUD(now){
       const tgt=getOrderTarget();
       const ratio=clamp(order.time/order.total, 0, 1);
       const isPick=(order.stage==='pickup');
-      const isStackedCust=(order.stage==='deliver' && order.stacked && !order.stacked.delivered);
-      let stepTag=isPick?'[取餐]':(isStackedCust?'[🍱順路第1站]':'[送達]');
+      const isStackedCust=(order.stage==='deliver' && order.stacked && !order.stacked.delivered && tgt===order.stacked.cust);
+      let stepTag=isPick?'[取餐]':(isStackedCust?'[🍱順路單]':'[送達]');
       if(order.isVip) stepTag='⭐特急【×2.5倍】';
       else if(order.specialType==='drink') stepTag=order.spilled?'🧋手搖【已漏】':'🧋手搖【×1.7】';
       else if(order.fragile) stepTag=order.spilled?'🍲熱湯【已灑】':'🍲熱湯【×1.6】';
-      if(order.stacked && order.stacked.delivered) stepTag='🍱第2站原單';
+      if(order.stacked){
+        if(tgt===order.stacked.cust) stepTag='[🍱順路單]';
+        else if(tgt===order.cust) stepTag='[📦原單]';
+      }
       const secTxt=Math.max(0, order.time).toFixed(1)+'s';
       const isUrgent=order.time<5;
       const orderTxt=stepTag+' '+tgt.icon+tgt.name+' '+secTxt;
@@ -8053,18 +8303,18 @@ function drawHUD(now){
   }
   // 頂部浮動橫幅提示（超薄小膠囊，置於頂端邊界，絕不橫切視野正中央）
   if(banner){
-    const a=Math.min(1, banner.t*3, (1.5-banner.t)*5);
+    const a=Math.min(1, banner.t*3.5, (banner.maxT-banner.t)*4);
     ctx.save();
     ctx.globalAlpha=a;
     const bTxt=banner.text+(banner.sub?(' ・ '+banner.sub):'');
-    ctx.font='900 13px system-ui,sans-serif';
+    ctx.font='900 13.5px system-ui,sans-serif';
     const btw=Math.min(W-80, ctx.measureText(bTxt).width+36);
     const bx=W/2-btw/2, by=T+38;
-    ctx.fillStyle='rgba(10,15,30,.88)';
-    rrc(ctx, bx, by, btw, 26, 13); ctx.fill();
+    ctx.fillStyle='rgba(10,15,30,.76)';
+    rrc(ctx, bx, by, btw, 28, 14); ctx.fill();
     ctx.strokeStyle=banner.color||'#fde68a'; ctx.lineWidth=1.5; ctx.stroke();
     ctx.fillStyle=banner.color||'#fde68a'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(bTxt, W/2, by+13);
+    ctx.fillText(bTxt, W/2, by+14);
     ctx.restore();
   }
 
@@ -8074,46 +8324,28 @@ function drawHUD(now){
     const a = Math.min(1, dr.t * 3.5, (dr.maxT - dr.t) * 4.5);
     ctx.save();
     ctx.globalAlpha = a;
-    const rcW = Math.min(360, W - 40);
-    const rcH = 64 + (dr.bonuses.length > 0 ? 22 : 0);
+    const rcH = 30; // 僅 30px 高度，大幅釋放路面可視區域！
+    const summaryText = '📦 ' + dr.stars + ' ' + dr.starMsg + ' +' + dr.pts + '分 🪙+' + dr.coins;
+    ctx.font = '900 13px system-ui,sans-serif';
+    const hasBonus = dr.bonuses && dr.bonuses.length > 0;
+    const bonusText = hasBonus ? (' • ' + dr.bonuses.slice(0, 2).join(' • ')) : '';
+    const fullText = summaryText + bonusText;
+    const tw = ctx.measureText(fullText).width + 32;
+    const rcW = Math.min(W - 40, Math.max(260, tw));
     const rcX = W/2 - rcW/2;
-    const rcY = T + 36;
+    const rcY = T + 38;
 
-    // 半透明磨砂質感深色底卡
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.94)';
-    rrc(ctx, rcX, rcY, rcW, rcH, 12);
+    // 半透明磨砂質感輕量深色底卡（透明度適中，絕不遮蔽來車與視線）
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.72)';
+    rrc(ctx, rcX, rcY, rcW, rcH, 15);
     ctx.fill();
     ctx.strokeStyle = '#fde047';
-    ctx.lineWidth = 1.8;
+    ctx.lineWidth = 1.5;
     ctx.stroke();
 
-    // 頂行：訂單完成 ＋ 星級評價
-    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillStyle = '#fde047';
-    ctx.font = '900 13px system-ui,sans-serif';
-    ctx.fillText('📦 訂單送達！ ' + dr.stars + ' ' + dr.starMsg, rcX + 14, rcY + 18);
-
-    // 金幣與分數總計
-    ctx.textAlign = 'right';
-    ctx.fillStyle = '#6ee7b7';
-    ctx.font = '900 14px system-ui,sans-serif';
-    ctx.fillText('+' + dr.pts + '分  🪙 +' + dr.coins, rcX + rcW - 14, rcY + 18);
-
-    // 分隔細線
-    ctx.strokeStyle = 'rgba(148, 163, 184, 0.3)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(rcX + 12, rcY + 32); ctx.lineTo(rcX + rcW - 12, rcY + 32);
-    ctx.stroke();
-
-    // 獎金明細標籤
-    if(dr.bonuses.length > 0){
-      ctx.textAlign = 'center';
-      ctx.font = '700 10.5px system-ui,sans-serif';
-      const bStr = dr.bonuses.join('  •  ');
-      ctx.fillStyle = '#bae6fd';
-      ctx.fillText(bStr, rcX + rcW/2, rcY + 46);
-    }
+    ctx.fillText(fullText, W/2, rcY + rcH/2);
 
     ctx.restore();
   }
@@ -8320,10 +8552,11 @@ btn('nextStageBtn',()=>{
 btn('againBtn',startGame);
 btn('mapBtn',openMapSel);
 btn('homeBtn2',goTitle);
-btn('pauseBtn',pauseGame);
+if($('pauseBtn')) btn('pauseBtn',pauseGame);
 const hhb=$('hudHomeBtn'); if(hhb) hhb.addEventListener('click',e=>{e.stopPropagation();openExitPrompt();});
-const hmhb=$('hudMenuHomeBtn'); if(hmhb) hmhb.addEventListener('click',e=>{e.stopPropagation();openExitPrompt();});
+const hrb=$('hudRestartBtn'); if(hrb) hrb.addEventListener('click',e=>{e.stopPropagation();ensureAudio();sfx('click');startGame();});
 btn('exitCancelBtn',resumeGame);
+const erb=$('exitRestartBtn'); if(erb) erb.addEventListener('click',e=>{e.stopPropagation();ensureAudio();sfx('click');resumeGame();startGame();});
 btn('exitConfirmBtn',goTitle);
 $('exitModal').addEventListener('click',e=>{if(e.target===$('exitModal')){ensureAudio();sfx('click');resumeGame();}});
 $('fullBtn').addEventListener('click',()=>{sfx('click');toggleFullScreen();});
