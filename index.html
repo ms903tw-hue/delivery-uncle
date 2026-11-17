@@ -1382,14 +1382,32 @@ function findSegAt(axis, roadCenter, alongPos){
 function mkPlaceSeg(name,icon,type,axis,roadCenter,alongPos,side){
   if(axis==='h'){
     const w=152, h=58;
-    const x=clamp(alongPos-w/2, 16, MAP.w-16-w);
-    const y=side==='top'?(roadCenter-HALF-14-h):(roadCenter+HALF+14);
+    const x=clamp(alongPos-w/2, 22, MAP.w-22-w);
+    let y=side==='top'?(roadCenter-HALF-14-h):(roadCenter+HALF+14);
+    // 若位於地圖最下緣或最上緣邊界，外側空間不足時自動翻轉面向道路內側，並預留安全邊界
+    if(side==='bottom' && y+h > MAP.h - 20){
+      y = roadCenter - HALF - 14 - h;
+      side = 'top';
+    } else if(side==='top' && y < 20){
+      y = roadCenter + HALF + 14;
+      side = 'bottom';
+    }
+    y=clamp(y, 20, MAP.h-20-h);
     const doorY=side==='top'?(roadCenter-HALF+14):(roadCenter+HALF-14);
     return {name,icon,type,axis,roadCenter,alongPos,x,y,w,h,side,door:{x:alongPos,y:doorY}};
   }
   const w=140, h=56;
-  const x=side==='left'?(roadCenter-HALF-14-w):(roadCenter+HALF+14);
-  const y=clamp(alongPos-h/2, 16, MAP.h-16-h);
+  let x=side==='left'?(roadCenter-HALF-14-w):(roadCenter+HALF+14);
+  // 若位於地圖最左緣或最右緣邊界，外側空間不足時自動翻轉面向道路內側，並預留安全邊界
+  if(side==='left' && x < 20){
+    x = roadCenter + HALF + 14;
+    side = 'right';
+  } else if(side==='right' && x+w > MAP.w - 20){
+    x = roadCenter - HALF - 14 - w;
+    side = 'left';
+  }
+  x=clamp(x, 20, MAP.w-20-w);
+  const y=clamp(alongPos-h/2, 20, MAP.h-20-h);
   const doorX=side==='left'?(roadCenter-HALF+14):(roadCenter+HALF-14);
   return {name,icon,type,axis,roadCenter,alongPos,x,y,w,h,side,door:{x:doorX,y:alongPos}};
 }
@@ -7764,8 +7782,8 @@ function drawStreetDecor(p, now){
     const off=Math.floor(now/120)%3;
     for(let i=2+off;i<path.length;i+=3){const pt=path[i];ctx.beginPath();ctx.arc(pt.x,pt.y,4,0,Math.PI*2);ctx.fill();}
   }
-  // 目標光圈與超顯眼狀態標籤（取餐點 vs 順路第1站 vs 送達這裡）
-  if(tgt){
+  // 目標光圈與超顯眼狀態標籤（取餐點 vs 順路第1站 vs 送達這裡；若正在顯示對話氣泡則自動隱藏標籤防重疊）
+  if(tgt && !(tgt.speech && tgt.speech.t > 0)){
     const isPick=order.stage==='pickup';
     const isStackedCust=(order.stage==='deliver' && order.stacked && !order.stacked.delivered && tgt===order.stacked.cust);
     const col=isPick?'#fbbf24':(isStackedCust?'#38bdf8':'#34d399');
@@ -9258,10 +9276,19 @@ function drawHUD(now){
         const isUrgent=order.time<5;
         const tgtIcon=tgt?.icon||'📍';
         const tgtName=tgt?.name||'';
+        const maxOrderW = midW - 8;
+        if(maxOrderW < 170){
+          stepTag = stepTag.replace('【×2.5倍】','').replace('【×1.7】','').replace('【×1.6】','').replace('【已漏】','!').replace('【已灑】','!').replace('[🍱順路第1站]','[順路1]').replace('[🍱順路單]','[順路]').replace('[📦原單]','[原單]');
+        }
         const orderTxt=stepTag+' '+tgtIcon+tgtName+' '+secTxt;
         ctx.fillStyle=order.isVip?'#fde047':(order.specialType==='drink'?(order.spilled?'#fca5a5':'#38bdf8'):(order.fragile?(order.spilled?'#fca5a5':'#fdba74'):(isPick?'#fbbf24':(isStackedCust?'#38bdf8':'#34d399'))));
-        ctx.font=(isUrgent||order.isVip?'900 13px':'700 12px')+' system-ui,sans-serif';
-        ctx.fillText(orderTxt, midLeft+midW/2, T+14);
+        let oFs = (isUrgent || order.isVip) ? 12.5 : 11.5;
+        ctx.font = '900 ' + oFs + 'px system-ui,sans-serif';
+        while(oFs > 8.5 && ctx.measureText(orderTxt).width > maxOrderW){
+          oFs -= 0.5;
+          ctx.font = '900 ' + oFs + 'px system-ui,sans-serif';
+        }
+        ctx.fillText(orderTxt, midLeft+midW/2, T+14, maxOrderW);
         // 膠囊底部細微剩餘時間線
         const pbW=Math.min(midW-20, 160), pbX=midLeft+midW/2-pbW/2;
         ctx.fillStyle='rgba(30,41,59,.7)'; rr(pbX, T+24, pbW, 3, 1.5); ctx.fill();
@@ -9269,11 +9296,11 @@ function drawHUD(now){
         if(ratio>0){ rr(pbX, T+24, Math.max(3, pbW*ratio), 3, 1.5); ctx.fill(); }
       } else {
         ctx.fillStyle='#94a3b8'; ctx.font='bold 12px system-ui,sans-serif';
-        ctx.fillText(countdown>0?'準備出發…':'📲 等待新訂單…', midLeft+midW/2, T+16);
+        ctx.fillText(countdown>0?'準備出發…':'📲 等待新訂單…', midLeft+midW/2, T+16, midW-8);
       }
     }else{
       ctx.fillStyle='#94a3b8'; ctx.font='bold 12px system-ui,sans-serif';
-      ctx.fillText(countdown>0?'準備出發…':'📲 等待新訂單…', midLeft+midW/2, T+16);
+      ctx.fillText(countdown>0?'準備出發…':'📲 等待新訂單…', midLeft+midW/2, T+16, midW-8);
     }
   }
 
@@ -9443,7 +9470,10 @@ function drawHUD(now){
     ctx.fillStyle='#fde68a'; ctx.fillText(String(n),W/2,H/2);
   }
 
-  // 訂單完成結算卡片（精美半透明外送結算單，平滑呈現星級、工資、加乘與小費明細，避免多重跳字眼花）
+  // 頂部浮動卡片智慧排隊避讓系統（結算卡片、頂部橫幅、順路夾單通知：依序垂直避讓，100% 絕不重疊）
+  let topStackY = T + (specialBadge ? (barH + 30) : (barH + 6));
+
+  // 1. 訂單完成結算卡片（精美半透明外送結算單，平滑呈現星級、工資、加乘與小費明細，避免多重跳字眼花）
   const hasReceipt = (deliveryReceipt && deliveryReceipt.t > 0);
   if(hasReceipt){
     const dr = deliveryReceipt;
@@ -9452,17 +9482,19 @@ function drawHUD(now){
     ctx.globalAlpha = a;
     const rcH = 30; // 僅 30px 高度，大幅釋放路面可視區域！
     const summaryText = '📦 ' + dr.stars + ' ' + dr.starMsg + ' +' + dr.pts + '分 🪙+' + dr.coins;
-    ctx.font = '900 13px system-ui,sans-serif';
+    ctx.font = '900 12.5px system-ui,sans-serif';
     const hasBonus = dr.bonuses && dr.bonuses.length > 0;
     const bonusText = hasBonus ? (' • ' + dr.bonuses.slice(0, 2).join(' • ')) : '';
     const fullText = summaryText + bonusText;
+    const maxRcW = W - 32;
     const tw = ctx.measureText(fullText).width + 32;
-    const rcW = Math.min(W - 40, Math.max(260, tw));
+    const rcW = Math.min(maxRcW, Math.max(240, tw));
     const rcX = W/2 - rcW/2;
-    const rcY = T + 38;
+    const rcY = topStackY;
+    topStackY += (rcH + 6);
 
     // 半透明磨砂質感輕量深色底卡（透明度適中，絕不遮蔽來車與視線）
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.90)';
     rrc(ctx, rcX, rcY, rcW, rcH, 15);
     ctx.fill();
     ctx.strokeStyle = '#fde047';
@@ -9471,12 +9503,12 @@ function drawHUD(now){
 
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillStyle = '#fde047';
-    ctx.fillText(fullText, W/2, rcY + rcH/2);
+    ctx.fillText(fullText, W/2, rcY + rcH/2, rcW - 18);
 
     ctx.restore();
   }
 
-  // 頂部浮動橫幅提示（與結算卡片垂直分層避讓，支援雙行排版避免長字串擠壓變形）
+  // 2. 頂部浮動橫幅提示（與結算卡片垂直分層避讓，支援雙行排版避免長字串擠壓變形）
   if(banner){
     const a=Math.min(1, banner.t*3.5, (banner.maxT-banner.t)*4);
     ctx.save();
@@ -9486,14 +9518,14 @@ function drawHUD(now){
     const tWidth = ctx.measureText(banner.text).width;
     ctx.font = '700 11px system-ui,sans-serif';
     const sWidth = hasSub ? ctx.measureText(banner.sub).width : 0;
-    const maxBw = W - 40;
+    const maxBw = W - 32;
     const bH = hasSub ? 42 : 28;
     const btw = Math.min(maxBw, Math.max(220, Math.max(tWidth, sWidth) + 36));
     const bx = W/2 - btw/2;
-    // 若同時有結算單顯示，橫幅向下退讓排隊，絕不重疊
-    const by = hasReceipt ? (T + 74) : (T + 38);
+    const by = topStackY;
+    topStackY += (bH + 6);
 
-    ctx.fillStyle='rgba(10, 15, 30, 0.90)';
+    ctx.fillStyle='rgba(10, 15, 30, 0.92)';
     rrc(ctx, bx, by, btw, bH, 14); ctx.fill();
     ctx.strokeStyle=banner.color||'#fde68a'; ctx.lineWidth=1.5; ctx.stroke();
 
@@ -9511,16 +9543,15 @@ function drawHUD(now){
     ctx.restore();
   }
 
-  // 技巧 3：順路夾單手動搶單膠囊（仿真實外送 App：倒數條＋點擊/Enter搶單）
+  // 3. 技巧 3：順路夾單手動搶單膠囊（仿真實外送 App：倒數條＋點擊/Enter搶單）
   if(pendingStackedOrder && G.state==='play'){
     const pso = pendingStackedOrder;
     const progress = Math.max(0, pso.t / (pso.maxT || 3.5));
     const pW = Math.min(320, W - 32);
     const pH = 44;
     const pX = W/2 - pW/2;
-    let pY = T + 38;
-    if(hasReceipt) pY += 36;
-    if(banner) pY += (banner.sub ? 48 : 34);
+    const pY = topStackY;
+    topStackY += (pH + 6);
 
     pendingPillRect = { x: pX, y: pY, w: pW, h: pH };
 
@@ -9547,16 +9578,17 @@ function drawHUD(now){
     rrc(ctx, pX+8, pY+pH-6, (pW-16)*progress, 3, 1.5);
     ctx.fill();
 
-    // 左側：順路夾單標籤與店家資訊
+    // 左側：順路夾單標籤與店家資訊（嚴格限制寬度，避免撞到右側按鈕）
+    const maxPillTextW = pW - 116;
     ctx.font = '900 12px system-ui,sans-serif';
     ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
     ctx.fillStyle = '#fbbf24';
-    ctx.fillText('⚡ 順路夾單 +' + (pso.bonusCoins || pso.extraCoins || 25) + '🪙', pX + 12, pY + 14);
+    ctx.fillText('⚡ 順路夾單 +' + (pso.bonusCoins || pso.extraCoins || 25) + '🪙', pX + 12, pY + 14, maxPillTextW);
 
     ctx.font = '700 10.5px system-ui,sans-serif';
     ctx.fillStyle = '#cbd5e1';
     const storeName = pso.shop ? (pso.shop.name || '鄰近店家') : '順路店家';
-    ctx.fillText('取：' + storeName + ' ⏱️' + Math.ceil(pso.t) + 's', pX + 12, pY + 28);
+    ctx.fillText('取：' + storeName + ' ⏱️' + Math.ceil(pso.t) + 's', pX + 12, pY + 28, maxPillTextW);
 
     // 右側：搶單按鈕
     const btnW = 86, btnH = 26;
