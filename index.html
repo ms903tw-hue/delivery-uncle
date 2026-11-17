@@ -1341,9 +1341,9 @@ const MAPS=[
       ['宵夜鹽酥雞','🍗','h',1280,1485,'top']
     ],
     customers:[
-      ['101觀景塔','🏙️','h',540,1240,'bottom'],['信義金融樓','🏢','h',280,1485,'top'],
+      ['101觀景塔','🏙️','h',540,1240,'top'],['信義金融樓','🏢','h',280,1485,'top'],
       ['新創總部館','🚀','v',180,530,'right'],['國際會展城','🏛️','v',1920,1030,'left'],
-      ['星光百貨館','🛍️','h',1020,865,'top'],['都會大飯店','🏨','h',1280,615,'top'],
+      ['星光百貨館','🛍️','h',1020,865,'bottom'],['都會大飯店','🏨','h',1280,615,'top'],
       ['雲端資料中心','🖥️','h',780,1670,'bottom'],['跨年主廣場','🎆','h',1280,615,'bottom']
     ]
   }
@@ -2065,28 +2065,39 @@ function initTrafficSystem(){
       })
       .sort((a,b) => a.x - b.x);
 
+    let allowedSides = ['top', 'bottom'];
+    if(curMap && curMap.theme === 'xinyi'){
+      if(hs.y === 540) allowedSides = ['top'];
+      else if(hs.y === 1020) allowedSides = ['bottom'];
+    }
+
     if(!rowInters.length){
-      const side = Math.random() < 0.5 ? 'top' : 'bottom';
-      peds.push({
-        hy:hs.y, seg:hs, rowInters:[], side,
-        x:rand(segMinX,segMaxX), y: side==='bottom'?(hs.y+HALF+8.5):(hs.y-HALF-8.5),
-        dir:Math.random()<0.5?1:-1, speed:rand(42,54),
-        state:'stroll', waitInter:null, waitTl:null, role:pick(PED_NAMES),
-        color:pick(['#f43f5e','#38bdf8','#f59e0b','#10b981','#a855f7','#f1f5f9']),
-        isCrossing:false, warned:false, praised:false
-      });
+      const side = pick(allowedSides);
+      const pedY = side === 'bottom' ? (hs.y + HALF + 8.5) : (hs.y - HALF - 8.5);
+      if(!onRoad(segMinX + 10, pedY, 4)){
+        peds.push({
+          hy:hs.y, seg:hs, rowInters:[], side,
+          x:rand(segMinX,segMaxX), y: pedY,
+          dir:Math.random()<0.5?1:-1, speed:rand(42,54),
+          state:'stroll', waitInter:null, waitTl:null, role:pick(PED_NAMES),
+          color:pick(['#f43f5e','#38bdf8','#f59e0b','#10b981','#a855f7','#f1f5f9']),
+          isCrossing:false, warned:false, praised:false
+        });
+      }
       continue;
     }
     for(let k=0;k<rowInters.length+1;k++){
       const x0=k===0?segMinX:Math.max(segMinX, rowInters[k-1].x+HALF+22);
       const x1=k===rowInters.length?segMaxX:Math.min(segMaxX, rowInters[k].x-HALF-22);
       if(x1-x0<60) continue;
-      for(let n=0;n<2;n++){
-        const side = n === 0 ? 'top' : 'bottom';
+      for(let n=0;n<allowedSides.length;n++){
+        const side = allowedSides[n];
+        const pedY = side === 'bottom' ? (hs.y + HALF + 8.5) : (hs.y - HALF - 8.5);
+        if(onRoad(rand(x0, x1), pedY, 4)) continue;
         peds.push({
           hy:hs.y, seg:hs, rowInters, side,
           x:rand(x0,x1),
-          y:side==='bottom'?(hs.y+HALF+8.5):(hs.y-HALF-8.5),
+          y:pedY,
           dir:Math.random()<0.5?1:-1,
           speed:rand(44,58),
           state:'stroll',
@@ -2327,6 +2338,11 @@ function updateTrafficAndPeds(dt){
       ped.x += ped.dir * ped.speed * dt;
       if(ped.x<=minX){ped.x=minX;ped.dir=1;}
       else if(ped.x>=maxX){ped.x=maxX;ped.dir=-1;}
+      // 車道防踏入防護：散步中的行人如果接觸車道（且非過斑馬線），立即強制反向
+      if(onRoad(ped.x, ped.y, 4)){
+        ped.x = prevX;
+        ped.dir *= -1;
+      }
       const inters = ped.rowInters || ped.rowTls || [];
       for(const inter of inters){
         const hasZebra = ped.side === 'bottom' ? inter.armD : inter.armU;
@@ -4172,6 +4188,7 @@ function updateCars(dt){
           c.len = c.axis==='h' ? MAP.w : MAP.h;
           c.seg = findSegAt(c.axis, c.roadCenter, c.pos) || c.seg;
           c.turnCool = 1.0;
+          if(c.type==='police') c.turnCooldown = 0.55;
           c.avoidShift = 0;
         } else {
           c.pos = prevPos;
@@ -4180,6 +4197,7 @@ function updateCars(dt){
           c.lane = c.roadCenter + (c.axis==='h'?1:-1)*c.dir*off;
           c.curSpeed = Math.min(c.curSpeed, c.speed * 0.45);
           c.turnCool = 0.8;
+          if(c.type==='police') c.turnCooldown = 0.65;
         }
       }
     }
@@ -4237,6 +4255,7 @@ function updateCars(dt){
       const off=c.laneOff||30;
       c.lane=c.roadCenter+(c.axis==='h'?1:-1)*c.dir*off;
       cp=carPos(c);
+      if(c.type==='police') c.turnCooldown = 0.65;
     }
     let dToP = dist(cp, P);
 
@@ -4264,10 +4283,10 @@ function updateCars(dt){
         const off = c.laneOff || 30;
         let turned = false;
         if(c.turnCooldown <= 0){
-          if(c.axis==='h' && Math.abs(dy) > 45){
+          if(c.axis==='h' && Math.abs(dy) > 36){
             for(const vx of VROADS){
               if(curMap && curMap.theme==='kaohsiung' && Math.abs(vx-600)<30) continue; // 高雄輕軌專用軌道，警車不轉入
-              if(Math.abs(cp.x - vx) < 28 && (Math.abs(dy) > Math.abs(dx)*0.7 || Math.abs(dx) < 55)){
+              if(Math.abs(cp.x - vx) < HALF + 14 && (Math.abs(dy) > Math.abs(dx)*0.6 || Math.abs(dx) < 65)){
                 const newDir = Math.sign(dy) || 1;
                 const tgtSeg = findSegAt('v', vx, cp.y + newDir * 55);
                 if(tgtSeg){
@@ -4275,15 +4294,15 @@ function updateCars(dt){
                   c.lane = vx - newDir * off;
                   c.pos = clamp(cp.y, tgtSeg.y0 + 15, tgtSeg.y1 - 15);
                   c.dir = newDir; c.len = MAP.h;
-                  c.turnCooldown = 0.42;
+                  c.turnCooldown = 0.55;
                   turned = true;
                   break;
                 }
               }
             }
-          } else if(c.axis==='v' && Math.abs(dx) > 45){
+          } else if(c.axis==='v' && Math.abs(dx) > 36){
             for(const hy of HROADS){
-              if(Math.abs(cp.y - hy) < 28 && (Math.abs(dx) > Math.abs(dy)*0.7 || Math.abs(dy) < 55)){
+              if(Math.abs(cp.y - hy) < HALF + 14 && (Math.abs(dx) > Math.abs(dy)*0.6 || Math.abs(dy) < 65)){
                 const newDir = Math.sign(dx) || 1;
                 const tgtSeg = findSegAt('h', hy, cp.x + newDir * 55);
                 if(tgtSeg){
@@ -4291,7 +4310,7 @@ function updateCars(dt){
                   c.lane = hy + newDir * off;
                   c.pos = clamp(cp.x, tgtSeg.x0 + 15, tgtSeg.x1 - 15);
                   c.dir = newDir; c.len = MAP.w;
-                  c.turnCooldown = 0.42;
+                  c.turnCooldown = 0.55;
                   turned = true;
                   break;
                 }
@@ -4303,9 +4322,9 @@ function updateCars(dt){
         if(turned){
           cp = carPos(c);
           dToP = dist(cp, P);
-        } else if(!blocked) {
+        } else if(!blocked && (c.turnCooldown <= 0)) {
           const toP = c.axis==='h' ? (P.x - cp.x) : (P.y - cp.y);
-          const revThresh = c.turnCooldown > 0 ? 90 : 24;
+          const revThresh = 42;
           if(Math.abs(toP) > revThresh) c.dir = Math.sign(toP);
         }
 
