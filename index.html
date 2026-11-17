@@ -1337,6 +1337,8 @@ const MAPS=[
     roadblocks:[], river:null, bridges:[], coast:null,
     shops:[
       ['信義波霸厚奶茶','🧋','h',280,615,'top'],['舒肥健康餐','🥗','h',280,1485,'bottom'],
+      ['圓環精品咖啡','☕','h',540,860,'top'],['跨年特調冰沙','🥤','h',1020,1240,'bottom'],
+      ['炭烤胡椒餅','🫓','h',780,590,'top'],
       ['深夜拉麵館','🍜','h',780,430,'bottom'],['美式漢堡店','🍔','h',780,1670,'top'],
       ['宵夜鹽酥雞','🍗','h',1280,1485,'top']
     ],
@@ -5829,18 +5831,18 @@ function rr(x,y,w,h,r){
 }
 function inView(x,y,w,h){const vw=W/ZOOM,vh=H/ZOOM;return x+w>cam.x-20&&y+h>cam.y-20&&x<cam.x+vw+20&&y<cam.y+vh+20;}
 const SCENE_PALETTES={
-  dadaocheng:{curb:'#d97706', walk:'#92400e', road:'#261c18', stone:'rgba(253,230,138,0.16)', trim:'#b45309'},
-  tamsui:    {curb:'#f97316', walk:'#78350f', road:'#1b1a2a', stone:'rgba(253,186,116,0.18)', trim:'#9a3412'},
-  gaomei:    {curb:'#c084fc', walk:'#6d4c3d', road:'#172234', stone:'rgba(216,180,254,0.18)', trim:'#7c4a2d'},
-  alishan:   {curb:'#f472b6', walk:'#6b4c35', road:'#1d191a', stone:'rgba(249,168,212,0.20)', trim:'#5c3d2e'},
-  anping:    {curb:'#ef4444', walk:'#9a3412', road:'#251a18', stone:'rgba(254,202,202,0.18)', trim:'#b91c1c'},
-  kaohsiung: {curb:'#06b6d4', walk:'#1e293b', road:'#0f172a', stone:'rgba(56,189,248,0.22)', trim:'#0284c7'},
-  kenting:   {curb:'#fde047', walk:'#d6c48a', road:'#1a3547', stone:'rgba(255,255,255,0.22)', trim:'#eab308'},
-  taitung:   {curb:'#84cc16', walk:'#3f6212', road:'#1b261d', stone:'rgba(190,242,100,0.18)', trim:'#4d7c0f'},
-  taroko:    {curb:'#cbd5e1', walk:'#475569', road:'#1e252b', stone:'rgba(226,232,240,0.22)', trim:'#64748b'},
-  jiufen:    {curb:'#dc2626', walk:'#475569', road:'#1a2230', stone:'rgba(251,146,60,0.18)', trim:'#7f1d1d'},
-  shifen:    {curb:'#f59e0b', walk:'#334155', road:'#161b26', stone:'rgba(253,186,116,0.16)', trim:'#92400e'},
-  xinyi:     {curb:'#22d3ee', walk:'#1e293b', road:'#0b1326', stone:'rgba(56,189,248,0.22)', trim:'#0ea5e9'}
+  dadaocheng:{curb:'#b45309', walk:'#e2d5c3', road:'#261c18', stone:'rgba(120,53,15,0.25)', trim:'#78350f'},
+  tamsui:    {curb:'#ea580c', walk:'#dfcfb6', road:'#1b1a2a', stone:'rgba(154,52,18,0.25)', trim:'#9a3412'},
+  gaomei:    {curb:'#9333ea', walk:'#d4b996', road:'#172234', stone:'rgba(109,76,61,0.25)', trim:'#6b21a8'},
+  alishan:   {curb:'#db2777', walk:'#cfb59b', road:'#1d191a', stone:'rgba(92,61,46,0.25)',  trim:'#9d174d'},
+  anping:    {curb:'#dc2626', walk:'#e5c9b8', road:'#251a18', stone:'rgba(185,28,28,0.25)', trim:'#991b1b'},
+  kaohsiung: {curb:'#0891b2', walk:'#cbd5e1', road:'#0f172a', stone:'rgba(15,23,42,0.25)',  trim:'#0e7490'},
+  kenting:   {curb:'#eab308', walk:'#fef08a', road:'#1a3547', stone:'rgba(161,98,7,0.25)',  trim:'#ca8a04'},
+  taitung:   {curb:'#65a30d', walk:'#d9e7cb', road:'#1b261d', stone:'rgba(77,124,15,0.25)', trim:'#4d7c0f'},
+  taroko:    {curb:'#64748b', walk:'#e2e8f0', road:'#1e252b', stone:'rgba(51,65,85,0.25)',  trim:'#475569'},
+  jiufen:    {curb:'#dc2626', walk:'#d1d5db', road:'#1a2230', stone:'rgba(30,41,59,0.25)',  trim:'#991b1b'},
+  shifen:    {curb:'#d97706', walk:'#d8cfbe', road:'#161b26', stone:'rgba(120,53,15,0.25)', trim:'#92400e'},
+  xinyi:     {curb:'#0284c7', walk:'#cbd5e1', road:'#0b1326', stone:'rgba(15,23,42,0.25)',  trim:'#0369a1'}
 };
 function drawTopSkyline(now, skyH, th){
   if(cam.y > skyH + 35) return;
@@ -6497,30 +6499,30 @@ function drawWorld(now){
   const swRangeX = (s, pad) => [s.c0<=0?0:s.x0-pad, s.c1>=MAP.w?MAP.w:s.x1+pad];
   const swRangeY = (s, y0, y1, pad) => [y0 - (s.c0>0 && y0===s.y0 ? pad : 0), y1 + (s.c1<MAP.h && y1===s.y1 ? pad : 0)];
   ctx.fillStyle=pal.curb;
+  for(const s of H_SEGS){ const [rx0,rx1]=swRangeX(s,17); ctx.fillRect(rx0,s.y-HALF-17,rx1-rx0,HALF*2+34); }
+  for(const s of V_SEGS) for(const [y0,y1] of vSegRuns(s,false)){ const [ry0,ry1]=swRangeY(s,y0,y1,17); ctx.fillRect(s.x-HALF-17,ry0,HALF*2+34,ry1-ry0); }
+  ctx.fillStyle=pal.walk;
   for(const s of H_SEGS){ const [rx0,rx1]=swRangeX(s,15); ctx.fillRect(rx0,s.y-HALF-15,rx1-rx0,HALF*2+30); }
   for(const s of V_SEGS) for(const [y0,y1] of vSegRuns(s,false)){ const [ry0,ry1]=swRangeY(s,y0,y1,15); ctx.fillRect(s.x-HALF-15,ry0,HALF*2+30,ry1-ry0); }
-  ctx.fillStyle=pal.walk;
-  for(const s of H_SEGS){ const [rx0,rx1]=swRangeX(s,14); ctx.fillRect(rx0,s.y-HALF-14,rx1-rx0,HALF*2+28); }
-  for(const s of V_SEGS) for(const [y0,y1] of vSegRuns(s,false)){ const [ry0,ry1]=swRangeY(s,y0,y1,14); ctx.fillRect(s.x-HALF-14,ry0,HALF*2+28,ry1-ry0); }
   // 石磚/木棧分隔線（僅在可視範圍內繪製，兼顧質感與效能）
   ctx.fillStyle=pal.stone;
   const swX0=Math.max(0,Math.floor(cam.x/20)*20), swX1=Math.min(MAP.w,cam.x+W/ZOOM+20);
   const swY0=Math.max(0,Math.floor(cam.y/20)*20), swY1=Math.min(MAP.h,cam.y+H/ZOOM+20);
   for(const s of H_SEGS){
-    if(s.y+HALF+16<cam.y || s.y-HALF-16>cam.y+H/ZOOM) continue;
+    if(s.y+HALF+18<cam.y || s.y-HALF-18>cam.y+H/ZOOM) continue;
     const xx0=Math.max(s.x0,swX0), xx1=Math.min(s.x1,swX1);
     for(let x=Math.ceil(xx0/20)*20;x<=xx1;x+=20){
-      ctx.fillRect(x,s.y-HALF-14,1.8,11);
-      ctx.fillRect(x,s.y+HALF+3,1.8,11);
+      ctx.fillRect(x,s.y-HALF-15,1.8,13);
+      ctx.fillRect(x,s.y+HALF+2,1.8,13);
     }
   }
   for(const s of V_SEGS){
-    if(s.x+HALF+16<cam.x || s.x-HALF-16>cam.x+W/ZOOM) continue;
+    if(s.x+HALF+18<cam.x || s.x-HALF-18>cam.x+W/ZOOM) continue;
     for(const [y0,y1] of vSegRuns(s,false)){
       const yy0=Math.max(y0,swY0), yy1=Math.min(y1,swY1);
       for(let y=Math.ceil(yy0/20)*20;y<=yy1;y+=20){
-        ctx.fillRect(s.x-HALF-14,y,11,1.8);
-        ctx.fillRect(s.x+HALF+3,y,11,1.8);
+        ctx.fillRect(s.x-HALF-15,y,13,1.8);
+        ctx.fillRect(s.x+HALF+2,y,13,1.8);
       }
     }
   }
@@ -6647,7 +6649,7 @@ function drawWorld(now){
       const rxIn = rxOut - rRingW, ryIn = ryOut - rRingW;
       ctx.fillStyle = '#0ea5e9';
       ctx.beginPath(); ctx.ellipse(rcX, rcY, rxIn + 14, ryIn + 14, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#1e293b';
+      ctx.fillStyle = pal.walk;
       ctx.beginPath(); ctx.ellipse(rcX, rcY, rxIn + 12, ryIn + 12, 0, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = '#334155';
       ctx.beginPath(); ctx.ellipse(rcX, rcY, rxIn + 2, ryIn + 2, 0, 0, Math.PI * 2); ctx.fill();
@@ -6660,10 +6662,10 @@ function drawWorld(now){
       ctx.beginPath(); ctx.ellipse(rcX, rcY, rxIn - 18, ryIn - 18, 0, 0, Math.PI * 2); ctx.fill();
 
       // 十字花園石板景觀大道 (North-South, East-West promenades)
-      ctx.fillStyle = '#1e293b';
+      ctx.fillStyle = pal.walk;
       ctx.fillRect(rcX - rxIn + 24, rcY - 14, (rxIn - 24) * 2, 28);
       ctx.fillRect(rcX - 14, rcY - ryIn + 24, 28, (ryIn - 24) * 2);
-      ctx.strokeStyle = '#334155'; ctx.lineWidth = 1.2;
+      ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1.2;
       ctx.strokeRect(rcX - rxIn + 24, rcY - 14, (rxIn - 24) * 2, 28);
       ctx.strokeRect(rcX - 14, rcY - ryIn + 24, 28, (ryIn - 24) * 2);
 
@@ -6787,24 +6789,61 @@ function drawWorld(now){
       ctx.stroke();
       ctx.restore();
 
-      // 圓環環狀順行右行導引箭頭
-      const arrowAngles = [0, Math.PI / 2, Math.PI, Math.PI * 1.5];
-      const midRx = (rxOut + rxIn) / 2 + 18;
-      const midRy = (ryOut + ryIn) / 2 + 18;
-      for(const ang of arrowAngles){
-        const ax = rcX + Math.cos(ang) * midRx;
-        const ay = rcY + Math.sin(ang) * midRy;
-        const rot = ang + Math.PI / 2;
+      // 圓環環狀順行右行導引箭頭（沿著圓環橢圓曲率繪製流線型圓弧導引箭頭）
+      const drawCurvedArrow = (laneRx, laneRy, ang, arcSpan = 0.12) => {
+        const a0 = ang - arcSpan;
+        const a1 = ang + arcSpan * 0.35;
+        const tipAng = ang + arcSpan * 0.70;
+
+        // 1. 弧形箭身（與橢圓車道弧度完全貼合）
         ctx.save();
-        ctx.translate(ax, ay);
+        ctx.beginPath();
+        ctx.ellipse(rcX, rcY, laneRx, laneRy, 0, a0, a1);
+        ctx.strokeStyle = 'rgba(15, 23, 42, 0.45)';
+        ctx.lineWidth = 7.5;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.72)';
+        ctx.lineWidth = 4.5;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+        ctx.restore();
+
+        // 2. 切線箭頭（依橢圓切線角度旋轉指向順行方向）
+        const tx = rcX + Math.cos(tipAng) * laneRx;
+        const ty = rcY + Math.sin(tipAng) * laneRy;
+        const dx = -laneRx * Math.sin(tipAng);
+        const dy = laneRy * Math.cos(tipAng);
+        const rot = Math.atan2(dy, dx);
+
+        ctx.save();
+        ctx.translate(tx, ty);
         ctx.rotate(rot);
         ctx.beginPath();
-        ctx.moveTo(17, 0); ctx.lineTo(3, -8); ctx.lineTo(3, -3.5); ctx.lineTo(-14, -3.5);
-        ctx.lineTo(-14, 3.5); ctx.lineTo(3, 3.5); ctx.lineTo(3, 8); ctx.closePath();
-        ctx.fillStyle = 'rgba(255,255,255,0.65)'; ctx.fill();
-        ctx.strokeStyle = 'rgba(15,23,42,0.5)'; ctx.lineWidth = 1.2; ctx.stroke();
+        ctx.moveTo(10, 0);
+        ctx.lineTo(-6, -7);
+        ctx.lineTo(-4, -2.5);
+        ctx.lineTo(-11, -2.5);
+        ctx.lineTo(-11, 2.5);
+        ctx.lineTo(-4, 2.5);
+        ctx.lineTo(-6, 7);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(15, 23, 42, 0.5)';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
         ctx.restore();
-      }
+      };
+
+      // 內圈與外圈車道交錯排列流暢圓弧標線箭頭
+      const innerLaneRx = rxIn + rRingW * 0.28, innerLaneRy = ryIn + rRingW * 0.28;
+      const outerLaneRx = rxOut - rRingW * 0.28, outerLaneRy = ryOut - rRingW * 0.28;
+      const innerAngles = [Math.PI * 0.15, Math.PI * 0.65, Math.PI * 1.15, Math.PI * 1.65];
+      const outerAngles = [Math.PI * 0.40, Math.PI * 0.90, Math.PI * 1.40, Math.PI * 1.90];
+      for(const ang of innerAngles) drawCurvedArrow(innerLaneRx, innerLaneRy, ang);
+      for(const ang of outerAngles) drawCurvedArrow(outerLaneRx, outerLaneRy, ang);
     }
   }
 
@@ -8089,11 +8128,40 @@ function drawStreetDecor(p, now){
   // 9.5 高空紅綠燈號誌層（繪於店家招牌、車輛、外送員之上，確保燈號與秒數永遠不被遮住）
   const stCol=s=>s==='green'?'#22c55e':(s==='yellow'?'#f59e0b':'#ef4444');
   const flashOn=Math.floor(now/450)%2===0;
+
+  // 安全街角判定函式：確保號誌柱與牌告 100% 落在真正的人行道／綠地上，絕不出現在車道或圓環中央島
+  const isSafeCornerPos = (cx, cy) => {
+    if(cx < 20 || cy < 20 || cx > MAP.w - 20 || cy > MAP.h - 20) return false;
+    if(onRoad(cx, cy, 6)) return false;
+    if(curMap && curMap.theme === 'xinyi'){
+      const dx = (cx - 1050) / 365, dy = (cy - 780) / 240;
+      if(Math.hypot(dx, dy) <= 1.09) return false; // 避開 101 大圓環車道與中央噴泉廣場
+    }
+    return true;
+  };
+  const findSafeCorner = (ix, iy, prefX, prefY, pad = 12) => {
+    const cands = [
+      [prefX, prefY],
+      [-prefX, prefY],
+      [prefX, -prefY],
+      [-prefX, -prefY]
+    ];
+    for(const [sx, sy] of cands){
+      const cx = ix + sx * (HALF + pad);
+      const cy = iy + sy * (HALF + pad);
+      if(isSafeCornerPos(cx, cy)){
+        return { x: cx, y: cy, sx, sy };
+      }
+    }
+    return { x: ix + prefX * (HALF + pad), y: iy + prefY * (HALF + pad), sx: prefX, sy: prefY };
+  };
+
   for(const tl of trafficLights){
     if(!inView(tl.x-HALF-90,tl.y-HALF-90,HALF*2+180,HALF*2+180)) continue;
     const hCol=tl.blink?(flashOn?'#f59e0b':'#451a03'):stCol(tl.hState);
     const vCol=tl.blink?(flashOn?'#f59e0b':'#451a03'):stCol(tl.vState);
-    const lx = tl.x + HALF + 10, ly = tl.y - HALF - 10;
+    const sc1 = findSafeCorner(tl.x, tl.y, 1, -1);
+    const lx = sc1.x, ly = sc1.y;
 
     // 號誌立柱與雙向緊湊燈箱（左↔橫向、右↕縱向）
     ctx.fillStyle = '#0f172a';
@@ -8127,12 +8195,11 @@ function drawStreetDecor(p, now){
         ctx.textAlign='center'; ctx.textBaseline='middle';
         ctx.fillText(bTxt, tx, ty+0.5);
       };
-      drawBlinkTag(lx, ly - 30);
-      drawBlinkTag(tl.x - HALF - 16, tl.y + HALF + 16);
+      drawBlinkTag(lx, ly - 28);
       continue;
     }
 
-    // 右上＆左下雙角懸浮雙向倒數牌（同時顯示 橫↔ 與 縱↕ 燈號及剩餘秒數）
+    // 懸浮雙向倒數牌（同時顯示 橫↔ 與 縱↕ 燈號及剩餘秒數）
     const hTxt = '↔' + tl.hRem + 's', vTxt = '↕' + tl.vRem + 's';
     ctx.font = '900 11px system-ui,sans-serif';
     const w1 = ctx.measureText(hTxt).width, w2 = ctx.measureText(vTxt).width;
@@ -8157,8 +8224,12 @@ function drawStreetDecor(p, now){
       ctx.beginPath(); ctx.arc(vx0 + 3, ty, 3.8, 0, Math.PI*2); ctx.fill();
       ctx.fillText(vTxt, vx0 + 9, ty + 0.5);
     };
-    drawDualTag(lx, ly - 30);
-    drawDualTag(tl.x - HALF - 16, tl.y + HALF + 16);
+    drawDualTag(lx, ly - 28);
+    // 次要對角角位（僅在對角亦為安全人行道時繪製第二組牌告，絕不畫在車道或圓環上）
+    const sc2 = findSafeCorner(tl.x, tl.y, -sc1.sx, -sc1.sy);
+    if(isSafeCornerPos(sc2.x, sc2.y) && (sc2.sx !== sc1.sx || sc2.sy !== sc1.sy)){
+      drawDualTag(sc2.x, sc2.y - 28);
+    }
   }
   // 9.5b 無紅綠燈次要／T字路口：角落精簡閃黃警示燈（提醒注意來車，不罰闖紅燈）
   const tlBeaconMap=new Map();
@@ -8166,7 +8237,8 @@ function drawStreetDecor(p, now){
   for(const it of getIntersections()){
     if(it.arms<3 || tlBeaconMap.has(it.x+','+it.y)) continue;
     if(!inView(it.x-HALF-40,it.y-HALF-40,HALF*2+80,HALF*2+80)) continue;
-    const bx=it.x+HALF+8, by=it.y-HALF-8;
+    const sc = findSafeCorner(it.x, it.y, 1, -1, 8);
+    const bx = sc.x, by = sc.y;
     ctx.fillStyle='#0f172a'; ctx.fillRect(bx-2, by+4, 4, 12);
     ctx.fillStyle='#1e293b'; ctx.strokeStyle='#f59e0b'; ctx.lineWidth=1.4;
     ctx.beginPath(); ctx.arc(bx, by, 7.5, 0, Math.PI*2); ctx.fill(); ctx.stroke();
