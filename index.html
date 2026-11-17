@@ -36,6 +36,13 @@ body.title #titleBtnsTop .hudBtn{position:static}
 #hornBtn .ic{font-size:26px}
 #hornBtn:active{transform:scale(.92)}
 
+#orderAcceptBtn{position:fixed;right:calc(22px + env(safe-area-inset-right));bottom:calc(122px + env(safe-area-inset-bottom));width:84px;height:84px;border-radius:50%;border:3.5px solid #fef08a;background:radial-gradient(circle at 35% 30%,#f59e0b,#b45309);color:#fff;font-weight:900;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:25;cursor:pointer;padding:0;line-height:1.12;text-shadow:0 1px 2px rgba(0,0,0,.7);animation:orderBtnPulse .75s infinite alternate;transition:transform .08s}
+#orderAcceptBtn .ic{font-size:24px}
+#orderAcceptBtn .txt{font-size:11.5px;color:#fef08a;font-weight:900}
+#orderAcceptBtn .cd{font-size:10px;color:#cbd5e1;font-weight:800}
+#orderAcceptBtn:active{transform:scale(.92)}
+@keyframes orderBtnPulse{from{transform:scale(1);box-shadow:0 0 14px rgba(245,158,11,.75),0 4px 12px rgba(0,0,0,.5)}to{transform:scale(1.08);box-shadow:0 0 24px rgba(251,191,36,.95),0 8px 20px rgba(0,0,0,.6)}}
+
 .overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:10px;background:rgba(5,8,20,.72);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:50;touch-action:pan-y}
 .overlay.show{display:flex}
 .card{width:min(100%,600px);max-height:calc(100vh - 20px);max-height:calc(100dvh - 20px);overflow-y:auto;background:#111a2e;border:3px solid #f59e0b;border-radius:18px;padding:14px 18px;box-shadow:0 20px 60px rgba(0,0,0,.7);text-align:center}
@@ -220,6 +227,7 @@ body.title #titleBtnsTop .hudBtn{position:static}
 
 <button id="throwBtn" aria-label="丟雞腿"><span class="ic">🍗</span><span id="ammoTxt">×2</span></button>
 <button id="hornBtn" aria-label="按喇叭"><span class="ic" id="hornIc">📢</span><span id="hornTxt">喇叭</span></button>
+<button id="orderAcceptBtn" aria-label="順路接單"><span class="ic">⚡</span><span class="txt">搶順路單</span><span class="cd" id="acceptCd">3.5s</span></button>
 
 <!-- 開始畫面 -->
 <div class="overlay show" id="title"><div class="card">
@@ -298,7 +306,7 @@ body.title #titleBtnsTop .hudBtn{position:static}
     <div class="howBox"><div class="t">💯 計分</div>送達 = 100 分 + 剩餘秒數 × 12，依星級給予額外獎勵與回血。<br>連擊 <b>≥ 3 且上一單滿 3 星無差評</b> 觸發<b>【⭐金牌特急單】</b>，時限更趕、享 <b>2.5 倍</b>工資！驚險閃車 +10，禮讓行人 +15。</div>
     <div class="howBox"><div class="t">🚦 交通法規</div>路口<b>紅綠燈</b>：闖紅燈罰 <b>-30 分</b>（閃黃／無號誌路口不罰）；若附近有警車會展開追捕；<b>單關累計闖紅燈 5 次</b>將直接被警察杯杯請去喝茶（吊銷駕照 Game Over）！<br><b>逆向行駛</b>：沿中線鑽車縫或短暫超車沒事，但<b>持續逆向過久</b>遇警車也會被追！甩開（過 2 個路口／轉彎拉開）<b>+35 分</b>，被捕 <b>-60 分</b>。<br>斑馬線<b>禮讓行人 +15 分</b>，撞人 <b>-50 分與 35 體力</b>；禮讓救護車 <b>+25 分</b>！</div>
     <div class="howBox"><div class="t">⚠️ 危險</div>撞車 −25 體力、被野狗咬 −15 體力；店家／顧客門前設有<b>🛵 外送臨停區</b>。<br>每完成 1 單獲得 <b>+1 支 🍗 雞腿</b>（手上低於 2 支必定補給，2 支以上有機率補充，上限 8 支）；拾取 🍱 回復體力、🍗 +2 雞腿、⚡ 能量飲料加速 3.5 秒。</div>
-    <div class="howBox"><div class="t">⚡ 進階跑單神技</div><b>⭐ 完美急煞入庫</b>：高速衝入臨停區並在格內煞停，觸發秒速取餐免備餐時間＋額外 <b>+10🪙</b> 與評分加成！<br><b>💨 大車尾流破風</b>：緊貼公車／卡車正後方蓄力 1 秒，切出轉向瞬間觸發極速爆衝＋短暫無敵！<br><b>📱 仿真外送搶單</b>：途中隨機跳出順路夾單通知（3.5 秒倒數），按 <b>[Enter]</b> 或點擊膠囊即時搶單，雙份工資一把抓！</div>
+    <div class="howBox"><div class="t">⚡ 進階跑單神技</div><b>⭐ 完美急煞入庫</b>：高速衝入臨停區並在格內煞停，觸發秒速取餐免備餐時間＋額外 <b>+10🪙</b> 與評分加成！<br><b>💨 大車尾流破風</b>：緊貼公車／卡車正後方蓄力 1 秒，切出轉向瞬間觸發極速爆衝＋短暫無敵！<br><b>📱 仿真外送搶單</b>：送餐途中路過特定店家若有順路單，手機右下角即時浮現<b>【⚡ 搶單】</b>大按鈕（電腦可按 <b>[E]</b> 或 <b>[Enter]</b>），3.5 秒倒數內隨心搶單，賺取雙倍工資與小費！</div>
     <div class="howBox"><div class="t">📈 模式</div><b>🏆 闖關模式</b>：<b>12 大景點環台路線</b>（大稻埕 → 淡水 → 高美 → 阿里山 → 安平 → 高雄 85 → 墾丁 → 台東熱氣球 → 花蓮太魯閣 → 平溪十分天燈 → 九份 → 台北 101）！<br><b>♾️ 無限模式</b>：<b>全台巡迴・跨區馬拉松！</b>一鍵即刻出發，每送達 4 單無縫跨區前往下一個景點，難度隨單數持續飆升，挑戰環島極限！</div>
     <div class="howBox"><div class="t">💀 結束</div><b>體力歸零</b>、累積 <b>3 個差評</b>（訂單逾時）、或<b>單關闖紅燈達 5 次</b>（被警察請去喝茶吊照）就結束。連續準時送 5 單可消除 1 個差評。</div>
   </div>
@@ -2568,6 +2576,7 @@ function setBodyState(s){
   // 遊戲頂部折疊選單狀態依 body class 自動顯示/隱藏
   $('throwBtn').style.display=s==='play'?'flex':'none';
   const hb=$('hornBtn'); if(hb) hb.style.display=s==='play'?'flex':'none';
+  const oab=$('orderAcceptBtn'); if(oab && s!=='play') oab.style.display='none';
 }
 function showOnly(id){['title','mapSel','story','howto','garageModal','achModal','pause','tutModal','over','exitModal'].forEach(o=>$(o).classList.toggle('show',o===id));}
 let storyIdx=0, storyFromBtn=false, isTitleStory=false;
@@ -3447,6 +3456,8 @@ function acceptStackedOrder(){
   pathTimer = 0;
   pendingStackedOrder = null;
   pendingPillRect = null;
+  const oab = $('orderAcceptBtn');
+  if(oab) oab.style.display = 'none';
 }
 function endlessStageTransition(){
   endlessStationsCleared++;
@@ -5592,6 +5603,16 @@ function update(dt){
       pendingPillRect=null;
     }
   }
+  const oab=$('orderAcceptBtn');
+  if(oab){
+    if(pendingStackedOrder && G.state==='play'){
+      oab.style.display='flex';
+      const cdEl=$('acceptCd');
+      if(cdEl) cdEl.textContent=Math.ceil(pendingStackedOrder.t)+'s';
+    }else{
+      oab.style.display='none';
+    }
+  }
 
   // 車輛碰撞與驚險閃過：停在臨停區內或等待訂單時絕對安全！不扣血、不推擠、不被撞
   const inDeliveryBay = places.some(pl => dist(P, pl.door) < 58);
@@ -6476,10 +6497,10 @@ function drawWorld(now){
       }
     }
 
-    // 2. 悠游綠蠵龜 (2 隻悠游海龜巡弋海灣)
+    // 2. 悠游綠蠵龜 (2 隻悠游海龜悠閒巡弋海灣，優雅緩速游動)
     const turtles = [
-      { x: ((now * 0.018 * 1000 * 0.07 + 260) % (MAP.w + 140)) - 70, y: seaY + 36, heading: 0, scale: 1.05 },
-      { x: (MAP.w + 70) - (((now * 0.014 * 1000 * 0.07 + 850) % (MAP.w + 140))), y: seaY + 98, heading: Math.PI, scale: 0.95 }
+      { x: ((now * 0.020 + 260) % (MAP.w + 140)) - 70, y: seaY + 36, heading: 0, scale: 1.05 },
+      { x: (MAP.w + 70) - (((now * 0.015 + 850) % (MAP.w + 140))), y: seaY + 98, heading: Math.PI, scale: 0.95 }
     ];
     for(const tr of turtles){
       if(!inView(tr.x - 30, tr.y - 30, 60, 60)) continue;
@@ -6487,10 +6508,10 @@ function drawWorld(now){
       ctx.fillStyle = 'rgba(255, 255, 255, 0.42)';
       for(let b=1; b<=3; b++){
         const bOff = tr.heading === 0 ? -b * 12 : b * 12;
-        const bY = tr.y + Math.sin(now * 0.004 + b) * 3;
+        const bY = tr.y + Math.sin(now * 0.002 + b) * 2.5;
         ctx.beginPath(); ctx.arc(tr.x + bOff, bY, 1.5 - b * 0.3, 0, Math.PI * 2); ctx.fill();
       }
-      drawSeaTurtle(ctx, tr.x, tr.y, tr.heading, now * 0.0035, tr.scale);
+      drawSeaTurtle(ctx, tr.x, tr.y, tr.heading, now * 0.0022, tr.scale);
     }
   }
 
@@ -7784,24 +7805,21 @@ function drawStreetDecor(p, now){
       ctx.restore();
     }
   }
-  // 順路雙拼夾單提示（送餐中且尚未夾單時，其他非起點店家門口浮現 🍱 順路接單標籤）
-  if(order&&order.stage==='deliver'&&!order.stacked){
-    for(const s of shops){
-      if(s!==order.shop && inView(s.door.x-60,s.door.y-60,120,120)){
-        const bob=Math.sin(now/180+s.door.x)*4;
-        const col='#f59e0b';
-        ctx.strokeStyle=col; ctx.lineWidth=2;
-        ctx.beginPath(); ctx.arc(s.door.x,s.door.y,28+Math.sin(now/160)*4,0,Math.PI*2); ctx.stroke();
-        const lbl='🍱 順路接單 +60🪙';
-        ctx.font='900 11.5px system-ui,sans-serif';
-        const lw=ctx.measureText(lbl).width+14;
-        const ty=s.door.y-34+bob;
-        ctx.fillStyle='rgba(15,23,42,0.92)';
-        rrc(ctx,s.door.x-lw/2,ty-11,lw,22,11); ctx.fill();
-        ctx.strokeStyle='#fbbf24'; ctx.lineWidth=1.5; ctx.stroke();
-        ctx.fillStyle='#fde047'; ctx.fillText(lbl,s.door.x,ty);
-      }
-    }
+  // 順路夾單店家提示（改為手動接單制後，只有在當前跳出接單通知 pendingStackedOrder 時，該店家門口才浮現專屬金色光圈與接單標籤）
+  if(pendingStackedOrder && pendingStackedOrder.shop && inView(pendingStackedOrder.shop.door.x-60, pendingStackedOrder.shop.door.y-60, 120, 120)){
+    const s = pendingStackedOrder.shop;
+    const bob = Math.sin(now/180 + s.door.x)*4;
+    const col = '#f59e0b';
+    ctx.strokeStyle = col; ctx.lineWidth = 2.8;
+    ctx.beginPath(); ctx.arc(s.door.x, s.door.y, 28 + Math.sin(now/160)*5, 0, Math.PI*2); ctx.stroke();
+    const lbl = '⚡ 順路接單 +' + (pendingStackedOrder.bonusCoins || 25) + '🪙 (⏱️' + Math.ceil(pendingStackedOrder.t) + 's)';
+    ctx.font = '900 11.5px system-ui,sans-serif';
+    const lw = ctx.measureText(lbl).width + 16;
+    const ty = s.door.y - 34 + bob;
+    ctx.fillStyle = 'rgba(15,23,42,0.92)';
+    rrc(ctx, s.door.x - lw/2, ty - 11, lw, 22, 11); ctx.fill();
+    ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 1.6; ctx.stroke();
+    ctx.fillStyle = '#fde047'; ctx.fillText(lbl, s.door.x, ty);
   }
   // 道具（高對比亮麗圓盤光暈 + 動態跳動光柱與文字標籤）
   for(const it of items){
@@ -9533,7 +9551,7 @@ function drawHUD(now){
     ctx.font = '900 12px system-ui,sans-serif';
     ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
     ctx.fillStyle = '#fbbf24';
-    ctx.fillText('⚡ 順路夾單 +' + pso.extraCoins + '🪙', pX + 12, pY + 14);
+    ctx.fillText('⚡ 順路夾單 +' + (pso.bonusCoins || pso.extraCoins || 25) + '🪙', pX + 12, pY + 14);
 
     ctx.font = '700 10.5px system-ui,sans-serif';
     ctx.fillStyle = '#cbd5e1';
@@ -9553,7 +9571,7 @@ function drawHUD(now){
     ctx.font = '900 11px system-ui,sans-serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillStyle = '#ffffff';
-    ctx.fillText(isTouch ? '點擊接單 👆' : '接單 [Enter]', btnX + btnW/2, btnY + btnH/2);
+    ctx.fillText(isTouch ? '右下搶單 ⚡' : '搶單 [E/Enter]', btnX + btnW/2, btnY + btnH/2);
 
     ctx.restore();
   } else {
@@ -9647,15 +9665,16 @@ cvs.addEventListener('pointercancel',endJoy);
 cvs.addEventListener('lostpointercapture',endJoy);
 $('throwBtn').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();throwFood();});
 const hbEl=$('hornBtn'); if(hbEl) hbEl.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();pressHorn();});
+const oabEl=$('orderAcceptBtn'); if(oabEl) oabEl.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();ensureAudio();acceptStackedOrder();});
 addEventListener('keydown',e=>{
   const k=e.key.toLowerCase();
   if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k)) e.preventDefault();
-  if(e.repeat&&(k===' '||k==='j'||k==='p'||k==='m'||k==='escape'||k==='enter'||k==='b'||k==='h')) return;
+  if(e.repeat&&(k===' '||k==='j'||k==='p'||k==='m'||k==='escape'||k==='enter'||k==='e'||k==='b'||k==='h')) return;
   keys[k]=true;
   if(k==='m'){ensureAudio();setMuted(!muted);return;}
   if(k==='v'){ensureAudio();setVibEnabled(!vibEnabled);if(vibEnabled)vibrate(40);return;}
   if(G.state==='play'){
-    if(k==='enter' && pendingStackedOrder){
+    if((k==='enter'||k==='e') && pendingStackedOrder){
       e.preventDefault();
       acceptStackedOrder();
       return;
