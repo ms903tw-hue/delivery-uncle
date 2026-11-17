@@ -2050,35 +2050,47 @@ function initTrafficSystem(){
   }
 
   peds=[];
-  // 行人在人行道散步，走到紅綠燈路口停等，待縱向紅燈（橫向綠燈）時過斑馬線後繼續走
+  // 行人在人行道散步，走到各路口斑馬線停等，確認安全或縱向紅燈（橫向綠燈）時走在斑馬線穿越路口
   const PED_NAMES=['阿伯','學生','上班族','辣妹','阿姨'];
+  const allInters = getIntersections();
   for(const hs of H_SEGS){
     const segMinX=hs.x0+28, segMaxX=hs.x1-28;
     if(segMaxX-segMinX<90) continue;
-    const rowTls=trafficLights.filter(t=>t.y===hs.y && t.x>=hs.x0 && t.x<=hs.x1).sort((a,b)=>a.x-b.x);
-    if(!rowTls.length){
+    // 找出這條路段上所有實際有斑馬線的路口 (包含有號誌與無號誌/閃黃路口)
+    const rowInters = allInters
+      .filter(it => it.y === hs.y && it.x >= hs.x0 && it.x <= hs.x1 && (it.armU || it.armD))
+      .map(it => {
+        const tl = trafficLights.find(t => t.x === it.x && t.y === it.y) || null;
+        return { x: it.x, y: it.y, tl, armU: it.armU, armD: it.armD };
+      })
+      .sort((a,b) => a.x - b.x);
+
+    if(!rowInters.length){
+      const side = Math.random() < 0.5 ? 'top' : 'bottom';
       peds.push({
-        hy:hs.y, seg:hs, rowTls:[],
-        x:rand(segMinX,segMaxX), y:hs.y-HALF-9,
+        hy:hs.y, seg:hs, rowInters:[], side,
+        x:rand(segMinX,segMaxX), y: side==='bottom'?(hs.y+HALF+8.5):(hs.y-HALF-8.5),
         dir:Math.random()<0.5?1:-1, speed:rand(42,54),
-        state:'stroll', waitTl:null, role:pick(PED_NAMES),
+        state:'stroll', waitInter:null, waitTl:null, role:pick(PED_NAMES),
         color:pick(['#f43f5e','#38bdf8','#f59e0b','#10b981','#a855f7','#f1f5f9']),
         isCrossing:false, warned:false, praised:false
       });
       continue;
     }
-    for(let k=0;k<rowTls.length+1;k++){
-      const x0=k===0?segMinX:Math.max(segMinX, rowTls[k-1].x+HALF+22);
-      const x1=k===rowTls.length?segMaxX:Math.min(segMaxX, rowTls[k].x-HALF-22);
+    for(let k=0;k<rowInters.length+1;k++){
+      const x0=k===0?segMinX:Math.max(segMinX, rowInters[k-1].x+HALF+22);
+      const x1=k===rowInters.length?segMaxX:Math.min(segMaxX, rowInters[k].x-HALF-22);
       if(x1-x0<60) continue;
       for(let n=0;n<2;n++){
+        const side = n === 0 ? 'top' : 'bottom';
         peds.push({
-          hy:hs.y, seg:hs, rowTls,
+          hy:hs.y, seg:hs, rowInters, side,
           x:rand(x0,x1),
-          y:hs.y-HALF-9,
+          y:side==='bottom'?(hs.y+HALF+8.5):(hs.y-HALF-8.5),
           dir:Math.random()<0.5?1:-1,
           speed:rand(44,58),
           state:'stroll',
+          waitInter:null,
           waitTl:null,
           role:pick(PED_NAMES),
           color:pick(['#f43f5e','#38bdf8','#f59e0b','#10b981','#a855f7','#f1f5f9']),
@@ -2304,9 +2316,10 @@ function updateTrafficAndPeds(dt){
     }
   }
 
-  // 更新行人（沿所在路段人行道散步 → 到路口停等 → 待縱向紅燈/橫向綠燈時過斑馬線 → 繼續散步）
+  // 更新行人（沿所在路段人行道散步 → 到路口斑馬線停等 → 確認安全或縱向紅燈時走在斑馬線上過馬路 → 繼續散步）
   for(const ped of peds){
-    ped.y = ped.hy - HALF - 9;
+    const walkY = ped.side === 'bottom' ? (ped.hy + HALF + 8.5) : (ped.hy - HALF - 8.5);
+    ped.y = walkY;
     const minX=ped.seg.x0+28, maxX=ped.seg.x1-28;
     if(ped.state==='stroll'){
       ped.isCrossing=false;
@@ -2314,34 +2327,42 @@ function updateTrafficAndPeds(dt){
       ped.x += ped.dir * ped.speed * dt;
       if(ped.x<=minX){ped.x=minX;ped.dir=1;}
       else if(ped.x>=maxX){ped.x=maxX;ped.dir=-1;}
-      for(const tl of ped.rowTls){
-        const curb=tl.x - ped.dir*(HALF+16);
+      const inters = ped.rowInters || ped.rowTls || [];
+      for(const inter of inters){
+        const hasZebra = ped.side === 'bottom' ? inter.armD : inter.armU;
+        if(hasZebra === false) continue; // 該側若無斑馬線則不穿越
+        const curb = inter.x - ped.dir * (HALF + 16);
         if((ped.dir>0 && prevX<=curb && ped.x>=curb) || (ped.dir<0 && prevX>=curb && ped.x<=curb)){
-          ped.x=curb; ped.waitTl=tl; ped.state='wait';
-          ped.waitTimer=tl.blink ? (0.6 + Math.random()*0.5) : 0;
+          ped.x = curb; ped.waitInter = inter; ped.waitTl = inter.tl || null; ped.state = 'wait';
+          ped.waitTimer = (!inter.tl || inter.tl.blink) ? (0.6 + Math.random()*0.5) : 0;
           break;
         }
       }
     } else if(ped.state==='wait'){
       ped.isCrossing=false;
-      if(!ped.waitTl){
+      if(!ped.waitInter){
         ped.state='stroll';
-      } else if(ped.waitTl.blink){
-        // 閃黃燈路口：停等片刻（停看聽確認），隨即走上斑馬線穿越路口
-        ped.waitTimer=(ped.waitTimer || 0) - dt;
-        if(ped.waitTimer <= 0){
-          ped.state='cross'; ped.isCrossing=true;
+      } else {
+        const tl = ped.waitInter.tl;
+        if(!tl || tl.blink){
+          // 無號誌或閃黃路口：停等確認安全（停看聽）後，走上斑馬線
+          ped.waitTimer = (ped.waitTimer || 0) - dt;
+          if(ped.waitTimer <= 0){
+            ped.state = 'cross'; ped.isCrossing = true;
+          }
+        } else if(tl.vState === 'red' && tl.vRem >= 2){
+          // 縱向紅燈（車流已停於停止線後）：行人綠燈通行斑馬線
+          ped.state = 'cross'; ped.isCrossing = true;
         }
-      } else if(ped.waitTl.vState==='red' && ped.waitTl.vRem>=2){
-        ped.state='cross'; ped.isCrossing=true;
       }
     } else if(ped.state==='cross'){
-      ped.isCrossing=true;
-      const crossSp=(ped.waitTl&&ped.waitTl.vState==='red')?62:70;
+      ped.isCrossing = true;
+      // 過斑馬線步伐稍加快，精確走在斑馬線白色條紋區域內
+      const crossSp = (ped.waitTl && ped.waitTl.vState === 'red') ? 66 : 72;
       ped.x += ped.dir * crossSp * dt;
-      const exitX=ped.waitTl ? (ped.waitTl.x + ped.dir*(HALF+18)) : (ped.x + ped.dir*36);
+      const exitX = ped.waitInter ? (ped.waitInter.x + ped.dir * (HALF + 18)) : (ped.x + ped.dir * 36);
       if((ped.dir>0 && ped.x>=exitX) || (ped.dir<0 && ped.x<=exitX)){
-        ped.x=exitX; ped.isCrossing=false; ped.waitTl=null; ped.state='stroll';
+        ped.x = exitX; ped.isCrossing = false; ped.waitInter = null; ped.waitTl = null; ped.state = 'stroll';
       }
     }
 
@@ -6613,11 +6634,119 @@ function drawWorld(now){
       ctx.beginPath(); ctx.ellipse(rcX, rcY, rxIn + 2, ryIn + 2, 0, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = '#ef4444';
       ctx.beginPath(); ctx.ellipse(rcX, rcY, rxIn, ryIn, 0, 0, Math.PI * 2); ctx.fill();
-      // 中央花園底色
+      // 中央花園底色與 101 音樂噴泉廣場
       ctx.fillStyle = '#064e3b';
       ctx.beginPath(); ctx.ellipse(rcX, rcY, rxIn - 2, ryIn - 2, 0, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = '#047857';
       ctx.beginPath(); ctx.ellipse(rcX, rcY, rxIn - 18, ryIn - 18, 0, 0, Math.PI * 2); ctx.fill();
+
+      // 十字花園石板景觀大道 (North-South, East-West promenades)
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(rcX - rxIn + 24, rcY - 14, (rxIn - 24) * 2, 28);
+      ctx.fillRect(rcX - 14, rcY - ryIn + 24, 28, (ryIn - 24) * 2);
+      ctx.strokeStyle = '#334155'; ctx.lineWidth = 1.2;
+      ctx.strokeRect(rcX - rxIn + 24, rcY - 14, (rxIn - 24) * 2, 28);
+      ctx.strokeRect(rcX - 14, rcY - ryIn + 24, 28, (ryIn - 24) * 2);
+
+      // 噴泉外環石磚廣場底座
+      ctx.fillStyle = '#1e293b';
+      ctx.beginPath(); ctx.ellipse(rcX, rcY, 172, 106, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#475569'; ctx.lineWidth = 2.4; ctx.stroke();
+      ctx.save();
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.35)'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 8]);
+      ctx.beginPath(); ctx.ellipse(rcX, rcY, 148, 90, 0, 0, Math.PI * 2); ctx.stroke();
+      ctx.restore();
+
+      // 四隅景觀花圃與休閒長椅、景觀路燈
+      const gardenCorners = [
+        [rcX - 130, rcY - 60], [rcX + 130, rcY - 60],
+        [rcX - 130, rcY + 60], [rcX + 130, rcY + 60]
+      ];
+      for(const [gx, gy] of gardenCorners){
+        ctx.fillStyle = '#065f46'; ctx.beginPath(); ctx.ellipse(gx, gy, 18, 11, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#10b981'; ctx.beginPath(); ctx.ellipse(gx, gy, 14, 8, 0, 0, Math.PI * 2); ctx.fill();
+        // 繽紛花朵點綴
+        const flCols = ['#f43f5e', '#fbbf24', '#ec4899', '#38bdf8'];
+        for(let f=0; f<4; f++){
+          ctx.fillStyle = flCols[f];
+          ctx.beginPath(); ctx.arc(gx + (f%2===0?-5:5), gy + (f<2?-3:3), 2.2, 0, Math.PI * 2); ctx.fill();
+        }
+      }
+      // 4 座休閒長椅
+      const benchLocs = [
+        [rcX - 82, rcY - 42, 0.4], [rcX + 82, rcY - 42, -0.4],
+        [rcX - 82, rcY + 42, -0.4], [rcX + 82, rcY + 42, 0.4]
+      ];
+      for(const [bx, by, bRot] of benchLocs){
+        ctx.save(); ctx.translate(bx, by); ctx.rotate(bRot);
+        ctx.fillStyle = '#78350f'; rrc(ctx, -14, -4, 28, 8, 2); ctx.fill();
+        ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 1; ctx.stroke();
+        ctx.restore();
+      }
+
+      // ⛲ 101 大圓環中央「多層次歐式音樂噴泉池」
+      // 1. 最外層石砌池基
+      ctx.fillStyle = '#1e293b'; ctx.beginPath(); ctx.ellipse(rcX, rcY, 120, 72, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#334155'; ctx.beginPath(); ctx.ellipse(rcX, rcY, 115, 68, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#cbd5e1'; ctx.beginPath(); ctx.ellipse(rcX, rcY, 111, 65, 0, 0, Math.PI * 2); ctx.fill();
+      // 2. 湛藍清澈水面
+      ctx.fillStyle = '#0369a1'; ctx.beginPath(); ctx.ellipse(rcX, rcY, 105, 60, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#0284c7'; ctx.beginPath(); ctx.ellipse(rcX, rcY, 99, 56, 0, 0, Math.PI * 2); ctx.fill();
+
+      // 3. 水面動態擴散漣漪動畫 (Ripples)
+      for(let r = 0; r < 3; r++){
+        const wT = ((now / 620) + r * 0.33) % 1;
+        const rwX = 22 + wT * 74, rwY = 12 + wT * 42;
+        ctx.strokeStyle = 'rgba(186, 230, 253, ' + ((1 - wT) * 0.65) + ')';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.ellipse(rcX, rcY, rwX, rwY, 0, 0, Math.PI * 2); ctx.stroke();
+      }
+
+      // 4. 第二層高架石盆基座與溢流綠松水層
+      ctx.fillStyle = '#1e293b'; ctx.beginPath(); ctx.ellipse(rcX, rcY, 52, 30, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#64748b'; ctx.beginPath(); ctx.ellipse(rcX, rcY, 48, 27, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#38bdf8'; ctx.beginPath(); ctx.ellipse(rcX, rcY, 42, 23, 0, 0, Math.PI * 2); ctx.fill();
+
+      // 5. 中央大理石雕塑柱台
+      ctx.fillStyle = '#f8fafc'; ctx.beginPath(); ctx.ellipse(rcX, rcY, 18, 10, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#94a3b8'; ctx.beginPath(); ctx.ellipse(rcX, rcY, 12, 7, 0, 0, Math.PI * 2); ctx.fill();
+
+      // 6. 動態中央衝天噴泉水柱與外環弧形拋物線水流
+      const plumeH = 18 + Math.sin(now / 190) * 4;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+      ctx.beginPath(); ctx.ellipse(rcX, rcY - plumeH * 0.45, 6, plumeH, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#e0f2fe';
+      ctx.beginPath(); ctx.arc(rcX, rcY - plumeH * 0.85, 7.5, 0, Math.PI * 2); ctx.fill();
+
+      // 8 方向拋物線環向水柱
+      for(let a = 0; a < 8; a++){
+        const ang = a * Math.PI / 4;
+        const nx = rcX + Math.cos(ang) * 38, ny = rcY + Math.sin(ang) * 21;
+        ctx.strokeStyle = 'rgba(224, 242, 254, 0.82)';
+        ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.moveTo(nx, ny);
+        ctx.quadraticCurveTo((nx + rcX) / 2, (ny + rcY) / 2 - 12, rcX + Math.cos(ang) * 8, rcY + Math.sin(ang) * 5);
+        ctx.stroke();
+      }
+      // 飄灑水花粒子
+      for(let s = 0; s < 5; s++){
+        const sa = (now / 380 + s * 1.25);
+        const sx = rcX + Math.cos(sa) * (18 + s * 9), sy = rcY + Math.sin(sa) * (10 + s * 5);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
+        ctx.fillRect(sx, sy, 2, 2);
+      }
+
+      // 7. 特殊事件連動 RGB 炫彩水中幻燈
+      const isEv = (stageEvent && stageEvent.type === 'techpark');
+      const ledHue = isEv ? ((now / 18) % 360) : ((now / 65) % 360);
+      ctx.fillStyle = 'hsla(' + ledHue + ', 95%, 65%, ' + (isEv ? 0.40 : 0.20) + ')';
+      ctx.beginPath(); ctx.ellipse(rcX, rcY, 102, 58, 0, 0, Math.PI * 2); ctx.fill();
+
+      // 8. 噴泉廣場金色名牌標示
+      ctx.font = '900 12px system-ui,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.80)'; rrc(ctx, rcX - 70, rcY + 84, 140, 20, 6); ctx.fill();
+      ctx.strokeStyle = '#fde047'; ctx.lineWidth = 1.2; ctx.stroke();
+      ctx.fillStyle = '#fde047'; ctx.fillText('⛲ 101 音樂噴泉廣場', rcX, rcY + 94);
 
       // 環狀白色分隔虛線 (四線道同向分道線)
       ctx.save();
@@ -6676,21 +6805,56 @@ function drawWorld(now){
     }
   }
 
+  // 3.3 道路直角轉角 L 彎處圓弧標線（Curved Corner Markings）
+  const lTurns = getIntersections().filter(it => it.arms === 2);
+  const R_LINE = Math.round(HALF * 0.52);
+
   // 四線道同向內外車道白色分隔虛線
   if(curMap.fourLane){
     const divOff=Math.round(HALF*0.50);
     ctx.strokeStyle='rgba(241,245,249,0.55)'; ctx.lineWidth=2; ctx.setLineDash([14,18]);
     ctx.beginPath();
     for(const s of H_SEGS){
-      const lx0=s.c0<=0?0:s.c0, lx1=s.c1>=MAP.w?MAP.w:s.c1;
-      ctx.moveTo(lx0,s.y-divOff); ctx.lineTo(lx1,s.y-divOff);
-      ctx.moveTo(lx0,s.y+divOff); ctx.lineTo(lx1,s.y+divOff);
+      let lx0=s.c0<=0?0:s.c0, lx1=s.c1>=MAP.w?MAP.w:s.c1;
+      for(const lt of lTurns){
+        if(lt.y === s.y){
+          if(lt.armR && Math.abs(lx0 - lt.x) < 4) lx0 = lt.x + R_LINE;
+          if(lt.armL && Math.abs(lx1 - lt.x) < 4) lx1 = lt.x - R_LINE;
+        }
+      }
+      if(lx1 > lx0){
+        ctx.moveTo(lx0,s.y-divOff); ctx.lineTo(lx1,s.y-divOff);
+        ctx.moveTo(lx0,s.y+divOff); ctx.lineTo(lx1,s.y+divOff);
+      }
     }
     for(const s of V_SEGS) for(const [y0,y1] of vSegRuns(s,true)){
-      const ly0=s.c0>0&&y0===s.y0?s.c0:y0, ly1=s.c1<MAP.h&&y1===s.y1?s.c1:y1;
+      let ly0=s.c0>0&&y0===s.y0?s.c0:y0, ly1=s.c1<MAP.h&&y1===s.y1?s.c1:y1;
+      for(const lt of lTurns){
+        if(lt.x === s.x){
+          if(lt.armD && Math.abs(ly0 - lt.y) < 4) ly0 = lt.y + R_LINE;
+          if(lt.armU && Math.abs(ly1 - lt.y) < 4) ly1 = lt.y - R_LINE;
+        }
+      }
       if(ly1>ly0){
         ctx.moveTo(s.x-divOff,ly0); ctx.lineTo(s.x-divOff,ly1);
         ctx.moveTo(s.x+divOff,ly0); ctx.lineTo(s.x+divOff,ly1);
+      }
+    }
+    // 轉角處圓弧同向車道白虛線
+    for(const lt of lTurns){
+      if(!inView(lt.x - HALF - 40, lt.y - HALF - 40, HALF*2 + 80, HALF*2 + 80)) continue;
+      const ox = lt.armR ? (lt.x + R_LINE) : (lt.x - R_LINE);
+      const oy = lt.armD ? (lt.y + R_LINE) : (lt.y - R_LINE);
+      let a0=0, a1=0, ccw=false;
+      if(lt.armU && lt.armR){ a0 = Math.PI; a1 = Math.PI/2; ccw = true; }
+      else if(lt.armU && lt.armL){ a0 = 0; a1 = Math.PI/2; ccw = false; }
+      else if(lt.armD && lt.armR){ a0 = Math.PI; a1 = 1.5*Math.PI; ccw = false; }
+      else if(lt.armD && lt.armL){ a0 = 0; a1 = -Math.PI/2; ccw = true; }
+      ctx.moveTo(ox + Math.cos(a0)*(R_LINE + divOff), oy + Math.sin(a0)*(R_LINE + divOff));
+      ctx.arc(ox, oy, R_LINE + divOff, a0, a1, ccw);
+      if(R_LINE - divOff > 8){
+        ctx.moveTo(ox + Math.cos(a0)*(R_LINE - divOff), oy + Math.sin(a0)*(R_LINE - divOff));
+        ctx.arc(ox, oy, R_LINE - divOff, a0, a1, ccw);
       }
     }
     ctx.stroke(); ctx.setLineDash([]);
@@ -6699,10 +6863,40 @@ function drawWorld(now){
   // 中央分向雙黃線（清晰亮黃色）
   ctx.strokeStyle='#fbbf24'; ctx.lineWidth=3; ctx.setLineDash([18,16]);
   ctx.beginPath();
-  for(const s of H_SEGS){const lx0=s.c0<=0?0:s.c0, lx1=s.c1>=MAP.w?MAP.w:s.c1; ctx.moveTo(lx0,s.y);ctx.lineTo(lx1,s.y);}
+  for(const s of H_SEGS){
+    let lx0=s.c0<=0?0:s.c0, lx1=s.c1>=MAP.w?MAP.w:s.c1;
+    for(const lt of lTurns){
+      if(lt.y === s.y){
+        if(lt.armR && Math.abs(lx0 - lt.x) < 4) lx0 = lt.x + R_LINE;
+        if(lt.armL && Math.abs(lx1 - lt.x) < 4) lx1 = lt.x - R_LINE;
+      }
+    }
+    if(lx1 > lx0){ ctx.moveTo(lx0,s.y); ctx.lineTo(lx1,s.y); }
+  }
   for(const s of V_SEGS) for(const [y0,y1] of vSegRuns(s,true)){
     if(th==='kaohsiung' && Math.abs(s.x-600)<30) continue; // 輕軌專用軌道不劃雙黃線
-    const ly0=s.c0>0&&y0===s.y0?s.c0:y0, ly1=s.c1<MAP.h&&y1===s.y1?s.c1:y1; if(ly1>ly0){ctx.moveTo(s.x,ly0);ctx.lineTo(s.x,ly1);}
+    let ly0=s.c0>0&&y0===s.y0?s.c0:y0, ly1=s.c1<MAP.h&&y1===s.y1?s.c1:y1;
+    for(const lt of lTurns){
+      if(lt.x === s.x){
+        if(lt.armD && Math.abs(ly0 - lt.y) < 4) ly0 = lt.y + R_LINE;
+        if(lt.armU && Math.abs(ly1 - lt.y) < 4) ly1 = lt.y - R_LINE;
+      }
+    }
+    if(ly1>ly0){ ctx.moveTo(s.x,ly0); ctx.lineTo(s.x,ly1); }
+  }
+  // 轉角處圓弧雙黃線
+  for(const lt of lTurns){
+    if(th==='kaohsiung' && Math.abs(lt.x-600)<30) continue;
+    if(!inView(lt.x - HALF - 40, lt.y - HALF - 40, HALF*2 + 80, HALF*2 + 80)) continue;
+    const ox = lt.armR ? (lt.x + R_LINE) : (lt.x - R_LINE);
+    const oy = lt.armD ? (lt.y + R_LINE) : (lt.y - R_LINE);
+    let a0=0, a1=0, ccw=false;
+    if(lt.armU && lt.armR){ a0 = Math.PI; a1 = Math.PI/2; ccw = true; }
+    else if(lt.armU && lt.armL){ a0 = 0; a1 = Math.PI/2; ccw = false; }
+    else if(lt.armD && lt.armR){ a0 = Math.PI; a1 = 1.5*Math.PI; ccw = false; }
+    else if(lt.armD && lt.armL){ a0 = 0; a1 = -Math.PI/2; ccw = true; }
+    ctx.moveTo(ox + Math.cos(a0)*R_LINE, oy + Math.sin(a0)*R_LINE);
+    ctx.arc(ox, oy, R_LINE, a0, a1, ccw);
   }
   ctx.stroke(); ctx.setLineDash([]);
 
