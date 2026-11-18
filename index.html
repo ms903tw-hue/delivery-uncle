@@ -2741,13 +2741,19 @@ function makeCarWithType(forcedType){
     const maxCop=(curMap.maxCops || (gameMode==='endless' && level>=4 ? 2 : 1));
     const bikeProb=['gaomei','taitung','shifen','nightmarket'].includes(curMap.theme)?0.19:0.13;
     const motoProb=['tainan','kaohsiung','nightmarket','techpark'].includes(curMap.theme)?0.27:0.21;
+    const mId=curMap.id;
+    const allowBus=['harbor','gaomei','kaohsiung','kenting','taitung','techpark'].includes(mId);
+    const allowTruck=['gaomei','kaohsiung','taitung','taroko','techpark'].includes(mId);
+    const busProb=(mId==='kenting'||mId==='harbor'||mId==='techpark')?0.25:(allowBus?0.18:0);
+    const truckProb=(mId==='kaohsiung')?0.45:(mId==='taroko'?0.35:(allowTruck?0.26:0));
     if(isSpeeder) cType='speed';
     else if(copCount<maxCop && Math.random()<(maxCop>=2?0.22:0.14)) cType='police'; // 巡邏警車（限制同場最多 1～2 輛）
     else if(ambCount<1 && Math.random()<0.08) cType='ambulance';   // 119救護車（同場最多 1 輛）
     else if(Math.random()<bikeProb) cType='bike';        // 慢車道腳踏車騎士
     else if(Math.random()<motoProb) cType='moto';        // 通勤機車騎士
-    else if(Math.random()<0.34) cType='taxi';        // 台灣小黃
-    else if(Math.random()<(curMap.theme==='kaohsiung'?0.52:0.32)) cType='truck'; // 港區三噸半貨卡比例提高
+    else if(busProb>0 && Math.random()<busProb) cType='bus';         // 大型公車／客運巴士（僅於指定寬敞幹道關卡出沒）
+    else if(truckProb>0 && Math.random()<truckProb) cType='truck';   // 三噸半大貨卡（僅於港區、縱谷、花蓮蘇花、外環大道出沒）
+    else if(Math.random()<0.45) cType='taxi';        // 台灣小黃
   }
 
   let cColor=pick(CAR_COLORS);
@@ -2767,8 +2773,11 @@ function makeCarWithType(forcedType){
     if(curMap.fourLane) laneOff=innerOff;
   } else if(cType==='taxi'){
     cColor='#facc15';
+  } else if(cType==='bus'){
+    cColor=pick(['#10b981','#0ea5e9','#f97316']); w=74; h=30;
+    if(curMap.fourLane && Math.random()<0.85) laneOff=outerOff;
   } else if(cType==='truck'){
-    cColor='#2563eb'; w=56; h=28;
+    cColor='#2563eb'; w=62; h=29;
     if(curMap.fourLane && Math.random()<0.8) laneOff=outerOff;
   } else if(cType==='moto'){
     cColor=pick(MOTO_COLORS);
@@ -2910,6 +2919,12 @@ function syncHazards(){
   if(cars.length===0){
     cars.push(makeCarWithType('police'));
     cars.push(makeCarWithType('ambulance'));
+    if(['harbor','gaomei','kaohsiung','kenting','taitung','techpark'].includes(curMap.id)){
+      cars.push(makeCarWithType('bus'));
+    }
+    if(['gaomei','kaohsiung','taitung','taroko','techpark'].includes(curMap.id)){
+      cars.push(makeCarWithType('truck'));
+    }
   }
   while(cars.length<carN) cars.push(makeCar());
   cars.forEach(c=>{
@@ -6253,17 +6268,18 @@ function update(dt){
   let inSlipstream=false;
   if(P.moving && G.state==='play'){
     for(const c of cars){
-      if(c.curSpeed<35) continue;
-      const isLarge=(c.type==='bus'||c.type==='truck'||c.type==='suv'||c.type==='car');
+      if((c.curSpeed||0)<35) continue;
+      const isLarge=(c.type==='bus'||c.type==='truck');
       if(!isLarge) continue;
       const cp=carPos(c);
       const isH=(c.axis==='h');
-      const rearX=isH?(c.dir>0?cp.x-c.len/2:cp.x+c.len/2):cp.x;
-      const rearY=!isH?(c.dir>0?cp.y-c.len/2:cp.y+c.len/2):cp.y;
-      const alongDist=isH?(c.dir>0?(rearX-P.x):(P.x-rearX)):(c.dir>0?(rearY-P.y):(P.y-rearY));
+      const halfW=(c.w||62)/2;
+      const rearX=isH?(cp.x-c.dir*halfW):cp.x;
+      const rearY=!isH?(cp.y-c.dir*halfW):cp.y;
+      const alongDist=isH?((rearX-P.x)*c.dir):((rearY-P.y)*c.dir);
       const latDist=isH?Math.abs(P.y-cp.y):Math.abs(P.x-cp.x);
 
-      if(alongDist>=6 && alongDist<=82 && latDist<=20){
+      if(alongDist>=4 && alongDist<=90 && latDist<=22){
         const playerDir=isH?P.fx:P.fy;
         if(playerDir*c.dir>0.5){
           inSlipstream=true;
@@ -8919,19 +8935,41 @@ function drawStreetDecor(p, now){
       ctx.fillStyle='#dc2626';
       ctx.font='bold 7px system-ui'; ctx.textAlign='center';
       ctx.fillText('TAXI', r.x+r.w/2, r.y+r.h/2+2);
+    } else if(c.type==='bus'){
+      // 大型低底盤公車／客運大巴（長車體、白色車頂雙冷氣組、車頭橘黃 LED 路線顯示屏）
+      ctx.fillStyle='#f8fafc';
+      if(isHoriz){
+        rrc(ctx, r.x+8, r.y+4, r.w-16, r.h-8, 3); ctx.fill();
+        ctx.fillStyle='#cbd5e1';
+        rrc(ctx, r.x+14, r.y+7, 14, r.h-14, 2); ctx.fill();
+        rrc(ctx, r.x+r.w-32, r.y+7, 14, r.h-14, 2); ctx.fill();
+        const ledX = c.dir>0 ? r.x+r.w-6 : r.x+2;
+        ctx.fillStyle='#0f172a'; ctx.fillRect(ledX, r.y+6, 4, r.h-12);
+        ctx.fillStyle='#f59e0b'; ctx.fillRect(ledX+0.8, r.y+8, 2.4, r.h-16);
+      } else {
+        rrc(ctx, r.x+4, r.y+8, r.w-8, r.h-16, 3); ctx.fill();
+        ctx.fillStyle='#cbd5e1';
+        rrc(ctx, r.x+7, r.y+14, r.w-14, 14, 2); ctx.fill();
+        rrc(ctx, r.x+7, r.y+r.h-32, r.w-14, 14, 2); ctx.fill();
+        const ledY = c.dir>0 ? r.y+r.h-6 : r.y+2;
+        ctx.fillStyle='#0f172a'; ctx.fillRect(r.x+6, ledY, r.w-12, 4);
+        ctx.fillStyle='#f59e0b'; ctx.fillRect(r.x+8, ledY+0.8, r.w-16, 2.4);
+      }
     } else if(c.type==='truck'){
-      // 發財車木質貨斗
+      // 三噸半大貨卡木質貨斗＋雙紙箱
       ctx.fillStyle='#78350f';
       if(isHoriz){
-        const bx=c.dir>0?r.x+2:r.x+r.w-22;
-        ctx.fillRect(bx, r.y+3, 20, r.h-6);
+        const bx=c.dir>0?r.x+2:r.x+r.w-30;
+        ctx.fillRect(bx, r.y+2.5, 28, r.h-5);
         ctx.fillStyle='#d97706';
-        ctx.fillRect(bx+3, r.y+5, 14, r.h-10); // 載貨紙箱
+        ctx.fillRect(bx+3, r.y+5, 10, r.h-10);
+        ctx.fillRect(bx+15, r.y+5, 10, r.h-10);
       } else {
-        const by=c.dir>0?r.y+2:r.y+r.h-22;
-        ctx.fillRect(r.x+3, by, r.w-6, 20);
+        const by=c.dir>0?r.y+2:r.y+r.h-30;
+        ctx.fillRect(r.x+2.5, by, r.w-5, 28);
         ctx.fillStyle='#d97706';
-        ctx.fillRect(r.x+5, by+3, r.w-10, 14);
+        ctx.fillRect(r.x+5, by+3, r.w-10, 10);
+        ctx.fillRect(r.x+5, by+15, r.w-10, 10);
       }
     } else if(c.speeder){
       // 超速跑車黑色大尾翼
@@ -9031,6 +9069,30 @@ function drawStreetDecor(p, now){
         ctx.fillRect(bx, fy, 4, 4);
         ctx.fillRect(bx, c.dir>0?r.y:r.y+r.h-4, 4, 4);
       }
+    }
+    // 大型車輛（公車／大貨卡）行駛時車尾顯示破風尾流氣流線，提示玩家可緊跟破風蓄力
+    if((c.type==='bus'||c.type==='truck') && (c.curSpeed||0)>=35){
+      ctx.save();
+      const wSlide = (now * 0.08) % 24;
+      ctx.strokeStyle = 'rgba(56,189,248,0.42)';
+      ctx.lineWidth = 1.6;
+      ctx.setLineDash([7, 5]);
+      ctx.beginPath();
+      if(isHoriz){
+        const rx = c.dir > 0 ? r.x - 4 : r.x + r.w + 4;
+        const tx = rx - c.dir * (48 + wSlide * 0.4);
+        ctx.moveTo(rx, r.y + 4); ctx.lineTo(tx, r.y + 7);
+        ctx.moveTo(rx, r.y + r.h / 2); ctx.lineTo(tx - c.dir * 8, r.y + r.h / 2);
+        ctx.moveTo(rx, r.y + r.h - 4); ctx.lineTo(tx, r.y + r.h - 7);
+      } else {
+        const ry = c.dir > 0 ? r.y - 4 : r.y + r.h + 4;
+        const ty = ry - c.dir * (48 + wSlide * 0.4);
+        ctx.moveTo(r.x + 4, ry); ctx.lineTo(r.x + 7, ty);
+        ctx.moveTo(r.x + r.w / 2, ry); ctx.lineTo(r.x + r.w / 2, ty - c.dir * 8);
+        ctx.moveTo(r.x + r.w - 4, ry); ctx.lineTo(r.x + r.w - 7, ty);
+      }
+      ctx.stroke();
+      ctx.restore();
     }
     if(rotated) ctx.restore();
   }
