@@ -414,7 +414,7 @@ body.title #titleBtnsTop .hudBtn{position:static}
 <!-- 成就徽章牆 -->
 <div class="overlay" id="achModal"><div class="card">
   <h2>🏅 外送成就徽章</h2>
-  <div class="garageCoins" style="border-color:#a855f7;color:#e9d5ff;" id="achCountTxt">已解鎖 0 / 8</div>
+  <div class="garageCoins" style="border-color:#a855f7;color:#e9d5ff;" id="achCountTxt">已解鎖 0 / 14</div>
   <div class="achGrid" id="achGrid"></div>
   <button class="btn primary" id="achCloseBtn">✔ 返回主畫面</button>
 </div></div>
@@ -1776,13 +1776,16 @@ let ebikeUnlocked=store.get('dug_ebike_unlocked',false);
 let motoUnlocked=store.get('dug_moto_unlocked',false);
 let heavyUnlocked=store.get('dug_heavy_unlocked',false);
 let vehicleType=store.get('dug_vehicle', heavyUnlocked?'heavy':(motoUnlocked?'moto':(ebikeUnlocked?'ebike':'bike')));
-const upg=Object.assign({engine:0,frame:0,bag:0,box:0,tire:0}, store.get('dug_upg',{}));
+const upg=Object.assign({engine:0,frame:0,bag:0,box:0,tire:0,horn:0,aero:0,magnet:0}, store.get('dug_upg',{}));
 const UPG_DEFS=[
   {key:'engine', icon:'⚡', name:'引擎改裝', max:5, costs:[80,160,280,440,650], desc:lv=>'全車型動力強化 (單車 '+(155+lv*6)+' / 電輔 '+(188+lv*9)+' / 機車 '+(220+lv*12)+' / 重摩 '+(255+lv*15)+')'},
   {key:'frame',  icon:'🛡️', name:'強化車架', max:5, costs:[80,160,280,440,650], desc:lv=>'體力上限 '+(100+lv*12)+' (重摩額外+30)・撞車減傷 -'+(lv*2)},
   {key:'bag',    icon:'🎒', name:'大保溫袋', max:5, costs:[90,180,300,460,680], desc:lv=>'訂單時限 +'+(lv*7)+'% 寬裕度'},
   {key:'box',    icon:'🍗', name:'大雞腿箱', max:5, costs:[70,150,260,420,620], desc:lv=>'開場雞腿 '+(2+lv)+' 支 (上限 '+(4+Math.floor(lv/2))+')'},
-  {key:'tire',   icon:'🛞', name:'防滑雨胎', max:5, costs:[70,140,240,380,560], desc:lv=>'雨天抓地力 '+(55+lv*9)+'%・減緩濕滑甩尾・雨天工資 +'+(lv*2)+'🪙'}
+  {key:'tire',   icon:'🛞', name:'防滑雨胎', max:5, costs:[70,140,240,380,560], desc:lv=>'雨天抓地力 '+(55+lv*9)+'%・減緩濕滑甩尾・雨天工資 +'+(lv*2)+'🪙'},
+  {key:'horn',   icon:'📢', name:'蝸牛喇叭', max:5, costs:[60,120,210,330,480], desc:lv=>'喇叭冷卻 -'+(lv*12)+'%・'+(lv>=1?'單車按鈴也能嚇退野狗 (距離+'+(lv*10)+'px)':'升級解鎖單車按鈴嚇退野狗')},
+  {key:'aero',   icon:'💨', name:'空力套件', max:5, costs:[75,150,250,390,580], desc:lv=>'尾流蓄力時間 -'+(lv*10)+'%・破風衝刺延長 +'+(lv*0.35).toFixed(2)+'秒'},
+  {key:'magnet', icon:'🧲', name:'快取支架', max:5, costs:[70,140,230,360,520], desc:lv=>'擴大臨停區取送餐判定半徑至 '+(54+lv*4)+'px'}
 ];
 function getMaxHp(){return 100+(upg.frame||0)*12+(vehicleType==='heavy'?30:0);}
 function getPlayerRadius(){return (vehicleType==='bike'||vehicleType==='ebike')?12:14;}
@@ -1799,17 +1802,23 @@ function getBaseSpeed(){
   }
   return 220 + (upg.engine||0)*12 + (char==='F'?15:0);
 }
-const life=Object.assign({orders:0,dogs:0,cleanStages:0,fragileOk:0,rainOk:0}, store.get('dug_life',{}));
+const life=Object.assign({orders:0,dogs:0,cleanStages:0,fragileOk:0,rainOk:0,alleyEvades:0,draftBoosts:0,perfectStops:0,noteBonusOk:0,eventsJoined:0,allCleared:0}, store.get('dug_life',{}));
 const ach=Object.assign({}, store.get('dug_ach',{}));
 const ACH_DEFS=[
-  {id:'first_order', icon:'🛵', name:'初出茅廬', desc:'累計完成 1 筆外送訂單', reward:30, chk:()=>life.orders>=1},
-  {id:'orders_25',   icon:'📦', name:'熟練跑單員', desc:'累計完成 25 筆外送訂單', reward:120, chk:()=>life.orders>=25},
-  {id:'combo_5',     icon:'🔥', name:'節奏大師', desc:'單場達成 5 連擊', reward:80, chk:()=>stats&&stats.maxCombo>=5},
-  {id:'combo_10',    icon:'⚡', name:'連擊傳說', desc:'單場達成 10 連擊（於無限模式達成）', reward:200, chk:()=>stats&&stats.maxCombo>=10},
-  {id:'dogs_10',     icon:'🍗', name:'雞腿馴犬師', desc:'累計定住 10 隻野狗', reward:100, chk:()=>life.dogs>=10},
-  {id:'fragile_5',   icon:'🍲', name:'穩如泰山', desc:'累計完美送達 5 筆熱湯單', reward:120, chk:()=>life.fragileOk>=5},
-  {id:'rain_5',      icon:'🌧️', name:'風雨無阻', desc:'累計於雨天送達 5 筆訂單', reward:120, chk:()=>life.rainOk>=5},
-  {id:'clean_stage', icon:'🏅', name:'模範騎士', desc:'闖關模式 0 違規過關 1 次', reward:150, chk:()=>life.cleanStages>=1}
+  {id:'first_order',  icon:'🛵', name:'初出茅廬',     desc:'累計完成 1 筆外送訂單', reward:30,  chk:()=>life.orders>=1},
+  {id:'orders_25',    icon:'📦', name:'熟練跑單員',   desc:'累計完成 25 筆外送訂單', reward:120, chk:()=>life.orders>=25},
+  {id:'combo_5',      icon:'🔥', name:'節奏大師',     desc:'單場達成 5 連擊', reward:80,  chk:()=>stats&&stats.maxCombo>=5},
+  {id:'combo_10',     icon:'⚡', name:'連擊傳說',     desc:'單場達成 10 連擊（於無限模式達成）', reward:200, chk:()=>stats&&stats.maxCombo>=10},
+  {id:'dogs_10',      icon:'🍗', name:'雞腿馴犬師',   desc:'累計定住 10 隻野狗', reward:100, chk:()=>life.dogs>=10},
+  {id:'fragile_5',    icon:'🍲', name:'穩如泰山',     desc:'累計完美送達 5 筆熱湯單', reward:120, chk:()=>life.fragileOk>=5},
+  {id:'rain_5',       icon:'🌧️', name:'風雨無阻',     desc:'累計於雨天送達 5 筆訂單', reward:120, chk:()=>life.rainOk>=5},
+  {id:'clean_stage',  icon:'🏅', name:'模範騎士',     desc:'闖關模式 0 違規過關 1 次', reward:150, chk:()=>life.cleanStages>=1},
+  {id:'alley_ghost',  icon:'🧱', name:'巷弄幽靈',     desc:'窄巷甩開警車3次', reward:120, chk:()=>(life.alleyEvades||0)>=3},
+  {id:'slipstream_5', icon:'💨', name:'貼地飛行',     desc:'尾流破風5次', reward:100, chk:()=>(life.draftBoosts||0)>=5},
+  {id:'perfect_stop', icon:'⭐', name:'完美甩尾入庫', desc:'急煞入庫5次', reward:100, chk:()=>(life.perfectStops||0)>=5},
+  {id:'note_5',       icon:'🤫', name:'貼心五星外送', desc:'完成特殊備註5次', reward:120, chk:()=>(life.noteBonusOk||0)>=5},
+  {id:'fest_5',       icon:'🎪', name:'全台祭典達人', desc:'參與特殊事件5次', reward:150, chk:()=>(life.eventsJoined||0)>=5},
+  {id:'all_clear',    icon:'👑', name:'環台外送車神', desc:'全破12關', reward:300, chk:()=>!!life.allCleared || MAPS.every(m=>store.get('dug_clr_'+m.id,false))}
 ];
 function saveLife(){store.set('dug_life',life);}
 function checkAchievements(){
@@ -3501,6 +3510,9 @@ function winStage(){
   if(stageStars>prevStars) store.set('dug_stars_'+curMap.id,stageStars);
   const cleanStage=(stats.violations||0)===0;
   if(cleanStage){ stats.score+=300; life.cleanStages=(life.cleanStages||0)+1; saveLife(); progressDaily('clean_1', 1); }
+  if(curMapIdx+1>=MAPS.length || MAPS.every(m=>store.get('dug_clr_'+m.id,false))){
+    life.allCleared=1; saveLife();
+  }
   const stageCoinBonus=25+(stageStars===3?15:0)+(cleanStage?10:0);
   addCoins(stageCoinBonus);
   if(stageStars===3 && prevStars<3){
@@ -3549,7 +3561,7 @@ function calcOrderTime(distPx, isVip=false){
   const estLights=Math.max(1, Math.round(distPx/480));
   const lightBuffer=estLights*2.9;
   const storyScale=Math.max(0.72, curMap.timeMul * 1.06) * Math.max(0.90, 1 - stats.delivered*0.02);
-  const stageScale=(gameMode==='story') ? storyScale : Math.min(curMap.timeMul, cfg.timeMul);
+  const stageScale=(gameMode==='story') ? storyScale : Math.max(0.62, Math.min(curMap.timeMul, cfg.timeMul));
   const vipMul=isVip ? 0.78 : 1.0;
   const bagMul=1+(upg.bag||0)*0.07;
   return Math.max(isVip?10:12, Math.ceil((rideSec+lightBuffer+3.6)*stageScale*vipMul*bagMul));
@@ -3761,6 +3773,10 @@ function deliver(){
   const carefulBonus = isCarefulNote && !order.noteViolated && !order.spilled && (order.stability === undefined || order.stability >= 50);
   if(quietBonus) addCoins(20);
   if(carefulBonus) addCoins(20);
+  if(quietBonus || carefulBonus){
+    life.noteBonusOk = (life.noteBonusOk || 0) + 1;
+    saveLife();
+  }
   progressDaily('combo_4', combo, true);
   if(specialMult>1) progressDaily('fragile_2', 1);
   if(rainMult>1) progressDaily('rain_2', 1);
@@ -3846,10 +3862,10 @@ function deliver(){
     stageDelivered++;
     syncHazards();
     const ENDLESS_STAGE_GOAL = 4;
-    if(stageDelivered >= ENDLESS_STAGE_GOAL){
+    if(stageDelivered >= ENDLESS_STAGE_GOAL && !order){
       endlessStageTransition();
     } else {
-      const remain = ENDLESS_STAGE_GOAL - stageDelivered;
+      const remain = Math.max(0, ENDLESS_STAGE_GOAL - stageDelivered);
       showBanner('📦 本站進度 '+stageDelivered+'/'+ENDLESS_STAGE_GOAL+' 單','再送 '+remain+' 單前往下一景點！','#38bdf8',2.8);
     }
   }
@@ -4036,15 +4052,16 @@ function updateHornUI(){
 function pressHorn(){
   if(G.state!=='play'||countdown>0) return;
   if(playerHornCool>0) return;
-  playerHornCool=0.45;
+  const hornLv = upg.horn || 0;
+  playerHornCool = 0.45 * (1 - hornLv * 0.12);
   vibrate(30);
 
   if(vehicleType==='bike'){
-    sfx('bell');
-    pop(P.x, P.y-34, pick(['🔔 叮鈴叮鈴～借過借過！', '🔔 借過一下～']), '#38bdf8', 16);
+    sfx(hornLv>=1 ? 'horn_moto' : 'bell');
+    pop(P.x, P.y-34, hornLv>=1 ? '📢 叭叭！改裝蝸牛喇叭借過！' : pick(['🔔 叮鈴叮鈴～借過借過！', '🔔 借過一下～']), hornLv>=1 ? '#fde047' : '#38bdf8', 16);
   } else if(vehicleType==='ebike'){
-    sfx('bell');
-    pop(P.x, P.y-34, pick(['⚡ 嗶嗶～電輔車借過借過！', '⚡ 電輔外送借過一下～']), '#38bdf8', 16);
+    sfx(hornLv>=1 ? 'horn_moto' : 'bell');
+    pop(P.x, P.y-34, hornLv>=1 ? '📢 叭叭！電輔改裝喇叭借過！' : pick(['⚡ 嗶嗶～電輔車借過借過！', '⚡ 電輔外送借過一下～']), hornLv>=1 ? '#fde047' : '#38bdf8', 16);
   } else {
     sfx('horn_moto');
     pop(P.x, P.y-34, pick(['🛵 嗶嗶！外送借過借過～', '🛵 嗶嗶！借過一下！']), '#fde047', 16);
@@ -4065,11 +4082,13 @@ function pressHorn(){
     }
   }
 
-  // 2. 野狗反應：騎單車（小黃單車／電輔車）按鈴會激怒野狗狂追；騎機車以上（外送機車／重型電摩）高分貝喇叭才會嚇退野狗
+  // 2. 野狗反應：未改裝蝸牛喇叭時騎單車按鈴會激怒野狗；改裝蝸牛喇叭或騎機車以上則可嚇退野狗
   if(dogs && dogs.length){
     const isBicycle = (vehicleType === 'bike' || vehicleType === 'ebike');
+    const canScareDog = !isBicycle || hornLv >= 1;
+    const scareRange = 135 + hornLv * 10;
     for(const d of dogs){
-      if(isBicycle){
+      if(!canScareDog){
         if((d.eat || 0) <= 0 && dist(P, d) < 165 && hasDogLineOfSight(d, P)){
           d.stun = 0;
           d.calm = 0;
@@ -4081,12 +4100,12 @@ function pressHorn(){
           pop(d.x, d.y-24, '🐕💢 汪汪！（被單車鈴聲激怒！）', '#ef4444', 15);
         }
       } else {
-        if(d.stun <= 0 && dist(P, d) < 135 && hasDogLineOfSight(d, P)){
-          d.stun = 1.2;
+        if(d.stun <= 0 && dist(P, d) < scareRange && hasDogLineOfSight(d, P)){
+          d.stun = 1.2 + hornLv * 0.15;
           d.chase = false;
           d.enraged = 0;
-          d.calm = 2.5;
-          pop(d.x, d.y-24, '🐕💦 嗚汪！（被機車喇叭嚇退）', '#fde68a', 14);
+          d.calm = 2.5 + hornLv * 0.2;
+          pop(d.x, d.y-24, isBicycle ? '🐕💦 嗚汪！（被蝸牛喇叭嚇退）' : '🐕💦 嗚汪！（被機車喇叭嚇退）', '#fde68a', 14);
         }
       }
     }
@@ -4803,7 +4822,7 @@ function updateCars(dt){
           if(dToP < 520) sfx('siren', clamp(1.05 - dToP / 560, 0.2, 0.9));
         }
 
-        // 情況 A：追上玩家（即便躲進外送臨停區／安全區也照樣依法攔停開單！）
+        // 情況 A：追上玩家（即便躲進外送臨停區／安全區也照樣依法攔停開單！僅罰鍰、扣分與強制攔停耽誤時間，不加平台差評）
         const inSafetyBay = places.some(pl => dist(P, pl.door) < 65);
         const catchDist = inSafetyBay ? 56 : (P.r + 20);
         if(dToP < catchDist){
@@ -4811,7 +4830,6 @@ function updateCars(dt){
           const fineCoins = Math.min(coins, 30);
           coins -= fineCoins;
           if(fineCoins < 30) damage(30 - fineCoins, '🚨 罰單無力繳納扣體力！');
-          strikes++;
           combo = 0;
           stats.score = Math.max(0, stats.score - 60);
           P.stopT = 1.6;
@@ -4819,10 +4837,9 @@ function updateCars(dt){
           sfx('whistle');
           shake = 0.35;
           vibrate([60, 40, 100, 40, 120]);
-          const catchMsg = inSafetyBay ? `🚔 警察：躲進臨停區也逃不掉！罰鍰🪙${fineCoins} 記差評⚠️` : `🚔 警察開單！罰鍰🪙${fineCoins} 記違規差評⚠️`;
+          const catchMsg = inSafetyBay ? `🚔 警察：躲進臨停區也逃不掉！罰鍰🪙${fineCoins} 攔停受檢！` : `🚔 警察攔停開單！罰鍰🪙${fineCoins} 扣60分`;
           pop(P.x, P.y-34, catchMsg, '#ef4444', 21);
-          showBanner('🚔 交通違規遭開單！', inSafetyBay ? `躲進臨停區仍遭警察依法取締！罰鍰 🪙 ${fineCoins} 並記差評（${strikes}/3）！` : `違規遭巡邏警察取締！重罰 🪙 ${fineCoins} 並記差評（${strikes}/3）！`, '#ef4444', 4.0);
-          if(strikes >= 3) gameOver('😭 累積 3 次違規差評/逾時，被平台永久停權了');
+          showBanner('🚔 交通違規遭開單！', inSafetyBay ? `躲進臨停區仍遭警察依法取締！罰鍰 🪙 ${fineCoins} 並強制攔停受檢 1.6 秒！` : `違規遭巡邏警察攔停開單！重罰 🪙 ${fineCoins}、扣 60 分並強制攔停 1.6 秒！`, '#ef4444', 4.0);
         }
         // 情況 B1：鑽進窄巷捷徑超過 1.2 秒甩開警車（警車車身太寬無法進入！）
         else if((P.inAlleyTimer || 0) >= 1.2){
@@ -4834,6 +4851,9 @@ function updateCars(dt){
           }
           P.inAlleyTimer = 0;
           stats.score += 35;
+          life.alleyEvades = (life.alleyEvades || 0) + 1;
+          saveLife();
+          checkAchievements();
           sfx('praise');
           vibrate([40, 30, 60]);
           pop(P.x, P.y-34, '🧱 鑽進窄巷甩開警車！+35分', '#38bdf8', 21);
@@ -5265,6 +5285,9 @@ function updateStageEvent(dt){
     const dJoin = Math.hypot(P.x - ev.x, P.y - ev.y);
     if(dJoin < 65){
       ev.joined = true;
+      life.eventsJoined = (life.eventsJoined || 0) + 1;
+      saveLife();
+      checkAchievements();
       sfx('praise');
       ev.joinAnimTimer = 3.5;
       ev.particles = [];
@@ -5471,6 +5494,9 @@ function updateRockfall(ev, dt){
     ev.entrySide = Math.sign(along(P)) || 1;
     if(!ev.joined){
       ev.joined = true;
+      life.eventsJoined = (life.eventsJoined || 0) + 1;
+      saveLife();
+      checkAchievements();
       showBanner('⚠️ 進入落石警戒區！', ev.joinedMsg, '#facc15', 2.6);
     }
     pop(P.x, P.y - 36, '⚠️ 注意頭頂落石！', '#facc15', 18);
@@ -6245,7 +6271,7 @@ function update(dt){
   // 技巧 1：完美急煞・臨停入庫（高速進入臨停區在格內急煞停定，秒取餐／秒送達＋獎金）
   if(wasMoving && !P.moving && order && G.state==='play'){
     const tgt=getOrderTarget();
-    if(tgt && dist(P, tgt.door)<=28 && (P.lastSpeed||0)>=baseSp*0.65){
+    if(tgt && dist(P, tgt.door)<=28+(upg.magnet||0)*2 && (P.lastSpeed||0)>=baseSp*0.65){
       P.perfectStopT=1.5;
       sfx('skid');
       shake=0.22;
@@ -6255,6 +6281,9 @@ function update(dt){
       }
       stats.score+=35;
       addCoins(10);
+      life.perfectStops=(life.perfectStops||0)+1;
+      saveLife();
+      checkAchievements();
       pop(P.x, P.y-48, '⭐ 完美急煞入庫！秒速進站！🪙+10', '#fde047', 22);
       if(order.stage==='pickup' && order.prepT>0){
         order.prepT=0;
@@ -6291,7 +6320,8 @@ function update(dt){
 
   if(inSlipstream){
     P.draftTimer=(P.draftTimer||0)+dt;
-    const reqDraftT = (vehicleType==='moto') ? 0.65 : 0.95; // 外送機車大車尾流破風蓄力縮短為 0.65s
+    const baseDraftT = (vehicleType==='moto') ? 0.65 : 0.95; // 外送機車大車尾流破風蓄力縮短為 0.65s
+    const reqDraftT = baseDraftT * (1 - (upg.aero || 0) * 0.10);
     if(P.draftTimer>=reqDraftT && !P.draftReady){
       P.draftReady=true;
       sfx('near');
@@ -6301,12 +6331,15 @@ function update(dt){
     if(P.draftReady && P.moving){
       P.draftReady=false;
       P.draftTimer=0;
-      P.boost=2.4;
+      P.boost=2.4 + (upg.aero || 0) * 0.35;
       P.inv=1.6;
       sfx('turbo');
       shake=0.22;
       vibrate([40,50,100]);
       stats.score+=25;
+      life.draftBoosts=(life.draftBoosts||0)+1;
+      saveLife();
+      checkAchievements();
       pop(P.x, P.y-42, '💨 破風超車彈射！極速暴走！+25分', '#38bdf8', 21);
       for(let i=0;i<4;i++){
         pops.push({x:P.x+rand(-12,12), y:P.y+rand(-12,12), text:'⚡', color:'#38bdf8', t:0.6, size:16});
@@ -6497,8 +6530,9 @@ function update(dt){
     const dDoor=tgt ? dist(P,tgt.door) : 999;
     if(dDoor<120) triggerTut('bay','🛵 橘黃虛線框是【外送臨停區】：紅燈車陣會自動淨空，停進這裡最安全！','#fde047');
 
+    const bayRadius = 54 + (upg.magnet || 0) * 4;
     if(order.stage==='pickup'){
-      if(dDoor<54){
+      if(dDoor<bayRadius){
         if(order.prepT > 0){
           if(!order.prepTriggered){
             order.prepTriggered = true;
@@ -6574,7 +6608,7 @@ function update(dt){
 
       // 1b. 順路單進店取餐判定（須實際騎進順路店家臨停區）
       if(order.stacked && !order.stacked.pickedUp){
-        if(dist(P, order.stacked.shop.door) < 54){
+        if(dist(P, order.stacked.shop.door) < bayRadius){
           order.stacked.pickedUp = true;
           sfx('pickup');
           vibrate([40,30,50]);
@@ -6587,12 +6621,13 @@ function update(dt){
       // 2. 順路單顧客送達判定（須先取餐）
       if(order.stacked && order.stacked.pickedUp && !order.stacked.delivered){
         const dStackedCust = dist(P, order.stacked.cust.door);
-        if(dStackedCust < 54){
+        if(dStackedCust < bayRadius){
           order.stacked.delivered = true;
           order.stacked.rewardGiven = true;
           addCoins(order.stacked.bonusCoins);
           stats.score += order.stacked.bonusPts;
           stats.delivered++;
+          if(gameMode === 'endless') stageDelivered++;
           life.orders = (life.orders || 0) + 1;
           saveLife();
           sfx('pickup');
@@ -6618,7 +6653,7 @@ function update(dt){
       // 3. 原單顧客送達判定
       if(order && !order.primaryDelivered){
         const dOrigCust = dist(P, order.cust.door);
-        if(dOrigCust < 54){
+        if(dOrigCust < bayRadius){
           if(order.stacked && !order.stacked.delivered){
             order.primaryDelivered = true;
             sfx('pickup');
