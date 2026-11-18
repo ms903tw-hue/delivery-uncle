@@ -74,6 +74,14 @@ body.title #titleBtnsTop .hudBtn{position:static}
 .char.sel .cd{color:#fcd34d}
 .small{font-size:12px;color:#64748b;margin-top:6px}
 #title .card{width:min(96vw,740px);padding:12px 16px}
+.dailyBox{margin:6px auto 6px;padding:7px 10px;border-radius:12px;background:#0b1222;border:1.5px solid #334155;max-width:620px;text-align:left}
+.dailyHead{font-size:12.5px;font-weight:900;color:#fde68a;margin-bottom:5px;display:flex;align-items:center;justify-content:space-between}
+.dailyGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+@media (max-width:540px){.dailyGrid{grid-template-columns:1fr}}
+.dailyItem{background:#131d33;border:1px solid #334155;border-radius:8px;padding:5px 8px;display:flex;align-items:center;justify-content:space-between;gap:4px;font-size:11.5px;font-weight:800;color:#cbd5e1}
+.dailyItem.done{border-color:#10b981;background:rgba(16,185,129,.12);color:#a7f3d0}
+.dailyItem .dTag{font-size:11px;font-weight:900;padding:1px 6px;border-radius:999px;background:#1e293b;color:#fbbf24;white-space:nowrap}
+.dailyItem.done .dTag{background:#065f46;color:#6ee7b7}
 .titleBtns{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:4px}
 .titleBtns .btn{min-width:auto;margin:0;padding:9px 14px;font-size:15px}
 @media (max-height:580px){
@@ -89,6 +97,9 @@ body.title #titleBtnsTop .hudBtn{position:static}
   #title .char canvas{width:146px;height:66px}
   #title .char .cn{font-size:14px}
   #title .char .cd{font-size:11px}
+  .dailyBox{margin:4px auto;padding:4px 8px}
+  .dailyHead{font-size:11.5px;margin-bottom:3px}
+  .dailyItem{padding:3px 6px;font-size:10.5px}
   .titleBtns .btn{padding:7px 12px;font-size:13.5px}
   #title .small{margin-top:4px;font-size:11px}
 }
@@ -257,6 +268,10 @@ body.title #titleBtnsTop .hudBtn{position:static}
       <span class="cd">極速 +15・粉紅貓耳快車</span>
     </button>
   </div>
+  <div class="dailyBox" id="dailyBox">
+    <div class="dailyHead"><span>📋 今日外送懸賞</span><span id="dailyDateTxt" style="font-size:11px;color:#94a3b8;font-weight:700"></span></div>
+    <div class="dailyGrid" id="dailyGrid"></div>
+  </div>
   <div class="titleBtns">
     <button class="btn primary" id="startBtn">🚀 開始外送</button>
     <button class="btn" id="garageBtn">🔧 車庫升級</button>
@@ -264,7 +279,7 @@ body.title #titleBtnsTop .hudBtn{position:static}
     <button class="btn" id="howBtn">📖 玩法說明</button>
     <button class="btn" id="storyBtn" style="padding:9px 12px">📜 故事</button>
   </div>
-  <div class="small">單機遊戲・不需網路・建議橫向遊玩 <span style="display:inline-block;margin-left:6px;opacity:.65">v1.4.0</span></div>
+  <div class="small">單機遊戲・不需網路・建議橫向遊玩 <span style="display:inline-block;margin-left:6px;opacity:.65">v1.5.0</span></div>
 </div></div>
 
 <!-- 開頭派單故事 -->
@@ -345,7 +360,7 @@ body.title #titleBtnsTop .hudBtn{position:static}
     <button class="btn" id="pauseVibBtn" style="padding:6px 14px;font-size:13px;width:auto">📳 震動：開啟</button>
     <button class="btn" id="pauseMuteBtn" style="padding:6px 14px;font-size:13px;width:auto">🔊 聲音：開啟</button>
   </div>
-  <div style="font-size:12px;color:#64748b;margin-bottom:8px;">版本 <span>v1.4.0</span></div>
+  <div style="font-size:12px;color:#64748b;margin-bottom:8px;">版本 <span>v1.5.0</span></div>
   <button class="btn primary" id="resumeBtn">▶ 繼續</button>
   <button class="btn" id="restartBtn">🔄 重新開始</button>
   <button class="btn" id="homeBtn1">🏠 回主畫面</button>
@@ -431,7 +446,7 @@ body.title #titleBtnsTop .hudBtn{position:static}
   <button class="btn green" id="nextStageBtn" style="display:none">➡ 挑戰下一關</button>
   <button class="btn primary" id="againBtn">🔄 再玩一次</button>
   <button class="btn" id="mapBtn">🗺️ 換地圖</button>
-  <button class="btn" id="homeBtn2">🏠 回主畫面</button><div style="font-size:11px;color:#64748b;margin-top:6px">瘋狂外送員 v1.4.0</div>
+  <button class="btn" id="homeBtn2">🏠 回主畫面</button><div style="font-size:11px;color:#64748b;margin-top:6px">瘋狂外送員 v1.5.0</div>
 </div></div>
 
 <!-- 直式提示 -->
@@ -1826,6 +1841,68 @@ function renderAch(){
   }
   if(cntTxt) cntTxt.textContent='已解鎖 '+doneCount+' / '+ACH_DEFS.length;
 }
+const DAILY_POOL=[
+  {id:'ped_3',     icon:'🚶', name:'禮讓行人 3 次',           target:3, reward:40},
+  {id:'combo_4',   icon:'🔥', name:'單場 4 連擊',             target:4, reward:50},
+  {id:'fragile_2', icon:'🧋', name:'完成 2 筆手搖飲/熱湯未灑出', target:2, reward:50},
+  {id:'dog_3',     icon:'🍗', name:'定住野狗 3 次',           target:3, reward:40},
+  {id:'clean_1',   icon:'🏅', name:'零違規過關 1 次',         target:1, reward:60},
+  {id:'rain_2',    icon:'🌧️', name:'雨天送達 2 單',           target:2, reward:55}
+];
+let dailyData=store.get('dug_daily',null);
+function ensureDaily(){
+  const today=new Date().toDateString();
+  if(!dailyData || dailyData.date!==today || !Array.isArray(dailyData.tasks) || dailyData.tasks.length!==3){
+    const pool=DAILY_POOL.slice();
+    for(let i=pool.length-1;i>0;i--){
+      const j=(Math.random()*(i+1))|0;
+      const tmp=pool[i]; pool[i]=pool[j]; pool[j]=tmp;
+    }
+    dailyData={
+      date:today,
+      tasks:pool.slice(0,3).map(d=>({id:d.id, prog:0, done:false}))
+    };
+    store.set('dug_daily',dailyData);
+  }
+}
+function renderDaily(){
+  ensureDaily();
+  const grid=$('dailyGrid'), dtTxt=$('dailyDateTxt');
+  if(dtTxt){
+    const doneCnt=dailyData.tasks.filter(t=>t.done).length;
+    dtTxt.textContent='已完成 '+doneCnt+'/3';
+  }
+  if(!grid) return;
+  grid.innerHTML='';
+  for(const t of dailyData.tasks){
+    const def=DAILY_POOL.find(d=>d.id===t.id);
+    if(!def) continue;
+    const item=document.createElement('div');
+    item.className='dailyItem'+(t.done?' done':'');
+    const progStr=t.done?'':(' ('+Math.min(def.target,t.prog||0)+'/'+def.target+')');
+    const tagStr=t.done?'✔ 已完成':('+'+def.reward+'🪙');
+    item.innerHTML='<span>'+def.icon+' '+def.name+progStr+'</span><span class="dTag">'+tagStr+'</span>';
+    grid.appendChild(item);
+  }
+}
+function progressDaily(id, val=1, isMax=false){
+  ensureDaily();
+  const t=dailyData.tasks.find(x=>x.id===id);
+  if(!t || t.done) return;
+  const def=DAILY_POOL.find(d=>d.id===id);
+  if(!def) return;
+  t.prog = isMax ? Math.max(t.prog||0, val) : ((t.prog||0) + val);
+  if(t.prog >= def.target){
+    t.prog = def.target;
+    t.done = true;
+    store.set('dug_daily',dailyData);
+    addCoins(def.reward);
+    showBanner('📋 今日懸賞達成：'+def.name, '獲得懸賞獎勵 +'+def.reward+' 🪙！', '#fbbf24');
+  } else {
+    store.set('dug_daily',dailyData);
+  }
+  renderDaily();
+}
 let coinFlashT=0, coinEarnedPop=0;
 function addCoins(n){
   if(!n) return;
@@ -2591,6 +2668,7 @@ function updateTrafficAndPeds(dt){
           stats.score+=15;
           sfx('praise');
           pop(P.x, P.y-30, '😇 感謝禮讓！+15分', '#6ee7b7', 18);
+          progressDaily('ped_3', 1);
         }
       }
     }
@@ -3225,6 +3303,7 @@ function goTitle(){
   const ct=$('coinsTitle'); if(ct) ct.textContent=coins;
   document.querySelectorAll('.char').forEach(b=>b.classList.toggle('sel',b.dataset.char===char));
   updateModeUI();
+  renderDaily();
 }
 function startGame(){
   ensureAudio();
@@ -3377,7 +3456,7 @@ function winStage(){
   const prevStars=store.get('dug_stars_'+curMap.id,0);
   if(stageStars>prevStars) store.set('dug_stars_'+curMap.id,stageStars);
   const cleanStage=(stats.violations||0)===0;
-  if(cleanStage){ stats.score+=300; life.cleanStages=(life.cleanStages||0)+1; saveLife(); }
+  if(cleanStage){ stats.score+=300; life.cleanStages=(life.cleanStages||0)+1; saveLife(); progressDaily('clean_1', 1); }
   const stageCoinBonus=25+(stageStars===3?15:0)+(cleanStage?10:0);
   addCoins(stageCoinBonus);
   if(stageStars===3 && prevStars<3){
@@ -3515,7 +3594,7 @@ function newOrder(){
   const hasPrepDelay = !isVip && stats.delivered >= 1 && Math.random() < 0.28;
   const prepT = hasPrepDelay ? 1.3 : 0;
 
-  order={shop,cust,stage:'pickup',time:t,total:t,isVip,specialType,fragile,note,spilled:false,stability:100,violated:false,stacked:null,prepT,maxPrepT:prepT,prepTriggered:false};
+  order={shop,cust,stage:'pickup',time:t,total:t,isVip,specialType,fragile,note,spilled:false,stability:100,noteViolated:false,violated:false,stacked:null,prepT,maxPrepT:prepT,prepTriggered:false};
   lastTick=-1; pathTimer=0;
   sfx('order');
   if(isVip){
@@ -3619,6 +3698,16 @@ function deliver(){
   addCoins(totalEarnedCoins);
   const stabilityBonus = !!(order.fragile && !order.spilled && order.stability >= 85);
   if(stabilityBonus) addCoins(15);
+  const isSleepNote = !!(order.note && order.note.includes('小孩在睡覺'));
+  const isCarefulNote = !!(order.note && (order.note.includes('不要搖') || order.note.includes('分開裝')));
+  if(isCarefulNote && (order.spilled || (order.stability !== undefined && order.stability < 50))) order.noteViolated = true;
+  const quietBonus = isSleepNote && !order.noteViolated && !order.violated;
+  const carefulBonus = isCarefulNote && !order.noteViolated && !order.spilled && (order.stability === undefined || order.stability >= 50);
+  if(quietBonus) addCoins(20);
+  if(carefulBonus) addCoins(20);
+  progressDaily('combo_4', combo, true);
+  if(specialMult>1) progressDaily('fragile_2', 1);
+  if(rainMult>1) progressDaily('rain_2', 1);
   checkAchievements();
 
   // 雞腿補充：手上低於 2 支時必定補給 1 支；若已有 2 支以上則 40% 機率補充，最高不超過上限
@@ -3664,6 +3753,8 @@ function deliver(){
   }
   if(tipCoins>0) bonuses.push('💵 顧客小費 +'+tipCoins+'🪙');
   if(stabilityBonus) bonuses.push('⚖️ 完美平穩小費 +15🪙');
+  if(quietBonus) bonuses.push('🤫 安靜送達小費 +20🪙');
+  if(carefulBonus) bonuses.push('✨ 完美照辦小費 +20🪙');
   if(P && P.perfectStopT>0) bonuses.push('⭐ 完美急煞入庫 +10🪙');
   if(combo>1) bonuses.push('🔥 連擊 ×'+combo+' +'+comboCoins+'🪙');
 
@@ -3845,6 +3936,9 @@ function damage(n,msg){
   const actualDmg=char==='M'?Math.max(4,Math.round(rawDmg*0.8)):rawDmg;
   P.hp=Math.max(0,P.hp-actualDmg); P.inv=(char==='M'?1.6:1.2); shake=0.35; combo=Math.max(0,combo);
   vibrate(90);
+  if(order && order.note && (order.note.includes('不要搖') || order.note.includes('分開裝'))){
+    order.noteViolated = true;
+  }
   if(order && order.stage==='deliver' && order.fragile && !order.spilled){
     if(vehicleType === 'heavy'){
       pop(P.x, P.y-52, '🛡️ 防震恆溫貨箱護體！湯飲完好不外灑！', '#38bdf8', 16);
@@ -3898,6 +3992,11 @@ function pressHorn(){
   } else {
     sfx('horn_moto');
     pop(P.x, P.y-34, pick(['🛵 嗶嗶！外送借過借過～', '🛵 嗶嗶！借過一下！']), '#fde047', 16);
+  }
+
+  if(order && order.note && order.note.includes('小孩在睡覺') && order.cust && dist(P, order.cust.door) < 170){
+    order.noteViolated = true;
+    pop(P.x, P.y-52, '💢 吵醒小孩了啦！', '#fca5a5', 18);
   }
 
   // 1. 行人反應：附近行人聽到喇叭加快腳步避讓
@@ -6050,6 +6149,9 @@ function update(dt){
     if(P.lastSpeed > 195 && Math.abs(P.steer) > 0.78){
       const drain = (vehicleType === 'heavy') ? 19 : 38;
       order.stability = Math.max(0, order.stability - drain * dt);
+      if(order.stability < 50 && order.note && (order.note.includes('不要搖') || order.note.includes('分開裝'))){
+        order.noteViolated = true;
+      }
       if(order.stability <= 0){
         order.stability = 0;
         order.spilled = true;
@@ -6266,7 +6368,7 @@ function update(dt){
       for(const d of dogs){
         if(d.stun<=0&&Math.hypot(d.x-s.x,d.y-s.y)<28){
           d.stun=5; d.eat=5; d.chase=false; d.chaseDur=0; s.life=0; stats.score+=20; stats.dogs++;
-          life.dogs=(life.dogs||0)+1; saveLife(); checkAchievements();
+          life.dogs=(life.dogs||0)+1; saveLife(); progressDaily('dog_3', 1); checkAchievements();
           sfx('stun'); pop(d.x,d.y-24,'🍗 定住 +20','#fde68a',16); break;
         }
       }
@@ -10061,7 +10163,7 @@ function drawHUD(now){
   }
 
   // 左上角迷你平衡度進度條（脆弱訂單即時顯示 order.stability）
-  const showStabBar = !!(order && order.fragile && order.stability !== undefined);
+  const showStabBar = !!(order && order.stage === 'deliver' && order.fragile && !order.spilled);
   if(showStabBar){
     const stab = clamp(order.spilled ? 0 : order.stability, 0, 100);
     const stabCol = stab > 60 ? '#22c55e' : (stab >= 30 ? '#f59e0b' : '#ef4444');
