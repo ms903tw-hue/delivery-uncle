@@ -1955,7 +1955,7 @@ function renderGarage(){
       fullName: '勁速外送機車',
       price: 250,
       spd: '220 (引擎+12/級)',
-      desc: '半徑 r=14・尾流破風蓄力 0.65s・窄巷車速 -8%',
+      desc: '半徑 r=14・尾流破風蓄力 0.65s・窄巷車速 -35%',
       unlocked: () => motoUnlocked,
       unlock: () => { motoUnlocked = true; store.set('dug_moto_unlocked', true); }
     },
@@ -1966,7 +1966,7 @@ function renderGarage(){
       fullName: '爆走重型電摩',
       price: 650,
       spd: '255 (引擎+15/級)',
-      desc: '體力 +30・防震恆溫箱(碰撞不灑湯飲)・窄巷 -20%',
+      desc: '體力 +30・防震恆溫箱(碰撞不灑湯飲)・窄巷 -48%',
       unlocked: () => heavyUnlocked,
       unlock: () => { heavyUnlocked = true; store.set('dug_heavy_unlocked', true); }
     }
@@ -1986,8 +1986,18 @@ function renderGarage(){
       const card = document.createElement('div');
       card.className = 'vehCard' + (isCur ? ' active' : '');
 
+      const prevCv = document.createElement('canvas');
+      prevCv.width = 160;
+      prevCv.height = 76;
+      prevCv.style.cssText = 'width:100%;max-width:130px;height:52px;margin:0 auto 2px;border-radius:8px;background:radial-gradient(circle at 50% 50%,#1e293b,#090f1d);border:1px solid #26344b;display:block';
+      const pCtx = prevCv.getContext('2d');
+      pCtx.setTransform(2,0,0,2,0,0);
+      pCtx.translate(42, 19);
+      renderRider(pCtx, char, performance.now(), true, true, 0.96, isCur, 0, v.type);
+
       const info = document.createElement('div');
       info.innerHTML = '<div class="vehCardTitle">' + v.icon + ' ' + v.name + (isCur ? ' <span style="color:#34d399;font-size:11px;">●</span>' : '') + '</div><div class="vehCardSpd">⚡ ' + v.spd + '</div><div class="vehCardDesc">' + v.desc + '</div>';
+      card.appendChild(prevCv);
       card.appendChild(info);
 
       const btn = document.createElement('button');
@@ -2409,20 +2419,24 @@ function startPoliceChase(cop, popMsg, bannerSub){
   shake = 0.25;
   showBanner('🚨 警車追捕中！', bannerSub, '#f43f5e');
   pop(P.x, P.y-34, popMsg, '#ef4444', 20);
-  if(vehicleType === 'bike'){
-    triggerTut('police', '🚔 被警車追捕時躲進臨停區也逃不掉！善用單車靈活急轉彎或「過兩個路口」甩開！', '#38bdf8');
-  } else {
-    triggerTut('police', '🚔 甩開警車秘訣：善用急轉彎「過兩個路口」警車就會自動放棄！', '#38bdf8');
-  }
+  tutSeen['police'] = 1;
 }
-function getNearbyPolice(maxDist = 420){
+function getNearbyPolice(maxDist = 320){
   if(!cars || !P) return null;
   if(cars.some(c=>c.type==='police' && c.chasing)) return null;
+  const vw = W / ZOOM, vh = H / ZOOM;
   let bestCop = null, bestD = maxDist;
   for(const c of cars){
     if(c.type==='police' && !c.chasing && (c.chaseCool||0)<=0){
-      const d = dist(carPos(c), P);
-      if(d < bestD){
+      if(c.pos < 35 || c.pos > c.len - 35) continue; // 排除尚在邊界隧道外進場中的警車
+      const cp = carPos(c);
+      // 必須已經在玩家當前視野畫面內，且與玩家在同一條道路上無遮蔽目擊，絕不從視野外或隔壁街突然冒出
+      const onScreen = (cp.x >= cam.x + 28 && cp.x <= cam.x + vw - 28 && cp.y >= cam.y + 28 && cp.y <= cam.y + vh - 28);
+      if(!onScreen) continue;
+      const sameRoad = (c.axis === 'h' && Math.abs(P.y - c.roadCenter) < HALF + 8) || (c.axis === 'v' && Math.abs(P.x - c.roadCenter) < HALF + 8);
+      if(!sameRoad) continue;
+      const d = dist(cp, P);
+      if(d < bestD && hasDogLineOfSight(cp, P)){
         bestD = d;
         bestCop = c;
       }
@@ -2435,8 +2449,12 @@ function recordViolation(){
   if(order) order.violated=true;
 }
 function checkWrongWay(dt){
+  if(P && P.wrongWayCool > 0) P.wrongWayCool = Math.max(0, P.wrongWayCool - dt);
   if(!P || !P.moving || P.stopT > 0){
-    if(P) P.wrongWayT = Math.max(0, (P.wrongWayT||0) - dt*1.5);
+    if(P){
+      P.wrongWayT = Math.max(0, (P.wrongWayT||0) - dt*1.5);
+      if(P.wrongWayT <= 0.1){ P.wwWarned = false; P.wwTriggered = false; P.wwCounted = false; }
+    }
     return;
   }
   // 路口內轉彎切線不計逆向，暫停累計（不直接扣歸零）
@@ -2451,6 +2469,7 @@ function checkWrongWay(dt){
     for(const pl of places){
       if(dist(P, pl.door) < 42){
         P.wrongWayT = Math.max(0, (P.wrongWayT||0) - dt*2);
+        if(P.wrongWayT <= 0.1){ P.wwWarned = false; P.wwTriggered = false; P.wwCounted = false; }
         return;
       }
     }
@@ -2471,6 +2490,7 @@ function checkWrongWay(dt){
   // 中央雙黃線旁 ±8px 保留為「鑽車縫超車自由區」，不計逆向
   if(!bestAxis || Math.abs(bestLat) <= 8){
     P.wrongWayT = Math.max(0, (P.wrongWayT||0) - dt*1.2);
+    if(P.wrongWayT <= 0.1){ P.wwWarned = false; P.wwTriggered = false; P.wwCounted = false; }
     return;
   }
   let wrongDir = false;
@@ -2482,27 +2502,36 @@ function checkWrongWay(dt){
     wrongDir = (P.fy * expFy) < -0.42;
   }
   if(wrongDir){
-    P.wrongWayT = Math.min(2.0, (P.wrongWayT||0) + dt);
-    if(P.wrongWayT >= 0.35 && P.wrongWayT < 0.48){
-      pop(P.x, P.y-34, '⚠️ 逆向行駛！警察即將出動！', '#ef4444', 19);
+    P.wrongWayT = Math.min(3.0, (P.wrongWayT||0) + dt);
+    if(P.wrongWayT >= 0.55 && !P.wwWarned){
+      P.wwWarned = true;
+      if((P.wrongWayCool || 0) <= 0){
+        if(!tutSeen['wrongway']){
+          triggerTut('wrongway', '⚠️ 逆向行駛會被警車追捕！騎回【中央雙黃線】或正確車道超車！', '#fbbf24');
+        } else {
+          pop(P.x, P.y-34, '⚠️ 逆向行駛！請靠右順向騎乘', '#fbbf24', 18);
+        }
+      }
     }
-    if(P.wrongWayT >= 0.52){
-      triggerTut('wrongway', '⚠️ 逆向行駛會被警車追捕！騎回【中央雙黃線】或正確車道超車！', '#fbbf24');
-    }
-    if(!devGhost && P.wrongWayT >= 0.72){
-      P.wrongWayT = 0;
-      if(!P.wwCounted){ P.wwCounted=true; recordViolation(); }
-      const cop = getNearbyPolice(420);
+    if(!devGhost && P.wrongWayT >= 1.35 && !P.wwTriggered){
+      P.wwTriggered = true;
+      if(!P.wwCounted){ P.wwCounted = true; recordViolation(); }
+      const cop = getNearbyPolice(320);
       if(cop){
-        startPoliceChase(cop, '🚔 警察：前方騎士逆向行駛！立即停等受檢！', '附近巡邏警車目擊逆向！過兩個路口轉彎甩開！');
-      } else {
-        pop(P.x, P.y-34, '⚠️ 逆向行駛違規！', '#f59e0b', 18);
+        P.wrongWayCool = 6.0;
+        startPoliceChase(cop, '🚔 警察：前方騎士逆向行駛！立即停等受檢！', '同路段巡邏警車目擊逆向！過兩個路口轉彎甩開！');
+      } else if((P.wrongWayCool || 0) <= 0){
+        P.wrongWayCool = 5.0;
         showBanner('⚠️ 逆向行駛違規！', '未依車道靠右行駛，本單失去零違規獎勵！', '#f59e0b', 2.4);
       }
     }
   }else{
     P.wrongWayT = Math.max(0, (P.wrongWayT||0) - dt*2.0);
-    if(P.wrongWayT <= 0.1) P.wwCounted = false;
+    if(P.wrongWayT <= 0.1){
+      P.wwWarned = false;
+      P.wwTriggered = false;
+      P.wwCounted = false;
+    }
   }
 }
 function updateTrafficAndPeds(dt){
@@ -3480,7 +3509,19 @@ function winStage(){
   showEndCard(true, msg);
 }
 function showBanner(text,sub,color,dur=3.2){banner={text,sub:sub||'',color:color||'#fde68a',t:dur,maxT:dur};}
-function pop(x,y,text,color,size){pops.push({x,y,text,color:color||'#fff',t:1.6,size:size||22});}
+function pop(x,y,text,color,size){
+  for(const p of pops){
+    if(p.text===text && Math.hypot(p.x-x, p.y-y)<140){
+      p.x=x; p.y=y; p.t=1.6; p.color=color||p.color; return;
+    }
+  }
+  for(const p of pops){
+    if(Math.abs(p.x-x)<120 && Math.abs(p.y-y)<26){
+      p.y -= 26;
+    }
+  }
+  pops.push({x,y,text,color:color||'#fff',t:1.6,size:size||22});
+}
 function updateAmmo(){
   $('ammoTxt').textContent='×'+(P?P.ammo:0);
   $('throwBtn').classList.toggle('empty',!P||P.ammo<=0);
@@ -4009,13 +4050,29 @@ function pressHorn(){
     }
   }
 
-  // 2. 野狗反應：近距離喇叭聲短暫嚇阻野狗 0.9 秒（需無障礙物阻隔）
+  // 2. 野狗反應：騎單車（小黃單車／電輔車）按鈴會激怒野狗狂追；騎機車以上（外送機車／重型電摩）高分貝喇叭才會嚇退野狗
   if(dogs && dogs.length){
+    const isBicycle = (vehicleType === 'bike' || vehicleType === 'ebike');
     for(const d of dogs){
-      if(d.stun <= 0 && dist(P, d) < 125 && hasDogLineOfSight(d, P)){
-        d.stun = 0.9;
-        d.chase = false;
-        pop(d.x, d.y-22, '🐕 汪！？（被喇叭嚇退）', '#fde68a', 14);
+      if(isBicycle){
+        if((d.eat || 0) <= 0 && dist(P, d) < 165 && hasDogLineOfSight(d, P)){
+          d.stun = 0;
+          d.calm = 0;
+          d.chase = true;
+          d.chaseDur = 0;
+          d.lostSightTimer = 0;
+          d.enraged = 4.5;
+          sfx('bite');
+          pop(d.x, d.y-24, '🐕💢 汪汪！（被單車鈴聲激怒！）', '#ef4444', 15);
+        }
+      } else {
+        if(d.stun <= 0 && dist(P, d) < 135 && hasDogLineOfSight(d, P)){
+          d.stun = 1.2;
+          d.chase = false;
+          d.enraged = 0;
+          d.calm = 2.5;
+          pop(d.x, d.y-24, '🐕💦 嗚汪！（被機車喇叭嚇退）', '#fde68a', 14);
+        }
       }
     }
   }
@@ -4682,12 +4739,12 @@ function updateCars(dt){
           if(c.axis==='h' && Math.abs(dy) > 36){
             for(const vx of VROADS){
               if(curMap && curMap.theme==='kaohsiung' && Math.abs(vx-600)<30) continue; // 高雄輕軌專用軌道，警車不轉入
-              if(Math.abs(cp.x - vx) < HALF + 14 && (Math.abs(dy) > Math.abs(dx)*0.6 || Math.abs(dx) < 65)){
+              if(Math.abs(cp.x - vx) < 22 && (Math.abs(dy) > Math.abs(dx)*0.6 || Math.abs(dx) < 65)){
                 const newDir = Math.sign(dy) || 1;
                 const tgtSeg = findSegAt('v', vx, cp.y + newDir * 55);
                 if(tgtSeg){
                   c.axis = 'v'; c.seg = tgtSeg; c.roadCenter = vx;
-                  c.lane = vx - newDir * off;
+                  c.lane = clamp(cp.x, vx - HALF + 12, vx + HALF - 12);
                   c.pos = clamp(cp.y, tgtSeg.y0 + 15, tgtSeg.y1 - 15);
                   c.dir = newDir; c.len = MAP.h;
                   c.turnCooldown = 0.55;
@@ -4698,12 +4755,12 @@ function updateCars(dt){
             }
           } else if(c.axis==='v' && Math.abs(dx) > 36){
             for(const hy of HROADS){
-              if(Math.abs(cp.y - hy) < HALF + 14 && (Math.abs(dx) > Math.abs(dy)*0.6 || Math.abs(dy) < 65)){
+              if(Math.abs(cp.y - hy) < 22 && (Math.abs(dx) > Math.abs(dy)*0.6 || Math.abs(dy) < 65)){
                 const newDir = Math.sign(dx) || 1;
                 const tgtSeg = findSegAt('h', hy, cp.x + newDir * 55);
                 if(tgtSeg){
                   c.axis = 'h'; c.seg = tgtSeg; c.roadCenter = hy;
-                  c.lane = hy + newDir * off;
+                  c.lane = clamp(cp.y, hy - HALF + 12, hy + HALF - 12);
                   c.pos = clamp(cp.x, tgtSeg.x0 + 15, tgtSeg.x1 - 15);
                   c.dir = newDir; c.len = MAP.w;
                   c.turnCooldown = 0.55;
@@ -6066,9 +6123,15 @@ function update(dt){
   if(P.perfectStopT>0) P.perfectStopT=Math.max(0,P.perfectStopT-dt);
   if(P.comboShieldT>0) P.comboShieldT=Math.max(0,P.comboShieldT-dt);
   if(P.driftCool>0) P.driftCool=Math.max(0,P.driftCool-dt);
+  if(P.alleySlowTipCool>0) P.alleySlowTipCool=Math.max(0,P.alleySlowTipCool-dt);
   const curAlley = inAlley(P.x, P.y);
   if(curAlley){
+    const wasInAlley = (P.inAlleyTimer || 0) > 0;
     P.inAlleyTimer = (P.inAlleyTimer || 0) + dt;
+    if(!wasInAlley && (vehicleType==='moto' || vehicleType==='heavy') && (P.alleySlowTipCool || 0) <= 0){
+      P.alleySlowTipCool = 4.0;
+      pop(P.x, P.y-34, vehicleType==='heavy' ? '🧱 重摩進窄巷！車體較寬減速 -48%' : '🧱 機車進窄巷！限速慢行 -35%', '#fbbf24', 16);
+    }
   } else {
     P.inAlleyTimer = 0;
   }
@@ -6077,8 +6140,8 @@ function update(dt){
   P.moving=(P.stopT<=0)&&!!(v.x||v.y);
   if(P.boost>0) P.boost=Math.max(0,P.boost-dt);
   const baseSp=getBaseSpeed();
-  // 窄巷車速差異：單車/電輔 100% 全速，外送機車 -8% (0.92)，爆走重型電摩 -20% (0.80)
-  const alleySpdMul = curAlley ? (vehicleType==='heavy' ? 0.80 : (vehicleType==='moto' ? 0.92 : 1.0)) : 1.0;
+  // 窄巷車速差異：單車/電輔 100% 全速，外送機車 -35% (0.65)，爆走重型電摩 -48% (0.52)
+  const alleySpdMul = curAlley ? (vehicleType==='heavy' ? 0.52 : (vehicleType==='moto' ? 0.65 : 1.0)) : 1.0;
   const curSpeed=(devSpeed?390:(P.boost>0?(baseSp+85):baseSp)) * alleySpdMul; // 能量飲料衝刺加速 +85／外掛極速 390
 
   // 物理移動：雨天具備慣性滑行與甩尾漂移感，升級防滑雨胎可提升抓地力
@@ -6290,7 +6353,9 @@ function update(dt){
   // 野狗（索敵 220px、追太久放棄、咬完進入冷卻、吃完雞腿後滿足跑開到遠處）
   for(const d of dogs){
     if(d.calm>0) d.calm=Math.max(0,d.calm-dt);
+    if(d.enraged>0) d.enraged=Math.max(0,d.enraged-dt);
     if(d.stun>0){
+      d.enraged=0;
       d.stun-=dt;
       if(d.eat>0){
         d.eat-=dt;
@@ -6310,21 +6375,22 @@ function update(dt){
         }
       }
     }
-    const hasSight = (pd < 220) && hasDogLineOfSight(d, P);
+    const sightRange = (d.enraged || 0) > 0 ? 280 : 220;
+    const hasSight = (pd < sightRange) && hasDogLineOfSight(d, P);
     if(d.calm>0 || devGhost){
-      d.chase=false; d.chaseDur=0; d.lostSightTimer=0;
+      d.chase=false; d.chaseDur=0; d.lostSightTimer=0; d.enraged=0;
     } else {
       if(d.chase){
         if(hasSight){
           d.lostSightTimer=0;
           d.chaseDur=(d.chaseDur||0)+dt;
           if(d.chaseDur>=6.0){
-            d.chase=false; d.chaseDur=0; d.calm=8;
+            d.chase=false; d.chaseDur=0; d.calm=8; d.enraged=0;
           }
         } else {
           d.lostSightTimer=(d.lostSightTimer||0)+dt;
-          if(d.lostSightTimer>=0.9 || pd>=250){
-            d.chase=false; d.chaseDur=0; d.lostSightTimer=0;
+          if(d.lostSightTimer>=0.9 || pd>=sightRange+30){
+            d.chase=false; d.chaseDur=0; d.lostSightTimer=0; d.enraged=0;
           }
         }
       } else {
@@ -6334,11 +6400,10 @@ function update(dt){
       }
     }
     if(d.chase){
-      if(triggerTut('dog','🐕 野狗聞香追來了！'+(isTouch?'點右下 🍗':'按空白鍵')+'丟雞腿讓牠吃飽跑走！','#fde047')){
-        pop(P.x,P.y-38,'💡 野狗追來了！'+(isTouch?'點右下 🍗':'按空白鍵')+' 丟雞腿定住牠！','#fde047',17);
-      }
+      triggerTut('dog','🐕 野狗聞香追來了！'+(isTouch?'點右下 🍗':'按空白鍵')+'丟雞腿讓牠吃飽跑走！','#fde047');
     }
-    const sp=d.chase?Math.min(165,95+level*7):55;
+    const baseChaseSp=Math.min(165,95+level*7);
+    const sp=d.chase?((d.enraged||0)>0?Math.min(195,baseChaseSp*1.22):baseChaseSp):55;
     if(d.chase && pd>1){
       const ox=d.x,oy=d.y;
       moveEnt(d,(P.x-d.x)/pd*sp*dt,(P.y-d.y)/pd*sp*dt,12,true);
@@ -9066,7 +9131,7 @@ function drawStreetDecor(p, now){
       // 狂吠驚嘆號與警告標示
       ctx.font='900 18px system-ui,sans-serif';
       ctx.fillStyle='#ef4444';
-      ctx.fillText('⚠️ 追!',d.x,d.y-28+Math.sin(now/80)*3);
+      ctx.fillText((d.enraged||0)>0?'💢 狂追!':'⚠️ 追!',d.x,d.y-28+Math.sin(now/80)*3);
     }
   }
   // 雞腿
@@ -9376,66 +9441,112 @@ function rrc(c,x,y,w,h,r){
 }
 function renderBikeRider(c,gender,now,moving,hasMeal,scale,boosting,lean=0,isEbike=false){
   const F=gender==='F';
-  const pedal=moving?(now*(isEbike?0.022:0.016)):0;
+  const pedal=moving?(now*(isEbike?0.011:0.018)):0;
   const steerAng=lean*0.18;
   c.save();
   c.scale(scale,scale);
 
   // 陰影
   c.fillStyle='rgba(0,0,0,.26)';
-  c.beginPath(); c.ellipse(-2,2,22,8.5,0,0,Math.PI*2); c.fill();
+  c.beginPath(); c.ellipse(-2,2,isEbike?24.5:21.5,isEbike?10:8.2,0,0,Math.PI*2); c.fill();
 
-  // 衝刺特效
+  // 衝刺／電輔能量光環
   if(boosting){
-    c.strokeStyle=isEbike?'rgba(56,189,248,0.9)':'rgba(56,189,248,0.7)'; c.lineWidth=2;
-    c.beginPath(); c.ellipse(-2,0,28,14,0,0,Math.PI*2); c.stroke();
+    c.strokeStyle=isEbike?'rgba(34,211,238,0.92)':'rgba(56,189,248,0.7)'; c.lineWidth=2.2;
+    c.beginPath(); c.ellipse(-2,0,29,15,0,0,Math.PI*2); c.stroke();
+  } else if(isEbike && moving){
+    c.strokeStyle='rgba(34,211,238,0.35)'; c.lineWidth=1.4;
+    c.beginPath(); c.ellipse(-14,0,8,5,0,0,Math.PI*2); c.stroke();
   }
 
-  // 1. 細輪胎
+  // 1. 輪胎（小黃單車：輕巧細胎；電輔車：加粗胖胎＋後輪輪轂馬達電光圈）
   c.fillStyle='#0f172a';
-  rrc(c,-19,-2.4,12,4.8,2.2); c.fill();
-  c.save();
-  c.translate(14,0); c.rotate(steerAng);
-  c.fillStyle='#0f172a'; rrc(c,-5,-2.2,11.5,4.4,2.2); c.fill();
-  c.fillStyle='#cbd5e1'; c.fillRect(-1,-0.6,4,1.2); // 輪圈反光
-  c.restore();
-
-  // 2. 單車金屬車架（YouBike亮黃／淡藍車身；電輔車為科技電青/白車架＋中置電池模組）
-  const frameCol=isEbike?(F?'#38bdf8':'#06b6d4'):(F?'#f472b6':'#facc15');
-  c.strokeStyle=frameCol; c.lineWidth=isEbike?3.2:2.6; c.lineCap='round';
-  c.beginPath();
-  c.moveTo(-13,0); c.lineTo(-2,0); c.lineTo(8,0); c.stroke();
-  c.strokeStyle='#334155'; c.lineWidth=2;
-  c.beginPath(); c.moveTo(-3,0); c.lineTo(-6,-5.5); c.stroke(); // 坐墊支架
-  c.fillStyle='#0f172a'; rrc(c,-9.5,-6.5,7,3.5,1.5); c.fill(); // 單車小坐墊
-
-  // 若為電輔車：配置中置電能電池組與指示燈
   if(isEbike){
-    c.fillStyle='#0f172a'; rrc(c,-5,-2.4,9,4.8,1.6); c.fill();
-    c.fillStyle='#22c55e'; c.fillRect(-2.5,-0.9,4,1.8); // 綠色電量燈
+    rrc(c,-21,-3.3,13.5,6.6,3); c.fill();
+    c.fillStyle='#06b6d4'; c.beginPath(); c.arc(-14.5,0,2.5,0,Math.PI*2); c.fill(); // 後輪電動輪轂馬達
+    c.save();
+    c.translate(15,0); c.rotate(steerAng);
+    c.fillStyle='#0f172a'; rrc(c,-5.5,-3.1,12.5,6.2,3); c.fill();
+    c.fillStyle='#38bdf8'; c.fillRect(-1.5,-0.9,5,1.8);
+    c.restore();
+  } else {
+    rrc(c,-19,-2.1,11.5,4.2,2); c.fill();
+    c.save();
+    c.translate(14,0); c.rotate(steerAng);
+    c.fillStyle='#0f172a'; rrc(c,-5,-2.0,11,4.0,2); c.fill();
+    c.fillStyle='#cbd5e1'; c.fillRect(-1,-0.6,4,1.2);
+    c.restore();
   }
 
-  // 3. 車頭把手、金屬菜籃與車鈴
+  // 2. 車架結構（小黃單車：經典細管三角架；電輔車：科技白青雙翼寬車架＋兩側外露雙鋰電池艙＋後貨架電控盒）
+  if(isEbike){
+    // 後金屬貨架＋尾端電控盒
+    c.strokeStyle='#38bdf8'; c.lineWidth=1.6;
+    rrc(c,-21.5,-5.8,8.5,11.6,2); c.stroke();
+    c.fillStyle='#0f172a'; rrc(c,-22,-4.4,5.5,8.8,1.8); c.fill();
+    c.fillStyle='#22d3ee'; c.fillRect(-21.2,-2.8,1.6,5.6); // 尾端青藍電量條
+
+    // 雙翼白青強化車架與兩側外露電池艙（從俯視角在騎士身體兩側清楚可見！）
+    c.fillStyle='#e0f2fe'; c.strokeStyle='#0284c7'; c.lineWidth=1.3;
+    rrc(c,-13,-4.5,22,9,3.5); c.fill(); c.stroke();
+    // 左右外掛雙鋰電池組＋呼吸綠/青電量格
+    [[-8.5,-9.6],[-8.5,5.8]].forEach(([bx,by])=>{
+      c.fillStyle='#0f172a'; c.strokeStyle='#38bdf8'; c.lineWidth=1.1;
+      rrc(c,bx,by,11,3.8,1.5); c.fill(); c.stroke();
+      c.fillStyle='#22c55e';
+      c.fillRect(bx+1.6,by+1,2.2,1.8);
+      c.fillRect(bx+4.5,by+1,2.2,1.8);
+      c.fillStyle='#38bdf8';
+      c.fillRect(bx+7.4,by+1,2.2,1.8);
+    });
+  } else {
+    const frameCol=F?'#f472b6':'#facc15';
+    c.strokeStyle=frameCol; c.lineWidth=2.4; c.lineCap='round';
+    c.beginPath();
+    c.moveTo(-13,0); c.lineTo(8,0);
+    c.moveTo(-13,-2.5); c.lineTo(-4,0);
+    c.moveTo(-13,2.5); c.lineTo(-4,0);
+    c.stroke();
+    c.fillStyle='#78350f'; rrc(c,-9.5,-3.6,7,7.2,2); c.fill(); // 復古棕皮單車坐墊
+  }
+
+  // 3. 車頭把手、菜籃／電控儀表與車燈
   c.save();
   c.translate(10,0); c.rotate(steerAng*0.6); c.translate(-10,0);
-  c.strokeStyle='#94a3b8'; c.lineWidth=2.2;
-  c.beginPath(); c.moveTo(8,-9.5); c.lineTo(8,9.5); c.stroke(); // 把手
-  c.fillStyle='#475569'; c.fillRect(7,-10.5,3,2); c.fillRect(7,8.5,3,2); // 握把套
-  // 車頭金屬鐵線置物籃
-  c.strokeStyle='#cbd5e1'; c.lineWidth=1.2;
-  rrc(c,10,-5.5,6.5,11,1.5); c.stroke();
-  c.fillStyle='rgba(255,255,255,0.2)'; c.fill();
-  // 小車鈴
-  c.fillStyle=isEbike?'#38bdf8':'#fbbf24'; c.beginPath(); c.arc(7.5,-7.5,1.8,0,Math.PI*2); c.fill();
-
-  // 電輔車車頭 LED 大燈光錐
   if(isEbike){
-    const eg=c.createLinearGradient(16,0,48,0);
-    eg.addColorStop(0,'rgba(56,189,248,0.38)');
-    eg.addColorStop(1,'rgba(56,189,248,0)');
+    // 電輔車平把＋中央大尺寸液晶電量螢幕＋前方防水硬殼車頭包＋天使眼青光大燈
+    c.strokeStyle='#e2e8f0'; c.lineWidth=2.6;
+    c.beginPath(); c.moveTo(8.5,-10.5); c.lineTo(9.5,0); c.lineTo(8.5,10.5); c.stroke();
+    c.fillStyle='#0284c7'; c.fillRect(7.3,-11.5,3.2,2.4); c.fillRect(7.3,9.1,3.2,2.4);
+    // 發光液晶螢幕
+    c.fillStyle='#0f172a'; rrc(c,8.2,-3.2,3.8,6.4,1.2); c.fill();
+    c.fillStyle='#22d3ee'; rrc(c,8.9,-2.3,2.4,4.6,0.8); c.fill();
+    // 車頭流線硬殼電控斜罩
+    c.fillStyle=F?'#f472b6':'#06b6d4'; c.strokeStyle='#0f172a'; c.lineWidth=1.1;
+    rrc(c,11.2,-5.2,5.5,10.4,2.5); c.fill(); c.stroke();
+    // 電輔車車頭青藍 LED 大燈光錐
+    const eg=c.createLinearGradient(16,0,52,0);
+    eg.addColorStop(0,'rgba(34,211,238,0.48)');
+    eg.addColorStop(1,'rgba(34,211,238,0)');
     c.fillStyle=eg;
-    c.beginPath(); c.moveTo(16,-2.5); c.lineTo(48,-11); c.lineTo(48,11); c.lineTo(16,2.5); c.closePath(); c.fill();
-    c.fillStyle='#e0f2fe'; c.beginPath(); c.arc(16,0,2.2,0,Math.PI*2); c.fill();
+    c.beginPath(); c.moveTo(16.5,-3); c.lineTo(52,-12); c.lineTo(52,12); c.lineTo(16.5,3); c.closePath(); c.fill();
+    c.fillStyle='#ecfeff'; c.strokeStyle='#06b6d4'; c.lineWidth=1;
+    c.beginPath(); c.arc(16.8,0,2.6,0,Math.PI*2); c.fill(); c.stroke();
+  } else {
+    // 小黃單車彎把＋金屬格紋鐵線菜籃＋黃銅車鈴
+    c.strokeStyle='#94a3b8'; c.lineWidth=2.1;
+    c.beginPath(); c.moveTo(8,-9.2); c.lineTo(8,9.2); c.stroke();
+    c.fillStyle='#475569'; c.fillRect(7,-10.2,3,2); c.fillRect(7,8.2,3,2);
+    // 開放式格紋鐵線菜籃（內放小水壺）
+    c.fillStyle='rgba(254,240,138,0.18)'; c.strokeStyle='#cbd5e1'; c.lineWidth=1.2;
+    rrc(c,10,-6.2,7,12.4,1.5); c.fill(); c.stroke();
+    c.beginPath();
+    c.moveTo(12.3,-6); c.lineTo(12.3,6); c.moveTo(14.6,-6); c.lineTo(14.6,6);
+    c.moveTo(10,-2); c.lineTo(17,-2); c.moveTo(10,2); c.lineTo(17,2);
+    c.stroke();
+    // 黃銅小車鈴
+    c.fillStyle='#fbbf24'; c.strokeStyle='#78350f'; c.lineWidth=0.8;
+    c.beginPath(); c.arc(7.5,-6.8,2.0,0,Math.PI*2); c.fill(); c.stroke();
   }
   c.restore();
 
@@ -9445,41 +9556,37 @@ function renderBikeRider(c,gender,now,moving,hasMeal,scale,boosting,lean=0,isEbi
   c.beginPath(); c.ellipse(-2+pOffX, -5.5+pOffY, 3.2, 1.8, 0, 0, Math.PI*2); c.fill();
   c.beginPath(); c.ellipse(-2-pOffX, 5.5-pOffY, 3.2, 1.8, 0, 0, Math.PI*2); c.fill();
 
-  // 5. 單車後輪擋泥板與紅色警示尾燈
-  c.strokeStyle='#64748b'; c.lineWidth=2.2;
+  // 5. 後輪擋泥板與警示尾燈
+  c.strokeStyle=isEbike?'#06b6d4':'#64748b'; c.lineWidth=2.2;
   c.beginPath(); c.arc(-14,0,9,Math.PI*0.7,Math.PI*1.3); c.stroke();
-  c.fillStyle='#ef4444'; c.fillRect(-20,-1.5,3.5,3); // 紅色反光尾燈
+  c.fillStyle='#ef4444'; c.fillRect(isEbike?-22.5:-20,-1.8,3.5,3.6);
 
-  // 6. 騎士身體、雙臂、安全帽 ＆ 後背外送保溫包（單車外送員雙肩後揹）
+  // 6. 騎士身體、雙臂、安全帽 ＆ 後背外送保溫包
   c.save();
   c.translate(0, lean*1.1);
 
-  // 6.1 雙肩後揹外送保溫箱（緊貼後背並隨身體擺動傾角同步傾斜）
   const skin = (typeof BOX_SKINS!=='undefined' && BOX_SKINS.find(s=>s.id===curSkin)) || {col1:'#2563eb',col2:'#1d4ed8',lid:'#1e3a8a'};
-  if(hasMeal){
-    // 保溫背包本體
+  if(hasMeal || isEbike){
+    // 電輔車固定配置後座保溫箱；小黃單車為取餐後雙肩後揹包
     const bG=c.createLinearGradient(-19,-7.5,-7,7.5);
     bG.addColorStop(0,skin.col1); bG.addColorStop(1,skin.col2);
     c.fillStyle=bG; c.strokeStyle='#0f172a'; c.lineWidth=1.3;
-    rrc(c,-18,-7.5,12,15,2.6); c.fill(); c.stroke();
-    // 頂部掀蓋
-    c.fillStyle=skin.lid||'#065f46'; rrc(c,-16.5,-6,8,12,1.6); c.fill();
-    // 反光條與標籤
+    rrc(c,isEbike?-20.5:-18,-7.5,12,15,2.6); c.fill(); c.stroke();
+    c.fillStyle=skin.lid||'#065f46'; rrc(c,isEbike?-19:-16.5,-6,8,12,1.6); c.fill();
     c.fillStyle='#ffffff'; c.font='900 6.5px system-ui'; c.textAlign='center'; c.textBaseline='middle';
-    c.fillText('FAST',-12.5,0);
-    // 雙肩加寬減壓揹帶（連至肩膀）
-    c.strokeStyle='#0f172a'; c.lineWidth=2.4; c.lineCap='round';
-    c.beginPath(); c.moveTo(-11,-4.8); c.lineTo(-4,-4.8); c.moveTo(-11,4.8); c.lineTo(-4,4.8); c.stroke();
-    c.strokeStyle='#fde047'; c.lineWidth=1.0;
-    c.beginPath(); c.moveTo(-9,-4.8); c.lineTo(-5,-4.8); c.moveTo(-9,4.8); c.lineTo(-5,4.8); c.stroke();
+    c.fillText(isEbike?'E-GO':'FAST',isEbike?-15:-12.5,0);
+    if(!isEbike){
+      c.strokeStyle='#0f172a'; c.lineWidth=2.4; c.lineCap='round';
+      c.beginPath(); c.moveTo(-11,-4.8); c.lineTo(-4,-4.8); c.moveTo(-11,4.8); c.lineTo(-4,4.8); c.stroke();
+      c.strokeStyle='#fde047'; c.lineWidth=1.0;
+      c.beginPath(); c.moveTo(-9,-4.8); c.lineTo(-5,-4.8); c.moveTo(-9,4.8); c.lineTo(-5,4.8); c.stroke();
+    }
   }
   if(F){
     c.fillStyle='#ffffff'; c.strokeStyle='#881337'; c.lineWidth=1.2;
     c.beginPath(); c.ellipse(-4,0,6.2,7.6,0,0,Math.PI*2); c.fill(); c.stroke();
-    // 雙手握把
     c.strokeStyle='#090d16'; c.lineWidth=3.8; c.lineCap='round';
     c.beginPath(); c.moveTo(-1,-6); c.lineTo(7.5+steerAng*2,-9); c.moveTo(-1,6); c.lineTo(7.5-steerAng*2,9); c.stroke();
-    // 貓耳安全帽
     c.fillStyle='#f472b6'; c.strokeStyle='#500724'; c.lineWidth=1.1;
     c.beginPath(); c.arc(1.5,0,7.2,0,Math.PI*2); c.fill(); c.stroke();
     c.fillStyle='#fda4af';
@@ -9488,12 +9595,9 @@ function renderBikeRider(c,gender,now,moving,hasMeal,scale,boosting,lean=0,isEbi
   } else {
     c.fillStyle='#334155'; c.strokeStyle='#090d16'; c.lineWidth=1.2;
     c.beginPath(); c.ellipse(-4,0,7.2,9,0,0,Math.PI*2); c.fill(); c.stroke();
-    // 反光背心
     c.fillStyle='#facc15'; c.fillRect(-8,-5.5,2.8,11);
-    // 粗壯手臂握把
     c.strokeStyle='#fdba74'; c.lineWidth=3.6; c.lineCap='round';
     c.beginPath(); c.moveTo(-1,-7); c.lineTo(7.5+steerAng*2,-9); c.moveTo(-1,7); c.lineTo(7.5-steerAng*2,9); c.stroke();
-    // 黃色工程安全帽
     c.fillStyle='#facc15'; c.strokeStyle='#422006'; c.lineWidth=1.2;
     c.beginPath(); c.arc(1.5,0,7.6,0,Math.PI*2); c.fill(); c.stroke();
     c.fillStyle='#1e3a8a'; c.fillRect(-5,-1.8,9,3.6);
@@ -9502,182 +9606,270 @@ function renderBikeRider(c,gender,now,moving,hasMeal,scale,boosting,lean=0,isEbi
 
   c.restore();
 }
-function renderRider(c,gender,now,moving,hasMeal,scale,boosting,lean=0){
-  if(vehicleType==='bike'){
+function renderRider(c,gender,now,moving,hasMeal,scale,boosting,lean=0,vehOverride=null){
+  const vType = vehOverride || vehicleType;
+  if(vType==='bike'){
     renderBikeRider(c,gender,now,moving,hasMeal,scale*0.96,boosting,lean,false);
     return;
   }
-  if(vehicleType==='ebike'){
+  if(vType==='ebike'){
     renderBikeRider(c,gender,now,moving,hasMeal,scale*0.98,boosting,lean,true);
     return;
   }
   const F=gender==='F';
-  const isHeavy=(vehicleType==='heavy');
+  const isHeavy=(vType==='heavy');
   const vib=moving?(boosting?Math.sin(now/22)*1.05:Math.sin(now/35)*(isHeavy?0.35:0.5)):Math.sin(now/260)*0.18;
   const steerAng=lean*0.16;
   const bodyShift=lean*1.25;
   c.save();
-  c.scale(scale,scale);
+  c.scale(scale*(isHeavy?1.06:1.0),scale*(isHeavy?1.06:1.0));
 
   // 1. 雙層柔和地面陰影
   c.fillStyle='rgba(0,0,0,.22)';
-  c.beginPath(); c.ellipse(-3,2.5,31,15,0,0,Math.PI*2); c.fill();
+  c.beginPath(); c.ellipse(-3,2.5,isHeavy?35:30,isHeavy?17.5:14.5,0,0,Math.PI*2); c.fill();
   c.fillStyle='rgba(0,0,0,.35)';
-  c.beginPath(); c.ellipse(-2,2,25,11.5,0,0,Math.PI*2); c.fill();
+  c.beginPath(); c.ellipse(-2,2,isHeavy?28:24,isHeavy?13.5:11,0,0,Math.PI*2); c.fill();
 
   // 加速衝刺狀態：青藍電光能量環、速度氣流線與雙噴射氮氣藍焰
   if(boosting){
-    c.strokeStyle='rgba(56,189,248,0.78)';
+    c.strokeStyle=isHeavy?'rgba(250,204,21,0.88)':'rgba(56,189,248,0.78)';
     c.lineWidth=2.6;
-    c.beginPath(); c.ellipse(-3,0,37,20.5,0,0,Math.PI*2); c.stroke();
-    c.strokeStyle='rgba(250,204,21,0.45)';
+    c.beginPath(); c.ellipse(-3,0,38,21,0,0,Math.PI*2); c.stroke();
+    c.strokeStyle='rgba(56,189,248,0.55)';
     c.lineWidth=1.4;
     c.beginPath(); c.ellipse(-3,0,34,18,0,0,Math.PI*2); c.stroke();
 
-    // 噴射氮氣藍焰
     const fl=Math.sin(now/36)*7;
-    c.fillStyle='rgba(56,189,248,0.92)';
-    c.beginPath(); c.moveTo(-24,6); c.lineTo(-46-fl,9.5); c.lineTo(-24,13); c.closePath(); c.fill();
-    c.fillStyle='#ffffff';
-    c.beginPath(); c.moveTo(-24,7.8); c.lineTo(-36-fl*0.5,9.5); c.lineTo(-24,11.2); c.closePath(); c.fill();
-
-    // 速度流線
-    c.strokeStyle='rgba(186,230,253,0.65)'; c.lineWidth=1.3; c.lineCap='round';
-    const wOff=(now*0.25)%18;
-    c.beginPath();
-    c.moveTo(-14-wOff,-17); c.lineTo(-28-wOff,-17);
-    c.moveTo(-18-(wOff+9)%18,17); c.lineTo(-32-(wOff+9)%18,17);
-    c.stroke();
+    if(isHeavy){
+      // 重摩左右雙渦輪同時噴射金青雙焰
+      [[-10.5],[-10.5,1]].forEach((_,idx)=>{
+        const py = idx===0 ? -10.5 : 10.5;
+        c.fillStyle='rgba(34,211,238,0.92)';
+        c.beginPath(); c.moveTo(-25,py-2.8); c.lineTo(-48-fl,py); c.lineTo(-25,py+2.8); c.closePath(); c.fill();
+        c.fillStyle='#fef08a';
+        c.beginPath(); c.moveTo(-25,py-1.3); c.lineTo(-38-fl*0.5,py); c.lineTo(-25,py+1.3); c.closePath(); c.fill();
+      });
+    } else {
+      c.fillStyle='rgba(56,189,248,0.92)';
+      c.beginPath(); c.moveTo(-24,6); c.lineTo(-46-fl,9.5); c.lineTo(-24,13); c.closePath(); c.fill();
+      c.fillStyle='#ffffff';
+      c.beginPath(); c.moveTo(-24,7.8); c.lineTo(-36-fl*0.5,9.5); c.lineTo(-24,11.2); c.closePath(); c.fill();
+    }
   }
 
-  // 2. 車頭燈立體光束
-  const grad=c.createLinearGradient(19,0,62,0);
-  grad.addColorStop(0,'rgba(254,249,195,.46)');
-  grad.addColorStop(0.55,'rgba(254,240,138,.16)');
-  grad.addColorStop(1,'rgba(254,249,195,0)');
-  c.fillStyle=grad;
-  c.beginPath(); c.moveTo(20,-4.5); c.lineTo(62,-17); c.lineTo(62,17); c.lineTo(20,4.5); c.closePath(); c.fill();
+  // 2. 車頭燈立體光束（一般機車：單道暖黃光束；爆走重型電摩：雙道超廣角青金雷射頭燈光束）
+  if(isHeavy){
+    const grad=c.createLinearGradient(22,0,72,0);
+    grad.addColorStop(0,'rgba(56,189,248,.52)');
+    grad.addColorStop(0.55,'rgba(250,204,21,.20)');
+    grad.addColorStop(1,'rgba(56,189,248,0)');
+    c.fillStyle=grad;
+    c.beginPath(); c.moveTo(22,-8); c.lineTo(72,-22); c.lineTo(72,22); c.lineTo(22,8); c.closePath(); c.fill();
+  } else {
+    const grad=c.createLinearGradient(19,0,60,0);
+    grad.addColorStop(0,'rgba(254,249,195,.46)');
+    grad.addColorStop(0.55,'rgba(254,240,138,.16)');
+    grad.addColorStop(1,'rgba(254,249,195,0)');
+    c.fillStyle=grad;
+    c.beginPath(); c.moveTo(20,-4.5); c.lineTo(60,-16); c.lineTo(60,16); c.lineTo(20,4.5); c.closePath(); c.fill();
+  }
 
-  // 3. 金屬排氣管、防燙蓋與動態尾氣
+  // 3. 排氣管 vs 重摩雙側電漿渦輪推進器
   c.save();
-  const exG=c.createLinearGradient(-23,8,-10,12);
-  exG.addColorStop(0,'#94a3b8'); exG.addColorStop(1,'#475569');
-  c.fillStyle=exG; c.strokeStyle='#0f172a'; c.lineWidth=1;
-  rrc(c,-23,8.2,14,4,1.8); c.fill(); c.stroke();
-  c.fillStyle='#e2e8f0'; rrc(c,-19,8.8,8,1.8,0.8); c.fill(); // 銀色防燙飾板
-  c.fillStyle='#1e293b'; c.fillRect(-24.2,9.1,2.5,2.2);
-  if(moving){
-    const p1=(now/95)%1, p2=((now/95)+0.5)%1;
-    c.fillStyle='rgba(226,232,240,'+(0.42*(1-p1))+')';
-    c.beginPath(); c.arc(-26-p1*14,10.2+Math.sin(now/70)*1.4,2+p1*3.3,0,Math.PI*2); c.fill();
-    c.fillStyle='rgba(226,232,240,'+(0.36*(1-p2))+')';
-    c.beginPath(); c.arc(-26-p2*14,10.2-Math.cos(now/70)*1.4,1.8+p2*3,0,Math.PI*2); c.fill();
+  if(isHeavy){
+    // 左右對稱黑金雙渦輪電漿推進砲管
+    [[-1, -11.8],[1, 7.8]].forEach(([ side, py ])=>{
+      c.fillStyle='#0f172a'; c.strokeStyle='#eab308'; c.lineWidth=1.2;
+      rrc(c,-25,py,16,4.2,2); c.fill(); c.stroke();
+      c.fillStyle='#38bdf8'; c.fillRect(-21,py+1.1,9,2);
+      // 尾端藍色電漿噴口光暈
+      const pulse = moving ? (3.5 + Math.sin(now/45)*1.8) : 1.8;
+      c.fillStyle='rgba(34,211,238,0.88)';
+      c.beginPath(); c.ellipse(-26.5, py+2.1, pulse, 1.9, 0, 0, Math.PI*2); c.fill();
+    });
+  } else {
+    // 一般機車：右側單支銀色排氣管與白煙
+    const exG=c.createLinearGradient(-23,8,-10,12);
+    exG.addColorStop(0,'#94a3b8'); exG.addColorStop(1,'#475569');
+    c.fillStyle=exG; c.strokeStyle='#0f172a'; c.lineWidth=1;
+    rrc(c,-23,8.2,14,4,1.8); c.fill(); c.stroke();
+    c.fillStyle='#e2e8f0'; rrc(c,-19,8.8,8,1.8,0.8); c.fill();
+    c.fillStyle='#1e293b'; c.fillRect(-24.2,9.1,2.5,2.2);
+    if(moving){
+      const p1=(now/95)%1, p2=((now/95)+0.5)%1;
+      c.fillStyle='rgba(226,232,240,'+(0.42*(1-p1))+')';
+      c.beginPath(); c.arc(-26-p1*14,10.2+Math.sin(now/70)*1.4,2+p1*3.3,0,Math.PI*2); c.fill();
+      c.fillStyle='rgba(226,232,240,'+(0.36*(1-p2))+')';
+      c.beginPath(); c.arc(-26-p2*14,10.2-Math.cos(now/70)*1.4,1.8+p2*3,0,Math.PI*2); c.fill();
+    }
   }
   c.restore();
 
-  // 4. 前後輪胎（含輪框亮條與轉向微偏）
+  // 4. 前後輪胎（重摩配置加寬熱熔胎與青藍發光輪框條）
   c.fillStyle='#090d16';
-  rrc(c,-25,-3.6,11,7.2,3.2); c.fill();
-  c.fillStyle='#475569'; c.fillRect(-22,-0.8,5,1.6);
+  rrc(c,-26,isHeavy?-4.8:-3.6,isHeavy?13:11,isHeavy?9.6:7.2,3.5); c.fill();
+  c.fillStyle=isHeavy?'#38bdf8':'#475569'; c.fillRect(-22,-0.8,5.5,1.6);
   c.save();
-  c.translate(17,0); c.rotate(steerAng);
-  c.fillStyle='#090d16'; rrc(c,-4.5,-3.4,11.5,6.8,3.2); c.fill();
-  c.fillStyle='#64748b'; c.fillRect(-1,-0.8,5,1.6);
+  c.translate(isHeavy?19:17,0); c.rotate(steerAng);
+  c.fillStyle='#090d16'; rrc(c,-5,isHeavy?-4.5:-3.4,isHeavy?13:11.5,isHeavy?9:6.8,3.5); c.fill();
+  c.fillStyle=isHeavy?'#fde047':'#64748b'; c.fillRect(-1,-0.8,5.5,1.6);
   c.restore();
 
   c.translate(0,vib);
 
-  // 5. 摩托車流線車體（漸層烤漆＋深色描邊＋賽車塗裝）
-  // 5a. 後整流罩（錐形流線尾殼）
-  const rearG=c.createLinearGradient(-22,-10,-2,10);
-  if(isHeavy){ rearG.addColorStop(0,'#fde047'); rearG.addColorStop(0.45,'#0ea5e9'); rearG.addColorStop(1,'#0f172a'); }
-  else if(F){ rearG.addColorStop(0,'#fbcfe8'); rearG.addColorStop(0.5,'#f472b6'); rearG.addColorStop(1,'#db2777'); }
-  else { rearG.addColorStop(0,'#60a5fa'); rearG.addColorStop(0.5,'#2563eb'); rearG.addColorStop(1,'#1e3a8a'); }
-  c.fillStyle=rearG; c.strokeStyle=F?'#500724':'#090d16'; c.lineWidth=1.3;
-  c.beginPath();
-  c.moveTo(-2,-9.8);
-  c.quadraticCurveTo(-15,-10.5,-22,-6.5);
-  c.quadraticCurveTo(-24,0,-22,6.5);
-  c.quadraticCurveTo(-15,10.5,-2,9.8);
-  c.closePath();
-  c.fill(); c.stroke();
-  // 側邊雙色賽車飾條
-  c.fillStyle=F?'#fff1f2':'#38bdf8';
-  c.beginPath(); c.ellipse(-12,-8.2,6,1.1,-0.1,0,Math.PI*2); c.ellipse(-12,8.2,6,1.1,0.1,0,Math.PI*2); c.fill();
-  // 後扶手與亮紅 LED 尾燈
-  c.strokeStyle='#cbd5e1'; c.lineWidth=1.8;
-  c.beginPath(); c.moveTo(-18,-6); c.quadraticCurveTo(-22.8,0,-18,6); c.stroke();
-  c.fillStyle='#ef4444'; rrc(c,-23.2,-3.8,2.2,7.6,1); c.fill();
-  c.fillStyle='#fca5a5'; c.fillRect(-22.7,-2.2,1,4.4);
+  // 5. 車體結構（一般機車：圓潤速克達踏板車；爆走重型電摩：稜角裝甲寬體重機＋跨騎電能油箱＋定風翼）
+  if(isHeavy){
+    // 5a-Heavy：重摩寬體稜角尾殼＋金色裝甲側翼
+    const rearG=c.createLinearGradient(-24,-12,-2,12);
+    rearG.addColorStop(0,'#0f172a'); rearG.addColorStop(0.5,'#1e293b'); rearG.addColorStop(1,'#090d16');
+    c.fillStyle=rearG; c.strokeStyle='#eab308'; c.lineWidth=1.4;
+    c.beginPath();
+    c.moveTo(0,-11.5); c.lineTo(-16,-12.5); c.lineTo(-24,-8.5);
+    c.lineTo(-24,8.5); c.lineTo(-16,12.5); c.lineTo(0,11.5); c.closePath();
+    c.fill(); c.stroke();
+    // 側翼霓虹閃電飾條
+    c.fillStyle='#38bdf8';
+    c.fillRect(-17,-10.6,12,1.8); c.fillRect(-17,8.8,12,1.8);
+    // 貫穿式 LED 尾燈條
+    c.fillStyle='#ef4444'; rrc(c,-24.8,-5.5,2.4,11,1); c.fill();
 
-  // 5b. 中央防滑腳踏板
-  c.fillStyle='#1e293b'; c.strokeStyle='#090d16'; c.lineWidth=1.1;
-  rrc(c,-3,-8,12.5,16,3.5); c.fill(); c.stroke();
-  c.strokeStyle='#475569'; c.lineWidth=1.1;
-  c.beginPath(); c.moveTo(0,-5.5); c.lineTo(6.5,-5.5); c.moveTo(0,0); c.lineTo(6.5,0); c.moveTo(0,5.5); c.lineTo(6.5,5.5); c.stroke();
+    // 5b-Heavy：跨騎式中央裝甲電能核心艙（取代一般速克達空踏板）
+    const tankG=c.createLinearGradient(-3,-6,11,6);
+    tankG.addColorStop(0,'#fde047'); tankG.addColorStop(0.5,'#eab308'); tankG.addColorStop(1,'#a16207');
+    c.fillStyle=tankG; c.strokeStyle='#090d16'; c.lineWidth=1.2;
+    rrc(c,-3.5,-6.2,14.5,12.4,4); c.fill(); c.stroke();
+    // 中央電能核心發光條
+    c.fillStyle='#090d16'; rrc(c,-1,-3.2,9.5,6.4,2); c.fill();
+    c.fillStyle='#22d3ee'; rrc(c,0.2,-1.8,7,3.6,1.2); c.fill();
 
-  // 5c. 雙色縫線坐墊
-  const seatG=c.createLinearGradient(-16,-6,0,6);
-  if(F){ seatG.addColorStop(0,'#92400e'); seatG.addColorStop(1,'#78350f'); }
-  else { seatG.addColorStop(0,'#334155'); seatG.addColorStop(1,'#0f172a'); }
-  c.fillStyle=seatG; c.strokeStyle='#090d16'; c.lineWidth=1.1;
-  rrc(c,-16.5,-6.8,15,13.6,5); c.fill(); c.stroke();
-  c.strokeStyle=F?'#fcd34d':'#64748b'; c.lineWidth=0.9;
-  rrc(c,-15,-5.2,12,10.4,3.8); c.stroke();
+    // 5c-Heavy：高低階梯式競技重機坐墊
+    c.fillStyle='#090d16'; c.strokeStyle='#475569'; c.lineWidth=1.1;
+    rrc(c,-17,-7.2,14.5,14.4,4); c.fill(); c.stroke();
+    c.strokeStyle='#eab308'; c.lineWidth=1;
+    c.beginPath(); c.moveTo(-13,-5.5); c.lineTo(-13,5.5); c.stroke();
 
-  // 5d. 前車頭斜板、風鏡、大燈與方向燈
-  c.save();
-  c.translate(10,0); c.rotate(steerAng*0.55); c.translate(-10,0);
-  const frontG=c.createLinearGradient(6,-10,22,10);
-  if(isHeavy){ frontG.addColorStop(0,'#fde047'); frontG.addColorStop(0.5,'#38bdf8'); frontG.addColorStop(1,'#0f172a'); }
-  else if(F){ frontG.addColorStop(0,'#f9a8d4'); frontG.addColorStop(0.55,'#ec4899'); frontG.addColorStop(1,'#be185d'); }
-  else { frontG.addColorStop(0,'#38bdf8'); frontG.addColorStop(0.5,'#2563eb'); frontG.addColorStop(1,'#1e3a8a'); }
-  c.fillStyle=frontG; c.strokeStyle=F?'#500724':'#090d16'; c.lineWidth=1.3;
-  c.beginPath();
-  c.moveTo(6,-9.8); c.quadraticCurveTo(19.5,-9,21.5,0); c.quadraticCurveTo(19.5,9,6,9.8); c.closePath();
-  c.fill(); c.stroke();
+    // 5d-Heavy：超寬破風蝙蝠雙翼整流罩＋空氣力學定風翼 (Winglets)＋雙鷹眼雷射頭燈
+    c.save();
+    c.translate(11,0); c.rotate(steerAng*0.55); c.translate(-11,0);
+    // 左右破風碳纖定風翼
+    c.fillStyle='#eab308'; c.strokeStyle='#090d16'; c.lineWidth=1;
+    c.beginPath();
+    c.moveTo(11,-10); c.lineTo(19,-15.2); c.lineTo(22.5,-13.2); c.lineTo(16,-9.5); c.closePath();
+    c.moveTo(11,10); c.lineTo(19,15.2); c.lineTo(22.5,13.2); c.lineTo(16,9.5); c.closePath();
+    c.fill(); c.stroke();
 
-  // 前斜板V字飾條與廠徽
-  c.fillStyle=F?'#fff1f2':'#0f172a';
-  c.beginPath(); c.moveTo(9.5,-5.4); c.lineTo(18.2,-2.6); c.lineTo(18.2,2.6); c.lineTo(9.5,5.4); c.closePath(); c.fill();
-  c.fillStyle=F?'#f43f5e':'#38bdf8';
-  c.beginPath(); c.arc(14.8,0,1.7,0,Math.PI*2); c.fill();
+    // 尖銳雙翼車頭大整流罩
+    const hFrontG=c.createLinearGradient(7,-12,24,12);
+    hFrontG.addColorStop(0,'#0f172a'); hFrontG.addColorStop(0.5,F?'#db2777':'#0284c7'); hFrontG.addColorStop(1,'#0f172a');
+    c.fillStyle=hFrontG; c.strokeStyle='#fde047'; c.lineWidth=1.4;
+    c.beginPath();
+    c.moveTo(6,-11.8); c.lineTo(18,-11.2); c.lineTo(24.5,-3.5);
+    c.lineTo(22.5,0);
+    c.lineTo(24.5,3.5); c.lineTo(18,11.2); c.lineTo(6,11.8);
+    c.closePath();
+    c.fill(); c.stroke();
 
-  // 璀璨 LED 頭燈＋高光反光罩 + 方向燈
-  c.fillStyle='#fde047'; c.strokeStyle='#713f12'; c.lineWidth=0.9;
-  c.beginPath(); c.ellipse(19.8,0,2.4,4.5,0,0,Math.PI*2); c.fill(); c.stroke();
-  c.fillStyle='#ffffff';
-  c.beginPath(); c.ellipse(20.2,0,1.2,2.6,0,0,Math.PI*2); c.fill();
-  c.fillStyle='#fb923c';
-  c.beginPath(); c.arc(16.8,-7.1,1.6,0,Math.PI*2); c.arc(16.8,7.1,1.6,0,Math.PI*2); c.fill();
+    // 金色V字裝甲車鼻線
+    c.strokeStyle='#fde047'; c.lineWidth=1.8;
+    c.beginPath(); c.moveTo(10,-7.5); c.lineTo(21.5,0); c.lineTo(10,7.5); c.stroke();
 
-  // 透明小風鏡＋斜線反光
-  c.fillStyle=F?'rgba(224,242,254,0.48)':'rgba(15,23,42,0.58)';
-  c.strokeStyle='rgba(224,242,254,0.85)'; c.lineWidth=1;
-  c.beginPath(); c.moveTo(11.5,-6.2); c.quadraticCurveTo(15.5,0,11.5,6.2); c.quadraticCurveTo(13.8,0,11.5,-6.2); c.fill(); c.stroke();
-  c.restore();
+    // 雙鷹眼青白 LED 雷射大燈（左右分置）
+    c.fillStyle='#22d3ee'; c.strokeStyle='#ffffff'; c.lineWidth=0.9;
+    c.beginPath();
+    c.ellipse(21.5,-4.8,2.6,1.8,0.28,0,Math.PI*2);
+    c.ellipse(21.5,4.8,2.6,1.8,-0.28,0,Math.PI*2);
+    c.fill(); c.stroke();
 
-  // 6. 立體外送保溫箱（3D 頂蓋斜面＋交叉束帶＋金屬扣環＋熱氣動畫）
+    // 加長競技深色燻黑風鏡
+    c.fillStyle='rgba(2,6,23,0.82)'; c.strokeStyle='#38bdf8'; c.lineWidth=1.2;
+    c.beginPath(); c.moveTo(10.5,-7.5); c.quadraticCurveTo(18.5,0,10.5,7.5); c.quadraticCurveTo(14.5,0,10.5,-7.5); c.fill(); c.stroke();
+    c.restore();
+  } else {
+    // 5a-Moto：一般外送機車圓潤流線尾殼
+    const rearG=c.createLinearGradient(-22,-10,-2,10);
+    if(F){ rearG.addColorStop(0,'#fbcfe8'); rearG.addColorStop(0.5,'#f472b6'); rearG.addColorStop(1,'#db2777'); }
+    else { rearG.addColorStop(0,'#60a5fa'); rearG.addColorStop(0.5,'#2563eb'); rearG.addColorStop(1,'#1e3a8a'); }
+    c.fillStyle=rearG; c.strokeStyle=F?'#500724':'#090d16'; c.lineWidth=1.3;
+    c.beginPath();
+    c.moveTo(-2,-9.8);
+    c.quadraticCurveTo(-15,-10.5,-22,-6.5);
+    c.quadraticCurveTo(-24,0,-22,6.5);
+    c.quadraticCurveTo(-15,10.5,-2,9.8);
+    c.closePath();
+    c.fill(); c.stroke();
+    c.fillStyle=F?'#fff1f2':'#38bdf8';
+    c.beginPath(); c.ellipse(-12,-8.2,6,1.1,-0.1,0,Math.PI*2); c.ellipse(-12,8.2,6,1.1,0.1,0,Math.PI*2); c.fill();
+    c.strokeStyle='#cbd5e1'; c.lineWidth=1.8;
+    c.beginPath(); c.moveTo(-18,-6); c.quadraticCurveTo(-22.8,0,-18,6); c.stroke();
+    c.fillStyle='#ef4444'; rrc(c,-23.2,-3.8,2.2,7.6,1); c.fill();
+    c.fillStyle='#fca5a5'; c.fillRect(-22.7,-2.2,1,4.4);
+
+    // 5b-Moto：一般速克達平面防滑腳踏板
+    c.fillStyle='#1e293b'; c.strokeStyle='#090d16'; c.lineWidth=1.1;
+    rrc(c,-3,-8,12.5,16,3.5); c.fill(); c.stroke();
+    c.strokeStyle='#475569'; c.lineWidth=1.1;
+    c.beginPath(); c.moveTo(0,-5.5); c.lineTo(6.5,-5.5); c.moveTo(0,0); c.lineTo(6.5,0); c.moveTo(0,5.5); c.lineTo(6.5,5.5); c.stroke();
+
+    // 5c-Moto：雙色縫線坐墊
+    const seatG=c.createLinearGradient(-16,-6,0,6);
+    if(F){ seatG.addColorStop(0,'#92400e'); seatG.addColorStop(1,'#78350f'); }
+    else { seatG.addColorStop(0,'#334155'); seatG.addColorStop(1,'#0f172a'); }
+    c.fillStyle=seatG; c.strokeStyle='#090d16'; c.lineWidth=1.1;
+    rrc(c,-16.5,-6.8,15,13.6,5); c.fill(); c.stroke();
+    c.strokeStyle=F?'#fcd34d':'#64748b'; c.lineWidth=0.9;
+    rrc(c,-15,-5.2,12,10.4,3.8); c.stroke();
+
+    // 5d-Moto：圓潤前斜板＋單顆中央圓形頭燈＋透明小風鏡
+    c.save();
+    c.translate(10,0); c.rotate(steerAng*0.55); c.translate(-10,0);
+    const frontG=c.createLinearGradient(6,-10,22,10);
+    if(F){ frontG.addColorStop(0,'#f9a8d4'); frontG.addColorStop(0.55,'#ec4899'); frontG.addColorStop(1,'#be185d'); }
+    else { frontG.addColorStop(0,'#38bdf8'); frontG.addColorStop(0.5,'#2563eb'); frontG.addColorStop(1,'#1e3a8a'); }
+    c.fillStyle=frontG; c.strokeStyle=F?'#500724':'#090d16'; c.lineWidth=1.3;
+    c.beginPath();
+    c.moveTo(6,-9.8); c.quadraticCurveTo(19.5,-9,21.5,0); c.quadraticCurveTo(19.5,9,6,9.8); c.closePath();
+    c.fill(); c.stroke();
+
+    c.fillStyle=F?'#fff1f2':'#0f172a';
+    c.beginPath(); c.moveTo(9.5,-5.4); c.lineTo(18.2,-2.6); c.lineTo(18.2,2.6); c.lineTo(9.5,5.4); c.closePath(); c.fill();
+    c.fillStyle=F?'#f43f5e':'#38bdf8';
+    c.beginPath(); c.arc(14.8,0,1.7,0,Math.PI*2); c.fill();
+
+    c.fillStyle='#fde047'; c.strokeStyle='#713f12'; c.lineWidth=0.9;
+    c.beginPath(); c.ellipse(19.8,0,2.4,4.5,0,0,Math.PI*2); c.fill(); c.stroke();
+    c.fillStyle='#ffffff';
+    c.beginPath(); c.ellipse(20.2,0,1.2,2.6,0,0,Math.PI*2); c.fill();
+    c.fillStyle='#fb923c';
+    c.beginPath(); c.arc(16.8,-7.1,1.6,0,Math.PI*2); c.arc(16.8,7.1,1.6,0,Math.PI*2); c.fill();
+
+    c.fillStyle=F?'rgba(224,242,254,0.48)':'rgba(15,23,42,0.58)';
+    c.strokeStyle='rgba(224,242,254,0.85)'; c.lineWidth=1;
+    c.beginPath(); c.moveTo(11.5,-6.2); c.quadraticCurveTo(15.5,0,11.5,6.2); c.quadraticCurveTo(13.8,0,11.5,-6.2); c.fill(); c.stroke();
+    c.restore();
+  }
+
+  // 6. 立體外送保溫箱（重摩配置防震裝甲護框與藍金恆溫條；一般機車為標準保溫箱）
   const skin = (typeof BOX_SKINS!=='undefined' && BOX_SKINS.find(s=>s.id===curSkin)) || {col1:'#fbbf24',col2:'#d97706',lid:'#b45309'};
   const boxG=c.createLinearGradient(-32,-11,-18,11);
   boxG.addColorStop(0, skin.col1);
   boxG.addColorStop(1, skin.col2);
-  c.fillStyle=boxG; c.strokeStyle='#090d16'; c.lineWidth=1.35;
+  if(isHeavy){
+    // 防震恆溫裝甲外框護翼
+    c.fillStyle='#0f172a'; c.strokeStyle='#38bdf8'; c.lineWidth=1.3;
+    rrc(c,-34.5,-13,18,26,4.5); c.fill(); c.stroke();
+  }
+  c.fillStyle=boxG; c.strokeStyle=isHeavy?'#fde047':'#090d16'; c.lineWidth=1.35;
   rrc(c,-32.5,-11,15,22,4); c.fill(); c.stroke();
-  // 頂蓋立體內框
   c.fillStyle=hasMeal?(skin.lid||'#065f46'):'#1e293b';
   rrc(c,-29.5,-8.8,9,17.6,2.2); c.fill();
-  // 交叉黑色固定束帶＋銀扣
   c.strokeStyle='#1e293b'; c.lineWidth=1.5;
   c.beginPath(); c.moveTo(-32.2,0); c.lineTo(-17.8,0); c.moveTo(-25,-10.7); c.lineTo(-25,10.7); c.stroke();
-  // 反光安全條
-  c.fillStyle='#fef08a';
+  c.fillStyle=isHeavy?'#38bdf8':'#fef08a';
   c.fillRect(-31.2,-8,1.8,16);
-  // 中心狀態徽章
-  c.fillStyle=hasMeal?'#10b981':'#f59e0b'; c.strokeStyle='#ffffff'; c.lineWidth=1.1;
+  c.fillStyle=hasMeal?'#10b981':(isHeavy?'#0284c7':'#f59e0b'); c.strokeStyle='#ffffff'; c.lineWidth=1.1;
   c.beginPath(); c.arc(-25,0,4.6,0,Math.PI*2); c.fill(); c.stroke();
   c.fillStyle='#ffffff'; c.font='900 7.2px system-ui,sans-serif'; c.textAlign='center'; c.textBaseline='middle';
-  c.fillText(hasMeal?'熱':'外',-25,0.4);
+  c.fillText(hasMeal?'熱':(isHeavy?'恆':'外'),-25,0.4);
   if(hasMeal){
     const st1=(now/650)%1;
     c.strokeStyle='rgba(255,255,255,'+(0.6*(1-st1))+')'; c.lineWidth=1.2; c.lineCap='round';
@@ -9957,6 +10149,17 @@ function drawPlayer(now){
     ctx.strokeStyle='#fde047'; ctx.lineWidth=1.2; ctx.stroke();
     ctx.fillStyle='#fef9c3';
     ctx.fillText('⚠️ 逆向中',P.x,wy+8);
+    ctx.restore();
+  }else if(P.inAlleyTimer > 0 && (vehicleType==='moto' || vehicleType==='heavy') && P.stopT <= 0){
+    const ay = P.y - ((order&&order.stage==='deliver') ? 54 : 34);
+    ctx.save();
+    ctx.font='900 10px system-ui,sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillStyle='rgba(120,53,15,0.92)';
+    rrc(ctx,P.x-38,ay,76,16,8); ctx.fill();
+    ctx.strokeStyle='#fbbf24'; ctx.lineWidth=1.2; ctx.stroke();
+    ctx.fillStyle='#fde68a';
+    ctx.fillText(vehicleType==='heavy' ? '🐢 窄巷 -48%' : '🐢 窄巷 -35%', P.x, ay+8);
     ctx.restore();
   }
 }
