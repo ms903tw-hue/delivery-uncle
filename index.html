@@ -167,6 +167,63 @@ body.title #titleBtnsTop .hudBtn{position:static}
 .stat .v{font-size:20px;font-weight:900;color:#fff}
 .stat .k{font-size:12.5px;color:#94a3b8}
 
+/* ===== 結算畫面：外送收據風格 ===== */
+#over .card{
+  max-width:560px;max-height:calc(100vh - 20px);max-height:calc(100dvh - 20px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  padding:0 18px 12px;border:2px solid rgba(251,191,36,.55);border-radius:14px 14px 10px 10px;
+  border-bottom:2px dashed rgba(251,191,36,.45);
+  background:
+    repeating-linear-gradient(0deg,rgba(148,163,184,.035) 0 1px,transparent 1px 22px),
+    linear-gradient(180deg,#15203a 0%,#0f172a 55%,#0c1324 100%);
+  box-shadow:0 22px 60px rgba(0,0,0,.72),inset 0 0 0 1px rgba(255,255,255,.03);
+}
+#over.show .card{animation:receiptPrint .45s cubic-bezier(0.22,1,0.36,1) both}
+@keyframes receiptPrint{
+  from{clip-path:inset(0 0 100% 0);transform:translateY(-14px);opacity:.6}
+  to{clip-path:inset(0 0 0 0);transform:translateY(0);opacity:1}
+}
+@media (prefers-reduced-motion:reduce){#over.show .card{animation:none}}
+/* 頂部醒目標題列（文字顏色由 JS 依過關/收工切換） */
+#over .card h2{
+  position:relative;margin:0 -18px 8px;padding:12px 18px 10px;font-size:22px;letter-spacing:1px;
+  background:linear-gradient(180deg,rgba(251,191,36,.16),rgba(16,185,129,.07));
+  border-bottom:1px dashed rgba(148,163,184,.35);
+}
+#over .card h2::before{
+  content:'';position:absolute;left:0;right:0;top:0;height:4px;
+  background:linear-gradient(90deg,#fbbf24,#10b981,#fbbf24);
+}
+#over .card h2::after{
+  content:'🧾 外送結算單';display:block;margin-top:2px;font-size:11px;font-weight:800;letter-spacing:2px;color:#94a3b8;
+}
+/* 明細區塊：虛線分隔 */
+#over .stats{margin:8px 0;padding:8px 0;border-top:1px dashed rgba(148,163,184,.35);border-bottom:1px dashed rgba(148,163,184,.35)}
+#over .stat{background:rgba(11,18,34,.75);border:1px dashed rgba(148,163,184,.35)}
+#over .starStage{border-style:dashed}
+/* 歷史紀錄＝收據最下方，加金黃虛線裁切線區隔按鈕 */
+#over .card > p{
+  margin:6px -18px 10px;padding:6px 18px 10px;font-size:13.5px;
+  border-bottom:2px dashed rgba(251,191,36,.45);position:relative;
+}
+#over .card > p::after{
+  content:'✂';position:absolute;left:8px;bottom:-11px;font-size:13px;color:rgba(251,191,36,.7);background:#0f172a;padding:0 3px;line-height:1;
+}
+#over .btn{margin:4px}
+/* 手機橫向（矮螢幕）壓縮間距，確保按鈕可捲動到達 */
+@media (max-height:580px){
+  #over .card{padding:0 14px 8px}
+  #over .card h2{margin:0 -14px 6px;padding:8px 14px 6px;font-size:18px}
+  #over .card h2::after{font-size:10px}
+  #over .bigScore{font-size:34px;margin:2px 0}
+  #over .starStage{padding:6px 10px;margin:4px 0 2px}
+  #over .starSlot{font-size:28px}
+  #over .stats{grid-template-columns:repeat(6,1fr);gap:4px;margin:6px 0;padding:6px 0}
+  #over .stat{padding:4px 2px}
+  #over .stat .v{font-size:16px}
+  #over .stat .k{font-size:11px}
+  #over .card > p{margin:4px -14px 8px;padding:4px 14px 8px;font-size:12.5px}
+  #over .btn{min-width:auto;padding:8px 14px;font-size:14px;margin:3px}
+}
 #tutModal{background:rgba(5,8,20,.46);backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);z-index:65}
 #tutModal .card{max-width:460px;border-color:#fbbf24;background:linear-gradient(165deg,#16223d,#0d1527);padding:16px 20px}
 .tutTag{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;background:#0b1222;border:1.5px solid #fbbf24;color:#fde68a;font-size:13px;font-weight:900;margin-bottom:8px}
@@ -786,6 +843,14 @@ function sfx(name, volMul=1){
     case 'count': tone(660,0.12,{type:'square',vol:0.12}); break;
     case 'go': tone(1046,0.3,{type:'square',vol:0.15}); break;
     case 'bell': tone(1480,0.08,{type:'sine',vol:0.14}); tone(2200,0.12,{type:'sine',vol:0.12,t:t+0.05}); break;
+    case 'receipt': {
+      const freqs = [1200, 1450, 1280, 1520, 1220, 1480, 1340];
+      freqs.forEach((f, i) => {
+        tone(f, 0.03, { type: 'triangle', vol: 0.065 * volMul, t: t + i * 0.055 });
+      });
+      tone(1760, 0.08, { type: 'sine', vol: 0.09 * volMul, t: t + 0.42 });
+      break;
+    }
     case 'horn_moto':
       // 台灣機車高頻電喇叭（嗶嗶！~720Hz 短促清脆高音）
       tone(720,0.065,{type:'sawtooth',vol:0.16*volMul});
@@ -2400,7 +2465,7 @@ function resetGame(){
   level=1;strikes=0;combo=0;lastStars=0;lastWasVip=false;redCooldown=0;stageRedViolations=0;pendingStackedOrder=null;pendingPillRect=null;tutToast=null;tutQueue=[];tutLockT=0;
   stats={score:0,delivered:0,orderStars:0,maxCombo:0,near:0,dogs:0,time:0,violations:0,coins:0};
   order=null;orderDelay=0.2;countdown=3.2;shake=0;itemTimer=4;banner=null;deliveryReceipt=null;lastTick=-1;path=[];pathTimer=0;hintT=(gameMode==='story'&&curMapIdx===0)?16:7;
-  recentShops=[]; recentCusts=[];
+  recentShops=[]; recentCusts=[]; deliveryPromptActive=false; deliveryPrompt=null;
   rainT=0; rainCooldown=rand(18,30);
   initStageEvent();
   initTrafficSystem();
@@ -3385,7 +3450,7 @@ function openExitPrompt(){
 }
 let winStarInfo=null;
 function showEndCard(isWin, reason){
-  G.state='over'; joy.id=null; deliveryReceipt=null; banner=null;
+  G.state='over'; joy.id=null; deliveryReceipt=null; banner=null; deliveryPromptActive=false; deliveryPrompt=null;
   const prevBest=best;
   const isNew=stats.score>prevBest;
   if(isNew){best=stats.score;store.set('dug_best',best);}
@@ -3488,6 +3553,7 @@ function showEndCard(isWin, reason){
   setTimeout(()=>{
     if(G.state==='over'){
       showOnly('over');
+      sfx('receipt');
       if(Snd.music) Snd.music.gain.value=0.55;
       if(hasRecord){
         sfx('cheer');
@@ -3591,7 +3657,10 @@ const GENERAL_NOTES = [
   '電梯壞了辛苦爬四樓QQ',
   '醬料多給兩包，謝謝大叔！',
   '放門口鞋櫃上，不用聯絡',
-  '送達傳簡訊即可，感恩！'
+  '送達傳簡訊即可，感恩！',
+  '大樓密碼 1688#，直接上來就好',
+  '現金付款，麻煩幫忙找零',
+  '面交付現金，到了按電鈴'
 ];
 const ORDER_NOTES = GENERAL_NOTES.concat(DRINK_NOTES, SOUP_NOTES);
 
@@ -3678,6 +3747,156 @@ function newOrder(){
     pop(P.x,P.y-30,'📲 新單！「'+note+'」','#6ee7b7',18);
     showBanner('📲 新訂單：'+shop.name, '客人備註：「'+note+'」', '#6ee7b7');
   }
+}
+/* ===================== 送達情境選擇面板 ===================== */
+var deliveryPromptActive = false;
+var deliveryPrompt = null;
+function shuffleArr(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+// 依關卡循序解鎖送達情境（闖關模式）；無限模式全開
+function getDeliveryUnlocks(){
+  if(gameMode !== 'story') return { prompt:true, place:true, floor:true, change:true };
+  const i = curMapIdx || 0;
+  return { prompt: i >= 1, place: i >= 1, floor: i >= 2, change: i >= 5 };
+}
+function buildDeliveryPrompt(note){
+  note = note || '';
+  const un = getDeliveryUnlocks();
+  // 1. 現金找零／面交
+  if(un.change && (note.includes('找零') || note.includes('面交'))){
+    const price = 5 * Math.round(rand(85, 380) / 5);
+    const pay = [100, 200, 500, 1000].find(v => v > price) || 1000;
+    const change = pay - price;
+    const set = new Set([change]);
+    const deltas = shuffleArr([-100, -50, -10, 10, 50, 100]);
+    for(const d of deltas){ if(set.size >= 3) break; const v = change + d; if(v > 0) set.add(v); }
+    const opts = shuffleArr([...set]).map(v => ({ label: '💵 找零 ' + v + ' 元', ok: v === change }));
+    return { kind:'change', special:true, title:'💵 現金面交・找零確認', question:'餐點 ' + price + ' 元，顧客付了 ' + pay + ' 元，要找多少？', opts };
+  }
+  // 2. 大樓密碼
+  if(un.floor && note.includes('密碼')){
+    return { kind:'floor', special:true, title:'🔢 門禁／樓層確認', question:'大樓有門禁，該怎麼上樓送達？', opts:[
+      { label:'🔢 密碼核對完成', ok:true }, { label:'🪜 爬樓梯送達', ok:false }, { label:'📞 電鈴聯繫確認', ok:false } ] };
+  }
+  // 3. 放置地點
+  if(un.place && (note.includes('管理室') || note.includes('門口') || note.includes('鞋櫃'))){
+    const ans = note.includes('管理室') ? 0 : (note.includes('鞋櫃') ? 2 : 1);
+    return { kind:'place', special:true, title:'📍 選擇放置地點', question:'依照顧客備註，餐點該放哪裡？', opts:[
+      { label:'🏢 管理室代收', ok:ans===0 }, { label:'🚪 門口地墊旁', ok:ans===1 }, { label:'👞 鞋櫃上方', ok:ans===2 } ] };
+  }
+  // 4. 樓層（爬樓梯／電鈴）
+  if(un.floor && note.includes('樓')){
+    const ans = (note.includes('爬') || note.includes('電梯')) ? 1 : 2;
+    return { kind:'floor', special:true, title:'🪜 門禁／樓層確認', question:'依照顧客備註，要怎麼送上樓？', opts:[
+      { label:'🔢 密碼核對完成', ok:ans===0 }, { label:'🪜 爬樓梯送達', ok:ans===1 }, { label:'📞 電鈴聯繫確認', ok:ans===2 } ] };
+  }
+  // 5. 一般備註：任選皆可
+  return { kind:'general', special:false, title:'📦 送餐回報', question:'選擇一種方式回報送達：', opts:[
+    { label:'📦 餐點已交顧客', ok:true }, { label:'🔔 已按鈴通知', ok:true }, { label:'📱 簡訊回報送達', ok:true } ] };
+}
+function openDeliveryPrompt(){
+  if(!order || deliveryPromptActive) return;
+  deliveryPrompt = buildDeliveryPrompt(order.note);
+  deliveryPrompt.note = order.note || '';
+  deliveryPrompt.rects = [];
+  deliveryPrompt.wrongIdx = -1; deliveryPrompt.wrongT = 0; deliveryPrompt.t = 0;
+  order.deliveryPromptShown = true;
+  deliveryPromptActive = true;
+  joy.id = null;
+  for(const k in keys) keys[k] = false;
+  sfx('bell');
+  vibrate(30);
+}
+function closeDeliveryPrompt(){ deliveryPromptActive = false; deliveryPrompt = null; }
+function answerDeliveryPrompt(idx){
+  if(!deliveryPromptActive || !deliveryPrompt || !order) return;
+  const opt = deliveryPrompt.opts[idx];
+  if(!opt) return;
+  if(!opt.ok){
+    deliveryPrompt.wrongIdx = idx; deliveryPrompt.wrongT = 0.45;
+    sfx('empty'); vibrate([30, 40, 30]);
+    pop(P.x, P.y - 40, '❌ 選錯了，再看一眼備註！', '#f87171', 18);
+    return;
+  }
+  sfx('click');
+  if(deliveryPrompt.special) order.scenarioBonus = true;
+  closeDeliveryPrompt();
+  completePrimaryDelivery();
+}
+// 原單顧客送達處理（自送達判定拆出，於情境選擇完成後執行）
+function completePrimaryDelivery(){
+  if(!order || order.primaryDelivered) return;
+  if(order.stacked && !order.stacked.delivered){
+    order.primaryDelivered = true;
+    if(order.scenarioBonus && !order.scenarioPaid){
+      order.scenarioPaid = true;
+      addCoins(12);
+      pop(P.x, P.y - 60, '📍 情境任務完成 +12🪙', '#a7f3d0', 17);
+    }
+    sfx('pickup');
+    sfx('praise');
+    pop(P.x, P.y-34, '📦 原單送達！', '#38bdf8', 21);
+    showBanner('📦 原單送達！', order.stacked.pickedUp ? ('太棒了！順路前往周邊【'+order.stacked.cust.name+'】送達第二單！') : ('別忘了到【'+order.stacked.shop.name+'】領取順路單！'), '#38bdf8', 3.5);
+    order.cust.speech = {
+      text: '「感謝大叔！餐點先收下囉！」',
+      t: 2.8,
+      hasTip: false,
+      tipCoins: 0
+    };
+    pathTimer = 0;
+  } else {
+    order.primaryDelivered = true;
+    deliver();
+  }
+}
+function drawDeliveryPrompt(){
+  if(!deliveryPromptActive || !deliveryPrompt) return;
+  const dp = deliveryPrompt;
+  ctx.save();
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.fillStyle = 'rgba(5,8,20,0.45)';
+  ctx.fillRect(0, 0, W, H);
+  const cw = Math.min(W - 28, 420);
+  const btnH = Math.max(40, Math.min(48, H * 0.085)), gap = 8;
+  const ch = 112 + dp.opts.length * (btnH + gap);
+  const cx = W/2 - cw/2, cy = Math.max(8, H/2 - ch/2);
+  ctx.fillStyle = 'rgba(15,23,42,0.96)';
+  rrc(ctx, cx, cy, cw, ch, 16); ctx.fill();
+  ctx.strokeStyle = dp.special ? '#fbbf24' : '#6ee7b7'; ctx.lineWidth = 2.5; ctx.stroke();
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = dp.special ? '#fde68a' : '#a7f3d0';
+  ctx.font = '900 18px system-ui,sans-serif';
+  ctx.fillText(dp.title + '（計時暫停）', W/2, cy + 24, cw - 20);
+  ctx.fillStyle = '#cbd5e1'; ctx.font = '700 13px system-ui,sans-serif';
+  ctx.fillText('📝 備註：「' + dp.note + '」', W/2, cy + 50, cw - 24);
+  ctx.fillStyle = '#f8fafc'; ctx.font = '800 14.5px system-ui,sans-serif';
+  ctx.fillText(dp.question, W/2, cy + 76, cw - 24);
+  dp.rects = [];
+  let by = cy + 96;
+  dp.opts.forEach((o, i) => {
+    let bx = cx + 16;
+    const bw = cw - 32;
+    const isWrong = (dp.wrongIdx === i && dp.wrongT > 0);
+    if(isWrong) bx += Math.sin(dp.wrongT * 60) * 5;
+    ctx.fillStyle = isWrong ? '#7f1d1d' : '#1e293b';
+    rrc(ctx, bx, by, bw, btnH, 12); ctx.fill();
+    ctx.strokeStyle = isWrong ? '#f87171' : '#475569'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.font = '900 16px system-ui,sans-serif';
+    ctx.fillText((i + 1) + '. ' + o.label, bx + bw/2, by + btnH/2, bw - 16);
+    dp.rects.push({ x: cx + 16, y: by, w: bw, h: btnH });
+    by += btnH + gap;
+  });
+  ctx.restore();
+}
+function hitDeliveryPrompt(clientX, clientY){
+  if(!deliveryPromptActive || !deliveryPrompt) return false;
+  const rect = cvs.getBoundingClientRect();
+  const x = clientX - rect.left, y = clientY - rect.top;
+  const rs = deliveryPrompt.rects || [];
+  for(let i = 0; i < rs.length; i++){
+    const r = rs[i];
+    if(x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h){ answerDeliveryPrompt(i); return true; }
+  }
+  return true; // 面板開啟時吞掉其他點擊，避免啟動搖桿
 }
 function deliver(){
   const tl=Math.max(0,order.time);
@@ -3829,6 +4048,12 @@ function deliver(){
   if(carefulBonus) bonuses.push('✨ 完美照辦小費 +20🪙');
   if(P && P.perfectStopT>0) bonuses.push('⭐ 完美急煞入庫 +10🪙');
   if(combo>1) bonuses.push('🔥 連擊 ×'+combo+' +'+comboCoins+'🪙');
+  // 送達情境任務獎勵（放置地點／密碼樓層／找零）
+  if(order.scenarioBonus){
+    if(!order.scenarioPaid){ order.scenarioPaid = true; addCoins(12); }
+    bonuses.unshift('📍 情境任務完成 +12🪙');
+    pop(P.x, P.y-60, '📍 情境任務完成 +12🪙', '#a7f3d0', 17);
+  }
 
   deliveryReceipt = {
     stars,
@@ -4165,6 +4390,7 @@ function nudge(e,axis,d,r){
 }
 function inputVec(){
   let x=0,y=0;
+  if(deliveryPromptActive) return {x,y}; // 送達情境面板開啟時停車作答
   if(joy.id!==null){
     const R=55; let dx=joy.x-joy.ox, dy=joy.y-joy.oy; const L=Math.hypot(dx,dy);
     if(L>R){joy.ox=joy.x-dx/L*R;joy.oy=joy.y-dy/L*R;dx=joy.x-joy.ox;dy=joy.y-joy.oy;}
@@ -6525,7 +6751,11 @@ function update(dt){
   // 訂單
   if(!order){orderDelay-=dt;if(orderDelay<=0)newOrder();}
   else{
-    if(!devGod) order.time-=dt;
+    if(!devGod && !deliveryPromptActive) order.time-=dt;
+    if(deliveryPromptActive){
+      if(deliveryPrompt && deliveryPrompt.wrongT > 0) deliveryPrompt.wrongT = Math.max(0, deliveryPrompt.wrongT - dt);
+      P.inv = Math.max(P.inv || 0, 0.15); // 作答期間不受撞擊
+    }
     const tgt=getOrderTarget();
     const dDoor=tgt ? dist(P,tgt.door) : 999;
     if(dDoor<120) triggerTut('bay','🛵 橘黃虛線框是【外送臨停區】：紅燈車陣會自動淨空，停進這裡最安全！','#fde047');
@@ -6650,27 +6880,12 @@ function update(dt){
         }
       }
 
-      // 3. 原單顧客送達判定
+      // 3. 原單顧客送達判定（抵達門口先跳出【送達情境選擇面板】，選完再結算）
       if(order && !order.primaryDelivered){
         const dOrigCust = dist(P, order.cust.door);
-        if(dOrigCust < bayRadius){
-          if(order.stacked && !order.stacked.delivered){
-            order.primaryDelivered = true;
-            sfx('pickup');
-            sfx('praise');
-            pop(P.x, P.y-34, '📦 原單送達！', '#38bdf8', 21);
-            showBanner('📦 原單送達！', order.stacked.pickedUp ? ('太棒了！順路前往周邊【'+order.stacked.cust.name+'】送達第二單！') : ('別忘了到【'+order.stacked.shop.name+'】領取順路單！'), '#38bdf8', 3.5);
-            order.cust.speech = {
-              text: '「感謝大叔！餐點先收下囉！」',
-              t: 2.8,
-              hasTip: false,
-              tipCoins: 0
-            };
-            pathTimer = 0;
-          } else {
-            order.primaryDelivered = true;
-            deliver();
-          }
+        if(dOrigCust < bayRadius && !order.deliveryPromptShown && !deliveryPromptActive){
+          if(getDeliveryUnlocks().prompt) openDeliveryPrompt();
+          else { order.deliveryPromptShown = true; completePrimaryDelivery(); } // 第 1 關：維持直接送達
         }
       }
     }
@@ -10903,6 +11118,7 @@ function draw(now){
 
   ctx.setTransform(DPR,0,0,DPR,0,0);
   if(G.state!=='title'&&G.state!=='story') drawHUD(now); else drawCharPreviews(now);
+  if(G.state==='play') drawDeliveryPrompt();
 }
 
 /* ===================== 主迴圈 ===================== */
@@ -10928,6 +11144,13 @@ function loop(now){
 cvs.addEventListener('pointerdown',e=>{
   if(!userExitedFullscreen) enterFullScreen();
   if(G.state!=='play') return;
+  // 送達情境選擇面板：點擊選項
+  if(deliveryPromptActive){
+    e.preventDefault();
+    ensureAudio();
+    hitDeliveryPrompt(e.clientX, e.clientY);
+    return;
+  }
   // 技巧 3：點擊順路夾單通知膠囊搶單
   if(pendingStackedOrder && pendingPillRect){
     const rect=cvs.getBoundingClientRect();
@@ -10962,6 +11185,12 @@ addEventListener('keydown',e=>{
   if(k==='m'){ensureAudio();setMuted(!muted);return;}
   if(k==='v'){ensureAudio();setVibEnabled(!vibEnabled);if(vibEnabled)vibrate(40);return;}
   if(G.state==='play'){
+    if(deliveryPromptActive){
+      if(k==='1'||k==='2'||k==='3'){ e.preventDefault(); answerDeliveryPrompt(parseInt(k,10)-1); return; }
+      if(k==='p') pauseGame();
+      if(k==='escape') {ensureAudio();sfx('click');openExitPrompt();}
+      return;
+    }
     if((k==='enter'||k==='e') && pendingStackedOrder){
       e.preventDefault();
       acceptStackedOrder();
