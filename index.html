@@ -221,6 +221,17 @@ body.title #titleBtnsTop .hudBtn{position:static}
   #over .overActions{gap:4px;margin-top:4px;padding-top:4px}
   #over .btn{min-width:auto;padding:6px 12px;font-size:13px;margin:2px}
 }
+.verTap{cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+#devModal{background:rgba(5,8,20,.65);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);z-index:70}
+#devModal .card{max-width:460px;border-color:#38bdf8;background:linear-gradient(165deg,#0f172a,#1e293b);padding:16px 20px}
+.devGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.devBtn{padding:10px 8px;border-radius:10px;border:1.5px solid #475569;background:#0f172a;color:#e2e8f0;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;touch-action:manipulation}
+.devBtn:active{transform:scale(.97)}
+.devBtn.on{border-color:#22c55e;background:#14532d;color:#bbf7d0}
+.devBtn.warn{border-color:#f59e0b;color:#fde68a}
+.devBtn.danger{border-color:#ef4444;color:#fecaca}
+.devStat{font-size:12px;color:#7dd3fc;min-height:18px;margin:4px 0 8px;font-weight:700}
+
 #tutModal{background:rgba(5,8,20,.46);backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);z-index:65}
 #tutModal .card{max-width:460px;border-color:#fbbf24;background:linear-gradient(165deg,#16223d,#0d1527);padding:16px 20px}
 .tutTag{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;background:#0b1222;border:1.5px solid #fbbf24;color:#fde68a;font-size:13px;font-weight:900;margin-bottom:8px}
@@ -284,6 +295,7 @@ body.title #titleBtnsTop .hudBtn{position:static}
   <button class="hudBtn" id="hudHomeBtn" aria-label="回主大廳" title="回主大廳">🏠</button>
   <button id="hudToggleBtn" aria-label="選單">⚙️</button>
   <div id="hudMenuBtns">
+    <button class="hudBtn" id="hudDevBtn" aria-label="金手指外掛" title="金手指秘密面板">🛠️</button>
     <button class="hudBtn" id="vibBtn" aria-label="震動開關" title="震動：開啟">📳</button>
     <button class="hudBtn" id="muteBtn" aria-label="靜音">🔊</button>
     <button class="hudBtn" id="fullBtn" aria-label="全螢幕" title="全螢幕"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
@@ -291,6 +303,7 @@ body.title #titleBtnsTop .hudBtn{position:static}
 </div>
 <!-- 主畫面專用獨立頂部按鈕 -->
 <div id="titleBtnsTop">
+  <button class="hudBtn" id="hudDevBtnTitle" aria-label="金手指外掛" title="金手指秘密面板">🛠️</button>
   <button class="hudBtn" id="vibBtnTitle" aria-label="震動開關" title="震動：開啟">📳</button>
   <button class="hudBtn" id="muteBtnTitle" aria-label="靜音">🔊</button>
   <button class="hudBtn" id="fullBtnTitle" aria-label="全螢幕" title="全螢幕" style="color:#38bdf8"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
@@ -333,7 +346,7 @@ body.title #titleBtnsTop .hudBtn{position:static}
     <button class="btn" id="howBtn">📖 玩法說明</button>
     <button class="btn" id="storyBtn" style="padding:9px 12px">📜 故事</button>
   </div>
-  <div class="small">單機遊戲・不需網路・建議橫向遊玩 <span style="display:inline-block;margin-left:6px;opacity:.65">v1.5.0</span></div>
+  <div class="small">單機遊戲・不需網路・建議橫向遊玩 <span class="verTap" style="display:inline-block;margin-left:6px;padding:2px 6px;border-radius:6px;background:#1e293b;border:1px solid #475569;color:#38bdf8;font-weight:bold;">v1.5.0</span></div>
 </div></div>
 
 <!-- 開頭派單故事 -->
@@ -414,7 +427,7 @@ body.title #titleBtnsTop .hudBtn{position:static}
     <button class="btn" id="pauseVibBtn" style="padding:6px 14px;font-size:13px;width:auto">📳 震動：開啟</button>
     <button class="btn" id="pauseMuteBtn" style="padding:6px 14px;font-size:13px;width:auto">🔊 聲音：開啟</button>
   </div>
-  <div style="font-size:12px;color:#64748b;margin-bottom:8px;">版本 <span>v1.5.0</span></div>
+  <div style="font-size:12px;color:#64748b;margin-bottom:8px;">版本 <span class="verTap" style="cursor:pointer;color:#38bdf8;font-weight:bold;">v1.5.0</span></div>
   <button class="btn primary" id="resumeBtn">▶ 繼續</button>
   <button class="btn" id="restartBtn">🔄 重新開始</button>
   <button class="btn" id="homeBtn1">🏠 回主畫面</button>
@@ -432,6 +445,25 @@ body.title #titleBtnsTop .hudBtn{position:static}
     <button class="btn primary" id="exitCancelBtn" style="flex:1;">🚲 繼續送餐</button>
     <button class="btn" id="exitConfirmBtn" style="flex:1;background:#334155;border-color:#64748b;">🚪 確定離開</button>
   </div>
+</div></div>
+
+<!-- 開發人員秘密外掛面板 -->
+<div class="overlay" id="devModal"><div class="card">
+  <div class="tutTag" style="border-color:#38bdf8;color:#7dd3fc;">🛠️ DEV TOOLS · 秘密外掛面板</div>
+  <div class="devStat" id="devStat">連點 5 下版本號開啟・測試專用</div>
+  <div class="devGrid">
+    <button class="devBtn warn" id="devUnlockBtn">🔓 解鎖全部關卡</button>
+    <button class="devBtn danger" id="devResetBtn">🗑️ 重置進度</button>
+    <button class="devBtn" id="devGodBtn">🛡️ 無敵模式：關</button>
+    <button class="devBtn" id="devGhostBtn">👻 透明不被追：關</button>
+    <button class="devBtn" id="devSpeedBtn">⚡ 極速模式：關</button>
+    <button class="devBtn" id="devRefillBtn">🍗 補滿雞腿／體力</button>
+    <button class="devBtn warn" id="devCoinsBtn">🪙 +1000 金幣</button>
+    <button class="devBtn warn" id="devWinBtn">🏁 一鍵過關</button>
+    <button class="devBtn" id="devKeypadBtn" style="border-color:#38bdf8;color:#7dd3fc;">🔢 測試門禁密碼機</button>
+    <button class="devBtn" id="devEventBtn" style="border-color:#f59e0b;color:#fde047;">🎉 觸發特殊事件</button>
+  </div>
+  <button class="btn primary" id="devCloseBtn">✖ 關閉</button>
 </div></div>
 
 <!-- 首次教學暫停提示 -->
@@ -1442,8 +1474,8 @@ const MAPS=[
     shops:[
       ['信義波霸厚奶茶','🧋','h',280,615,'top'],['舒肥健康餐','🥗','h',280,1485,'bottom'],
       ['圓環精品咖啡','☕','h',540,860,'top'],['跨年特調冰沙','🥤','h',1020,1240,'bottom'],
-      ['炭烤胡椒餅','🫓','h',780,590,'top'],
-      ['深夜拉麵館','🍜','h',780,430,'bottom'],['美式漢堡店','🍔','h',780,1670,'top'],
+      ['炭烤胡椒餅','🫓','h',780,450,'top'],
+      ['深夜拉麵館','🍜','h',780,330,'bottom'],['美式漢堡店','🍔','h',780,1670,'top'],
       ['宵夜鹽酥雞','🍗','h',1280,1485,'top']
     ],
     customers:[
@@ -2237,7 +2269,89 @@ let rainT=0, rainCooldown=22;
 const tutSeen=store.get('dug_tut_v1',{});
 let tutToast=null, tutQueue=[], tutLockT=0;
 
-let devGod=false, devGhost=false, devSpeed=false;
+let devGod=false, devGhost=false, devSpeed=false, devTapCount=0, devTapTimer=null, devReturnOverlay='title';
+function setDevStat(msg){
+  const el=$('devStat');
+  if(el) el.textContent=msg;
+}
+function syncDevBtns(){
+  const g=$('devGodBtn'), gh=$('devGhostBtn'), sp=$('devSpeedBtn');
+  if(g){
+    g.textContent='🛡️ 無敵模式：'+(devGod?'開':'關');
+    g.classList.toggle('on',devGod);
+  }
+  if(gh){
+    gh.textContent='👻 透明不被追：'+(devGhost?'開':'關');
+    gh.classList.toggle('on',devGhost);
+  }
+  if(sp){
+    sp.textContent='⚡ 極速模式：'+(devSpeed?'開':'關');
+    sp.classList.toggle('on',devSpeed);
+  }
+}
+function openDevPanel(){
+  devTapCount=0;
+  clearTimeout(devTapTimer);
+  if(G.state==='pause') devReturnOverlay='pause';
+  else if(G.state==='tut') devReturnOverlay='tutModal';
+  else if(G.state==='over') devReturnOverlay='over';
+  else if(G.state==='play') devReturnOverlay='play';
+  else devReturnOverlay='title';
+  syncDevBtns();
+  setDevStat('🛠️ 已開啟秘密外掛面板（測試專用）');
+  showOnly('devModal');
+}
+function closeDevPanel(){
+  if(devReturnOverlay==='play'){
+    $('devModal').classList.remove('show');
+    G.state='play';
+    setBodyState('play');
+    return;
+  }
+  showOnly(devReturnOverlay||'title');
+}
+function devUnlockAll(){
+  unlockedMap=MAPS.length;
+  store.set('dug_unlock',unlockedMap);
+  if(typeof renderMapSel==='function') renderMapSel();
+  setDevStat('🔓 已解鎖全部 '+MAPS.length+' 個關卡！');
+}
+function devResetProgress(){
+  const keysToClear=['dug_unlock','dug_map','dug_best','dug_best_stage','dug_tut_v1','dug_coins','dug_upg','dug_life','dug_ach','dug_moto_unlocked','dug_vehicle','dug_skin','dug_skins_owned'];
+  for(const m of MAPS){
+    keysToClear.push('dug_clr_'+m.id,'dug_stars_'+m.id,'dug_best_'+m.id,'dug_story_seen_'+m.id);
+  }
+  for(const k of keysToClear){ try{localStorage.removeItem(k);}catch(e){} }
+  for(const k in tutSeen) delete tutSeen[k];
+  for(const k in ach) delete ach[k];
+  life.orders=0; life.dogs=0; life.cleanStages=0; life.fragileOk=0; life.rainOk=0;
+  unlockedMap=1; selectedMapIdx=0; best=0; bestStage=1; coins=0; motoUnlocked=false; vehicleType='bike';
+  curSkin='yellow'; skinsOwned=['yellow'];
+  upg.engine=0; upg.frame=0; upg.bag=0; upg.box=0;
+  const ct=$('coinsTitle'); if(ct) ct.textContent=coins;
+  devGod=false; devGhost=false; devSpeed=false;
+  syncDevBtns();
+  if(typeof renderMapSel==='function') renderMapSel();
+  setDevStat('🗑️ 進度已重置回初始狀態！');
+}
+function devRefill(){
+  if(!P || !P.x){ setDevStat('⚠️ 請先進入關卡後再補滿！'); return; }
+  P.hp=getMaxHp(); P.ammo=getMaxAmmo();
+  if(typeof updateAmmo==='function') updateAmmo();
+  setDevStat('🍗 已補滿體力 ('+P.hp+') 與雞腿 ('+P.ammo+')！');
+}
+function devInstantWin(){
+  if(G.state!=='play'&&G.state!=='pause'&&G.state!=='tut'){
+    setDevStat('⚠️ 請先進入關卡中再使用一鍵過關！');
+    return;
+  }
+  showOnly(null);
+  G.state='play';
+  setBodyState('play');
+  if(Snd.music) Snd.music.gain.value=0.6;
+  stats.delivered=curMap.goalOrders;
+  winStage();
+}
 const TUT_TITLES={
   guide1:'🚲 新手起步',
   guide2:'🚦 遵守號誌',
@@ -3050,7 +3164,7 @@ function setBodyState(s){
   const hb=$('hornBtn'); if(hb) hb.style.display=s==='play'?'flex':'none';
   const oab=$('orderAcceptBtn'); if(oab && s!=='play') oab.style.display='none';
 }
-function showOnly(id){['title','mapSel','story','howto','garageModal','achModal','pause','tutModal','over','exitModal'].forEach(o=>$(o).classList.toggle('show',o===id));}
+function showOnly(id){['title','mapSel','story','howto','garageModal','achModal','pause','tutModal','over','exitModal','devModal'].forEach(o=>$(o).classList.toggle('show',o===id));}
 let storyIdx=0, storyFromBtn=false, isTitleStory=false;
 function getStorySteps(){
   const isF=char==='F';
@@ -3796,10 +3910,19 @@ function buildDeliveryPrompt(note){
     const opts = shuffleArr([...set]).map(v => ({ label: '💵 找零 ' + v + ' 元', ok: v === change }));
     return { kind:'change', special:true, title:'💵 現金面交・找零確認', question:'餐點 ' + price + ' 元，顧客付了 ' + pay + ' 元，要找多少？', opts };
   }
-  // 2. 大樓密碼
+  // 2. 大樓密碼（彈出實體電子門禁數字鍵盤密碼鎖）
   if(un.floor && note.includes('密碼')){
-    return { kind:'floor', special:true, title:'🔢 門禁／樓層確認', question:'大樓有門禁，該怎麼上樓送達？', opts: shuffleArr([
-      { label:'🔢 密碼核對完成', ok:true }, { label:'🪜 爬樓梯硬闖', ok:false }, { label:'📞 電鈴聯繫確認', ok:false } ]) };
+    const match = note.match(/(\d{3,6}#?)/);
+    const targetCode = match ? match[1] : '1688#';
+    return {
+      kind:'keypad',
+      special:true,
+      title:'🔢 電子門禁密碼機',
+      question:'請依照備註在門禁鍵盤輸入密碼進入大樓：',
+      targetCode,
+      inputCode: '',
+      note: note
+    };
   }
   // 3. 門口有狗
   const isDogNote = note.includes('有狗') || note.includes('不要怕');
@@ -3867,7 +3990,7 @@ function openDeliveryPrompt(){
   deliveryPrompt = buildDeliveryPrompt(order.note);
   deliveryPrompt.note = order.note || '';
   deliveryPrompt.rects = [];
-  deliveryPrompt.wrongIdx = -1; deliveryPrompt.wrongT = 0; deliveryPrompt.t = 0;
+  deliveryPrompt.wrongIdx = -1; deliveryPrompt.wrongT = 0; deliveryPrompt.successT = 0; deliveryPrompt.t = 0;
   order.deliveryPromptShown = true;
   deliveryPromptActive = true;
   joy.id = null;
@@ -3877,18 +4000,32 @@ function openDeliveryPrompt(){
 }
 function closeDeliveryPrompt(){ deliveryPromptActive = false; deliveryPrompt = null; }
 function answerDeliveryPrompt(idx){
-  if(!deliveryPromptActive || !deliveryPrompt || !order) return;
-  const opt = deliveryPrompt.opts[idx];
+  if(!deliveryPromptActive || !deliveryPrompt || !order || !deliveryPrompt.opts) return;
+  const dp = deliveryPrompt;
+  if(dp.answered) return;
+  const opt = dp.opts[idx];
   if(!opt) return;
+
+  dp.answered = true;
   if(!opt.ok){
-    deliveryPrompt.wrongIdx = idx; deliveryPrompt.wrongT = 0.45;
+    dp.wrongIdx = idx;
+    dp.wrongT = 0.45;
     order.violated = true; // 標記失誤，取消零違規獎勵
     order.noteViolated = true; // 標記備註未遵照
     order.scenarioMistakes = (order.scenarioMistakes || 0) + 1;
-    sfx('empty'); vibrate([40, 50, 40]);
-    pop(P.x, P.y - 40, '❌ 選錯了，評分 −30！再看一眼備註！', '#f87171', 18);
+    stats.score = Math.max(0, stats.score - 30);
+    sfx('empty');
+    vibrate([50, 50, 50]);
+    pop(P.x, P.y - 40, '❌ 選錯了！未遵照備註 評分 −30！', '#f87171', 19);
+    setTimeout(()=>{
+      if(deliveryPromptActive && deliveryPrompt === dp){
+        closeDeliveryPrompt();
+        completePrimaryDelivery();
+      }
+    }, 380);
     return;
   }
+
   sfx('click');
   if(opt.heal){
     const maxHp = getMaxHp();
@@ -3896,7 +4033,7 @@ function answerDeliveryPrompt(idx){
     pop(P.x, P.y - 50, '🍱 暖心回血 +' + opt.heal, '#34d399', 18);
     sfx('item');
   }
-  if(deliveryPrompt.special && !order.scenarioMistakes) order.scenarioBonus = true;
+  if(dp.special && !order.scenarioMistakes) order.scenarioBonus = true;
   closeDeliveryPrompt();
   completePrimaryDelivery();
 }
@@ -3926,9 +4063,311 @@ function completePrimaryDelivery(){
     deliver();
   }
 }
+
+/* ================= 實體電子門禁密碼機 UI 與邏輯 ================= */
+function drawKeypadPrompt(dp){
+  ctx.save();
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.fillStyle = 'rgba(5,8,20,0.65)';
+  ctx.fillRect(0, 0, W, H);
+
+  dp.rects = [];
+  dp.t = (dp.t || 0) + 0.025;
+
+  const isWide = W >= 540;
+  const cw = isWide ? Math.min(W - 28, 550) : Math.min(W - 24, 380);
+  const ch = isWide ? Math.min(H - 20, 316) : Math.min(H - 16, 440);
+  let cx = W/2 - cw/2, cy = Math.max(6, H/2 - ch/2);
+
+  if(dp.wrongT > 0){
+    cx += Math.sin(dp.wrongT * 50) * 7;
+  }
+
+  // 金屬門禁外殼
+  ctx.fillStyle = 'rgba(15,23,42,0.98)';
+  rrc(ctx, cx, cy, cw, ch, 16); ctx.fill();
+  ctx.strokeStyle = dp.successT > 0 ? '#34d399' : (dp.wrongT > 0 ? '#f87171' : '#38bdf8');
+  ctx.lineWidth = 2.5; ctx.stroke();
+
+  // 四角擬真防盜螺絲
+  ctx.fillStyle = '#475569';
+  [[cx+10,cy+10],[cx+cw-10,cy+10],[cx+10,cy+ch-10],[cx+cw-10,cy+ch-10]].forEach(([sx,sy])=>{
+    ctx.beginPath(); ctx.arc(sx, sy, 3, 0, Math.PI*2); ctx.fill();
+  });
+
+  if(isWide){
+    const colW = (cw - 44) / 2;
+    const lx = cx + 16, ly = cy + 14;
+    const rx = cx + 28 + colW, ry = cy + 14;
+
+    // 左欄：標題、備註提示、LCD 綠光液晶螢幕、開門確認鈕
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillStyle = '#38bdf8'; ctx.font = '900 17px system-ui,sans-serif';
+    ctx.fillText('🔢 大樓門禁系統', lx, ly);
+
+    ctx.fillStyle = '#94a3b8'; ctx.font = '700 12px system-ui,sans-serif';
+    ctx.fillText('計時暫停中・請按鍵輸入密碼', lx, ly + 22);
+
+    // 備註外送便條
+    const noteH = 46;
+    ctx.fillStyle = 'rgba(30,41,59,0.75)';
+    rrc(ctx, lx, ly + 40, colW, noteH, 8); ctx.fill();
+    ctx.strokeStyle = '#475569'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.fillStyle = '#cbd5e1'; ctx.font = '600 11.5px system-ui,sans-serif';
+    ctx.fillText('📝 顧客備註指示：', lx + 8, ly + 44);
+    ctx.fillStyle = '#fde68a'; ctx.font = '800 13px system-ui,sans-serif';
+    ctx.fillText(dp.note || ('密碼 ' + dp.targetCode), lx + 8, ly + 62, colW - 16);
+
+    // LCD 液晶顯示屏
+    const lcdY = ly + 40 + noteH + 10;
+    const lcdH = 74;
+    ctx.fillStyle = '#022c22';
+    rrc(ctx, lx, lcdY, colW, lcdH, 10); ctx.fill();
+    ctx.strokeStyle = dp.wrongT > 0 ? '#ef4444' : (dp.successT > 0 ? '#10b981' : '#059669');
+    ctx.lineWidth = 2; ctx.stroke();
+
+    ctx.fillStyle = dp.wrongT > 0 ? '#fca5a5' : '#6ee7b7';
+    ctx.font = '700 10.5px monospace';
+    const statusTxt = dp.successT > 0 ? 'ACCESS GRANTED [ 門禁已解除 ]' :
+                     (dp.wrongT > 0 ? 'ACCESS DENIED [ 密碼錯誤重試 ]' : 'DIGITAL ACCESS KEYPAD');
+    ctx.fillText(statusTxt, lx + 10, lcdY + 8);
+
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = dp.wrongT > 0 ? '#fca5a5' : '#4ade80';
+    ctx.font = '900 30px monospace,sans-serif';
+    const blink = Math.sin(dp.t * 8) > 0;
+    const dispTxt = (dp.inputCode || '') + (blink ? '_' : ' ');
+    ctx.fillText(dispTxt, lx + colW / 2, lcdY + 44);
+
+    // 開門確認鈕
+    const btnY = lcdY + lcdH + 10;
+    const btnH = ch - (btnY - cy) - 14;
+    ctx.fillStyle = dp.successT > 0 ? '#059669' : '#0284c7';
+    rrc(ctx, lx, btnY, colW, btnH, 10); ctx.fill();
+    ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.font = '900 15px system-ui,sans-serif';
+    ctx.fillText('🚪 確認送出／開門 (Enter)', lx + colW / 2, btnY + btnH / 2);
+    dp.rects.push({ key: 'OK', x: lx, y: btnY, w: colW, h: btnH });
+
+    // 右欄：3x4 實體金屬觸控鍵盤
+    const kw = colW, kh = ch - 28;
+    const kx = rx, ky = ry;
+    ctx.fillStyle = '#1e293b';
+    rrc(ctx, kx, ky, kw, kh, 12); ctx.fill();
+    ctx.strokeStyle = '#334155'; ctx.lineWidth = 1.5; ctx.stroke();
+
+    const keyRows = [
+      ['1', '2', '3'],
+      ['4', '5', '6'],
+      ['7', '8', '9'],
+      ['⌫', '0', '#']
+    ];
+    const padPad = 8, padGap = 6;
+    const bw = (kw - padPad * 2 - padGap * 2) / 3;
+    const bh = (kh - padPad * 2 - padGap * 3) / 4;
+
+    keyRows.forEach((row, ri) => {
+      row.forEach((k, ci) => {
+        const bx = kx + padPad + ci * (bw + padGap);
+        const by = ky + padPad + ri * (bh + padGap);
+        const isSpec = (k === '⌫' || k === '#');
+        ctx.fillStyle = isSpec ? '#334155' : '#0f172a';
+        rrc(ctx, bx, by, bw, bh, 8); ctx.fill();
+        ctx.strokeStyle = isSpec ? '#64748b' : '#475569'; ctx.lineWidth = 1.2; ctx.stroke();
+
+        ctx.fillStyle = isSpec ? '#fde047' : '#f8fafc';
+        ctx.font = '900 19px system-ui,sans-serif';
+        ctx.fillText(k, bx + bw / 2, by + bh / 2);
+        dp.rects.push({ key: k, x: bx, y: by, w: bw, h: bh });
+      });
+    });
+
+  } else {
+    // 直式或狹窄螢幕垂直排版
+    const px = cx + 14, pw = cw - 28;
+    let py = cy + 12;
+
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillStyle = '#38bdf8'; ctx.font = '900 16px system-ui,sans-serif';
+    ctx.fillText('🔢 大樓門禁系統', W/2, py);
+    py += 22;
+
+    ctx.fillStyle = 'rgba(30,41,59,0.75)';
+    rrc(ctx, px, py, pw, 32, 6); ctx.fill();
+    ctx.strokeStyle = '#475569'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.fillStyle = '#fde68a'; ctx.font = '800 12px system-ui,sans-serif';
+    ctx.fillText('📝 備註：' + (dp.note || dp.targetCode), W/2, py + 8, pw - 12);
+    py += 38;
+
+    const lcdH = 48;
+    ctx.fillStyle = '#022c22';
+    rrc(ctx, px, py, pw, lcdH, 8); ctx.fill();
+    ctx.strokeStyle = dp.wrongT > 0 ? '#ef4444' : (dp.successT > 0 ? '#10b981' : '#059669');
+    ctx.lineWidth = 2; ctx.stroke();
+
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = dp.wrongT > 0 ? '#fca5a5' : '#4ade80';
+    ctx.font = '900 24px monospace,sans-serif';
+    const blink = Math.sin(dp.t * 8) > 0;
+    const dispTxt = (dp.inputCode || '') + (blink ? '_' : ' ');
+    ctx.fillText(dispTxt, W/2, py + lcdH / 2);
+    py += lcdH + 8;
+
+    const keyRows = [
+      ['1', '2', '3'],
+      ['4', '5', '6'],
+      ['7', '8', '9'],
+      ['⌫', '0', '#']
+    ];
+    const padGap = 6;
+    const bw = (pw - padGap * 2) / 3;
+    const bh = Math.max(32, Math.min(42, (ch - (py - cy) - 48) / 4));
+
+    keyRows.forEach((row, ri) => {
+      row.forEach((k, ci) => {
+        const bx = px + ci * (bw + padGap);
+        const by = py + ri * (bh + padGap);
+        const isSpec = (k === '⌫' || k === '#');
+        ctx.fillStyle = isSpec ? '#334155' : '#1e293b';
+        rrc(ctx, bx, by, bw, bh, 8); ctx.fill();
+        ctx.strokeStyle = '#475569'; ctx.lineWidth = 1; ctx.stroke();
+        ctx.fillStyle = isSpec ? '#fde047' : '#fff';
+        ctx.font = '900 17px system-ui,sans-serif';
+        ctx.fillText(k, bx + bw / 2, by + bh / 2);
+        dp.rects.push({ key: k, x: bx, y: by, w: bw, h: bh });
+      });
+    });
+
+    const okY = py + 4 * (bh + padGap);
+    const okH = Math.max(34, ch - (okY - cy) - 10);
+    ctx.fillStyle = dp.successT > 0 ? '#059669' : '#0284c7';
+    rrc(ctx, px, okY, pw, okH, 8); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.font = '900 14px system-ui,sans-serif';
+    ctx.fillText('🚪 確認送出／開門', W/2, okY + okH / 2);
+    dp.rects.push({ key: 'OK', x: px, y: okY, w: pw, h: okH });
+  }
+
+  ctx.restore();
+}
+
+function hitKeypadPrompt(clientX, clientY){
+  if(!deliveryPromptActive || !deliveryPrompt || deliveryPrompt.kind !== 'keypad') return false;
+  const rect = cvs.getBoundingClientRect();
+  const x = clientX - rect.left, y = clientY - rect.top;
+  const rs = deliveryPrompt.rects || [];
+  for(let i = 0; i < rs.length; i++){
+    const r = rs[i];
+    if(x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h){
+      pressKeypadKey(r.key);
+      return true;
+    }
+  }
+  return true;
+}
+
+function pressKeypadKey(k){
+  if(!deliveryPromptActive || !deliveryPrompt || deliveryPrompt.kind !== 'keypad') return;
+  const dp = deliveryPrompt;
+  if(dp.successT > 0) return;
+
+  if(k === 'OK' || k === 'Enter'){
+    submitKeypadCode();
+    return;
+  }
+  if(k === '⌫' || k === 'Backspace'){
+    if(dp.inputCode.length > 0){
+      dp.inputCode = dp.inputCode.slice(0, -1);
+      sfx('click');
+    }
+    return;
+  }
+  if(['0','1','2','3','4','5','6','7','8','9','#'].includes(k)){
+    if(dp.inputCode.length >= 8) return;
+    dp.inputCode += k;
+    sfx('click');
+    if(dp.inputCode === dp.targetCode){
+      submitKeypadCode();
+    }
+  }
+}
+
+function submitKeypadCode(){
+  if(!deliveryPromptActive || !deliveryPrompt || deliveryPrompt.kind !== 'keypad') return;
+  const dp = deliveryPrompt;
+  if(dp.successT > 0) return;
+
+  const input = dp.inputCode.trim();
+  const target = dp.targetCode.trim();
+  const cleanInput = input.replace(/[^0-9]/g, '');
+  const cleanTarget = target.replace(/[^0-9]/g, '');
+
+  const isMatch = (input === target) || (cleanInput.length >= 3 && cleanInput === cleanTarget);
+
+  if(isMatch){
+    dp.successT = 0.45;
+    sfx('bell');
+    sfx('pickup');
+    vibrate([40, 40]);
+    pop(P.x, P.y - 45, '🔓 門禁解除！密碼正確', '#34d399', 20);
+    setTimeout(()=>{
+      if(deliveryPromptActive && deliveryPrompt === dp){
+        if(dp.special && !order.scenarioMistakes) order.scenarioBonus = true;
+        closeDeliveryPrompt();
+        completePrimaryDelivery();
+      }
+    }, 350);
+  } else {
+    dp.wrongT = 0.5;
+    order.violated = true;
+    order.noteViolated = true;
+    order.scenarioMistakes = (order.scenarioMistakes || 0) + 1;
+    sfx('empty');
+    vibrate([60, 50, 60]);
+    pop(P.x, P.y - 45, '❌ 密碼錯誤，評分 −30！再看一眼備註！', '#f87171', 18);
+    setTimeout(()=>{
+      if(deliveryPromptActive && deliveryPrompt === dp){
+        dp.inputCode = '';
+      }
+    }, 450);
+  }
+}
+
+function handleKeypadKey(key, e){
+  if(!deliveryPromptActive || !deliveryPrompt || deliveryPrompt.kind !== 'keypad') return;
+  if(key === 'Escape'){
+    if(deliveryPrompt.inputCode.length > 0){
+      e.preventDefault();
+      deliveryPrompt.inputCode = '';
+      sfx('click');
+    } else {
+      ensureAudio(); sfx('click'); openExitPrompt();
+    }
+    return;
+  }
+  if(key === 'Enter'){
+    e.preventDefault();
+    pressKeypadKey('OK');
+    return;
+  }
+  if(key === 'Backspace'){
+    e.preventDefault();
+    pressKeypadKey('⌫');
+    return;
+  }
+  if(['0','1','2','3','4','5','6','7','8','9','#','*'].includes(key)){
+    e.preventDefault();
+    pressKeypadKey(key === '*' ? '#' : key);
+    return;
+  }
+}
+
 function drawDeliveryPrompt(){
   if(!deliveryPromptActive || !deliveryPrompt) return;
   const dp = deliveryPrompt;
+  if(dp.kind === 'keypad'){
+    drawKeypadPrompt(dp);
+    return;
+  }
   ctx.save();
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   ctx.fillStyle = 'rgba(5,8,20,0.45)';
@@ -3967,6 +4406,10 @@ function drawDeliveryPrompt(){
 }
 function hitDeliveryPrompt(clientX, clientY){
   if(!deliveryPromptActive || !deliveryPrompt) return false;
+  if(deliveryPrompt.kind === 'keypad'){
+    return hitKeypadPrompt(clientX, clientY);
+  }
+  if(deliveryPrompt.answered) return true;
   const rect = cvs.getBoundingClientRect();
   const x = clientX - rect.left, y = clientY - rect.top;
   const rs = deliveryPrompt.rects || [];
@@ -6840,7 +7283,10 @@ function update(dt){
   else{
     if(!devGod && !deliveryPromptActive) order.time-=dt;
     if(deliveryPromptActive){
-      if(deliveryPrompt && deliveryPrompt.wrongT > 0) deliveryPrompt.wrongT = Math.max(0, deliveryPrompt.wrongT - dt);
+      if(deliveryPrompt){
+        if(deliveryPrompt.wrongT > 0) deliveryPrompt.wrongT = Math.max(0, deliveryPrompt.wrongT - dt);
+        if(deliveryPrompt.successT > 0) deliveryPrompt.successT = Math.max(0, deliveryPrompt.successT - dt);
+      }
       P.inv = Math.max(P.inv || 0, 0.15); // 作答期間不受撞擊
     }
     const tgt=getOrderTarget();
@@ -6862,6 +7308,7 @@ function update(dt){
           P.stopT = Math.max(P.stopT, 0.15);
           if(order.prepT <= 0){
             order.prepT = 0;
+            P.stopT = 0;
             addCoins(8);
             sfx('pickup');
             pop(order.shop.door.x, order.shop.door.y - 48, '✨「好囉！久等了～耽誤補償 🪙+8！」', '#34d399', 19);
@@ -6874,18 +7321,23 @@ function update(dt){
         // 若備註提到「門口有狗」，顧客門口必定生成一隻守門野狗，靠近時會狂吠追人！
         if(order.note && (order.note.includes('有狗') || order.note.includes('不要怕')) && order.cust && !order.dogSpawned){
           order.dogSpawned = true;
-          const cd = order.cust.door;
-          // 在顧客門口附近 40~75px 生成守門狗
-          const dogAngle = Math.random() * Math.PI * 2;
-          const dogDist = rand(45, 75);
-          const gx = clamp(cd.x + Math.cos(dogAngle) * dogDist, 40, MAP.w - 40);
-          const gy = clamp(cd.y + Math.sin(dogAngle) * dogDist, 40, MAP.h - 40);
+          const cust = order.cust;
+          const cd = cust.door;
+          // 守門狗必定生成在顧客門口騎樓踏墊旁（人行道側，不站在馬路中間）
+          let gx = cd.x, gy = cd.y;
+          if(cust.axis === 'h'){
+            gy = cust.side === 'top' ? (cd.y - 30) : (cd.y + 30);
+            gx = cd.x + (Math.random() < 0.5 ? -20 : 20);
+          } else {
+            gx = cust.side === 'left' ? (cd.x - 30) : (cd.x + 30);
+            gy = cd.y + (Math.random() < 0.5 ? -20 : 20);
+          }
           dogs.push({
             x: gx,
             y: gy,
-            dx: Math.cos(dogAngle),
-            dy: Math.sin(dogAngle),
-            wt: 2,
+            dx: 0,
+            dy: 0,
+            wt: 999,
             stun: 0,
             eat: 0,
             chase: false,
@@ -8470,6 +8922,7 @@ function drawWorld(now){
     }else{
       for(const hs of H_SEGS) if(Math.abs(ay-hs.y)<HALF+34 && ax>=hs.x0-HALF && ax<=hs.x1+HALF) return;
     }
+    for(const pl of places) if(dist({x:ax,y:ay}, pl.door) < 56) return;
     ctx.save(); ctx.translate(ax,ay); ctx.rotate(ang);
     ctx.beginPath();
     ctx.moveTo(17,0); ctx.lineTo(3,-9); ctx.lineTo(3,-4); ctx.lineTo(-14,-4);
@@ -8867,9 +9320,23 @@ function drawStreetDecor(p, now){
   const isTop = (p.side === 'top');
   const decorY = isTop ? (p.y + p.h - 32) : (p.y + 4);
 
+  const isRoadArea = (x, y, w, h) => {
+    const pts = [[x, y], [x + w, y], [x, y + h], [x + w, y + h], [x + w/2, y + h/2]];
+    for(const [px, py] of pts){
+      if(onRoad(px, py, 6)) return true;
+      for(const vs of V_SEGS){
+        if(Math.abs(px - vs.x) < HALF + 14 && py >= vs.y0 - HALF && py <= vs.y1 + HALF) return true;
+      }
+      for(const hs of H_SEGS){
+        if(Math.abs(py - hs.y) < HALF + 14 && px >= hs.x0 - HALF && px <= hs.x1 + HALF) return true;
+      }
+    }
+    return false;
+  };
+
   // 1. 店家/住戶左側：特色街頭小吃攤車 (🍢) 或 飲品自動販賣機 (🥤)
-  const leftX = p.x - 58;
-  if(inView(leftX - 10, decorY - 10, 52, 38)){
+  const leftX = p.x - 52;
+  if(!isRoadArea(leftX, decorY, 44, 30) && inView(leftX - 10, decorY - 10, 52, 38)){
     if(p.type === 'shop'){
       ctx.save();
       ctx.fillStyle = '#451a03';
@@ -8901,18 +9368,17 @@ function drawStreetDecor(p, now){
     }
   }
 
-  // 2. 店家/住戶右側：機車停放格 (🛵) 或 台灣經典紅白綠郵筒 (📮) ＆ 盆栽 (🪴)
-  const rightX = p.x + p.w + 12;
-  if(inView(rightX - 10, decorY - 10, 52, 38)){
+  // 2. 店家/住戶右側：綠意盆栽 (🪴) ＆ 木質休憩長凳 或 台灣經典紅白綠郵筒 (📮)
+  const rightX = p.x + p.w + 10;
+  if(!isRoadArea(rightX, decorY, 42, 28) && inView(rightX - 10, decorY - 10, 52, 38)){
     if(p.type === 'shop'){
       ctx.save();
-      ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.lineWidth = 1.2;
-      ctx.strokeRect(rightX, decorY + 4, 20, 24);
-      ctx.strokeRect(rightX + 22, decorY + 4, 20, 24);
-      ctx.fillStyle = '#0284c7'; rrc(ctx, rightX + 4, decorY + 6, 12, 18, 2); ctx.fill();
-      ctx.fillStyle = '#0f172a'; ctx.fillRect(rightX + 7, decorY + 10, 6, 8);
-      ctx.fillStyle = '#ec4899'; rrc(ctx, rightX + 26, decorY + 7, 12, 18, 2); ctx.fill();
-      ctx.fillStyle = '#0f172a'; ctx.fillRect(rightX + 29, decorY + 11, 6, 8);
+      // 綠化盆栽 🪴
+      ctx.fillStyle = '#78350f'; rrc(ctx, rightX + 4, decorY + 14, 12, 10, 2); ctx.fill();
+      ctx.fillStyle = '#15803d'; ctx.beginPath(); ctx.arc(rightX + 10, decorY + 11, 7, 0, Math.PI*2); ctx.fill();
+      // 人行道木質長凳
+      ctx.fillStyle = '#854d0e'; rrc(ctx, rightX + 20, decorY + 11, 20, 11, 2); ctx.fill();
+      ctx.fillStyle = '#451a03'; ctx.fillRect(rightX + 22, decorY + 22, 3, 4); ctx.fillRect(rightX + 35, decorY + 22, 3, 4);
       ctx.restore();
     } else {
       ctx.save();
@@ -10528,19 +10994,31 @@ function drawPlayer(now){
   ctx.restore();
 
   // 技巧 2：破風蓄力完成提示標籤
+  const isPreppingFood = !!(order && order.stage==='pickup' && order.prepT > 0);
   if(P.draftReady){
     ctx.save();
     ctx.font='900 10.5px system-ui,sans-serif';
     ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillStyle='rgba(14,116,144,0.95)';
-    const dy = P.y - ((P.stopT>0 || (order&&order.stage==='deliver')) ? (P.wrongWayT>0.55?74:54) : 34);
+    const dy = P.y - (((P.stopT>0 && !isPreppingFood) || (order&&order.stage==='deliver') || isPreppingFood) ? (P.wrongWayT>0.55?74:54) : 34);
     rrc(ctx, P.x-42, dy, 84, 17, 8); ctx.fill();
     ctx.strokeStyle='#38bdf8'; ctx.lineWidth=1.5; ctx.stroke();
     ctx.fillStyle='#fef08a';
     ctx.fillText('⚡ 破風蓄力・切出爆衝', P.x, dy+8.5);
     ctx.restore();
   }
-  if(P.stopT>0){
+  if(isPreppingFood){
+    ctx.save();
+    ctx.font='900 10.5px system-ui,sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillStyle='rgba(180,83,9,0.95)';
+    rrc(ctx,P.x-48,P.y-34,96,16,8); ctx.fill();
+    ctx.strokeStyle='#fde047'; ctx.lineWidth=1.2; ctx.stroke();
+    ctx.fillStyle='#ffffff';
+    const isDrink = order.specialType === 'drink';
+    ctx.fillText((isDrink ? '🧋 封膜製作中 ' : '🍳 餐點製作中 ') + order.prepT.toFixed(1) + 's', P.x, P.y-26);
+    ctx.restore();
+  }else if(P.stopT>0){
     ctx.save();
     ctx.font='900 10px system-ui,sans-serif';
     ctx.textAlign='center'; ctx.textBaseline='middle';
@@ -11294,8 +11772,19 @@ addEventListener('keydown',e=>{
   keys[k]=true;
   if(k==='m'){ensureAudio();setMuted(!muted);return;}
   if(k==='v'){ensureAudio();setVibEnabled(!vibEnabled);if(vibEnabled)vibrate(40);return;}
+  if(e.key==='F2'||k==='`'){
+    e.preventDefault();
+    ensureAudio();
+    sfx('click');
+    openDevPanel();
+    return;
+  }
   if(G.state==='play'){
     if(deliveryPromptActive){
+      if(deliveryPrompt && deliveryPrompt.kind === 'keypad'){
+        handleKeypadKey(e.key, e);
+        return;
+      }
       if(k==='1'||k==='2'||k==='3'){ e.preventDefault(); answerDeliveryPrompt(parseInt(k,10)-1); return; }
       if(k==='p') pauseGame();
       if(k==='escape') {ensureAudio();sfx('click');openExitPrompt();}
@@ -11420,6 +11909,44 @@ btn('garageCloseBtn',()=>showOnly('title'));
 btn('achBtn',()=>{renderAch();showOnly('achModal');});
 btn('achCloseBtn',()=>showOnly('title'));
 btn('howClose',()=>showOnly('title'));
+document.querySelectorAll('.verTap').forEach(el=>el.addEventListener('click',()=>{
+  devTapCount++;
+  clearTimeout(devTapTimer);
+  devTapTimer=setTimeout(()=>{devTapCount=0;},1500);
+  ensureAudio(); sfx('click');
+  if(devTapCount>=5){
+    openDevPanel();
+  }
+}));
+const hdb=$('hudDevBtn');
+if(hdb) hdb.addEventListener('click',e=>{e.stopPropagation();ensureAudio();sfx('click');openDevPanel();});
+const hdbt=$('hudDevBtnTitle');
+if(hdbt) hdbt.addEventListener('click',e=>{e.stopPropagation();ensureAudio();sfx('click');openDevPanel();});
+btn('devUnlockBtn',devUnlockAll);
+btn('devResetBtn',devResetProgress);
+btn('devGodBtn',()=>{devGod=!devGod;syncDevBtns();setDevStat('🛡️ 無敵模式已'+(devGod?'開啟（不扣血、訂單不逾時）':'關閉'));});
+btn('devGhostBtn',()=>{devGhost=!devGhost;syncDevBtns();setDevStat('👻 透明模式已'+(devGhost?'開啟（警察、野狗、路人不會追或攔截）':'關閉'));});
+btn('devSpeedBtn',()=>{devSpeed=!devSpeed;syncDevBtns();setDevStat('⚡ 極速模式已'+(devSpeed?'開啟（移動速度大幅提升）':'關閉'));});
+btn('devRefillBtn',devRefill);
+btn('devCoinsBtn',()=>{addCoins(1000);if($('garageModal').classList.contains('show'))renderGarage();setDevStat('🪙 已發放 +1000 金幣（目前：'+coins+'）');});
+btn('devWinBtn',devInstantWin);
+btn('devKeypadBtn',()=>{
+  if(G.state!=='play'&&G.state!=='pause'){
+    setDevStat('⚠️ 請先在遊戲中再點擊測試！');
+    return;
+  }
+  if(!order) newOrder();
+  if(order){
+    order.note='大樓密碼 1688#，直接上來就好';
+    order.stage='deliver';
+    order.deliveryPromptShown=false;
+    closeDevPanel();
+    openDeliveryPrompt();
+  }
+});
+btn('devEventBtn',()=>{triggerStageEvent(null,true);setDevStat('🎉 已觸發【'+curMap.name+'】專屬特殊事件！');});
+btn('devCloseBtn',closeDevPanel);
+$('devModal').addEventListener('click',e=>{if(e.target===$('devModal')){ensureAudio();sfx('click');closeDevPanel();}});
 btn('resumeBtn',resumeGame);
 $('tutOkBtn').addEventListener('click',()=>{if(tutLockT>0)return;ensureAudio();sfx('click');dismissTut();});
 $('tutModal').addEventListener('click',e=>{if(e.target===$('tutModal')&&tutLockT<=0){ensureAudio();sfx('click');dismissTut();}});
